@@ -12,6 +12,7 @@
 		<typeAlias type="com.pcwk.ehr.cmn.DTO" alias="DTO"/>
 		<typeAlias type="com.pcwk.ehr.user.domain.UserVO" alias="UserVO"/>
 		<typeAlias type="com.pcwk.ehr.report.domain.ReportVO" alias="ReportVO"/>
+		<!-- 희태 -->
 	</typeAliases>
 </configuration>
 
