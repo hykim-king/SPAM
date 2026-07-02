@@ -81,9 +81,33 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public int exitRoom(int chatRoomNo, int userNo) {
-		// TODO Auto-generated method stub
-		return 0;
+	@Transactional
+	public void exitRoom(int chatRoomNo, int userNo) {
+		
+		// 방 조회
+		ChatRoomVO searchRoom = chatRoomMapper.selectRoomByNo(chatRoomNo);
+		
+		// 판매자냐 구매자냐 -> 해당 나가기 처리
+		if(userNo == searchRoom.getSellerNo())
+		{
+			chatRoomMapper.updateSellerExit(chatRoomNo);
+		} else if(userNo == searchRoom.getBuyerNo())
+		{
+			chatRoomMapper.updateBuyerExit(chatRoomNo);
+		}
+		
+		// 나가기 후 최신 상태 다시 조회
+		ChatRoomVO updated = chatRoomMapper.selectRoomByNo(chatRoomNo);
+		
+		// 둘 다 나갔으면 삭제 (메시지 먼저 삭제 -> 방 삭제)
+		if("Y".equals(updated.getSellerExitYn()) && 
+				"Y".equals(updated.getBuyerExitYn()))
+		{
+			int flag = chatMessageMapper.deleteMessageByRoom(chatRoomNo);
+			log.debug("flag: "+ flag);
+			
+			flag = chatRoomMapper.deleteRoom(chatRoomNo);
+			log.debug("flag: "+ flag);
+		}
 	}
-
 }

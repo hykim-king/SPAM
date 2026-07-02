@@ -50,7 +50,7 @@ public interface ChatService {
 	 * @param memberNo   나가는 회원 번호 (세션에서 꺼낸 로그인 회원번호)
 	 * @return 처리 결과 행 수
 	 */
-	int exitRoom(int chatRoomNo, int userNo);
+	void exitRoom(int chatRoomNo, int userNo);
 	
 	
 }
