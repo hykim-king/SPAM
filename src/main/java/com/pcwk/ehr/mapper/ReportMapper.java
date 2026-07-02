@@ -24,4 +24,9 @@ public interface ReportMapper extends WorkDiv<ReportVO> {
      * 전체 신고 건수 조회
      */
     int totalCnt();
+
+	/**
+	 * 전체 신고 건수 삭제
+	 */
+	void deleteAll();
 }

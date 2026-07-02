@@ -1,51 +1,51 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.mapper.ReportMapper">
-
+	
+	<!-- 전체 신고 건수 삭제 -->
+	<delete id="deleteAll">
+		DELETE FROM REPORT_INFO 
+	</delete>
     <!-- 신고 등록 -->
     <insert id="doSave" parameterType="ReportVO">
-        INSERT INTO report_info (
-		    report_no,
-		    reporter_no,
-		    reported_user_no,
-		    admin_no,
-		    report_type,
-		    target_id,
-		    reason,
-		    report_status,
-		    create_dt,
-		    process_dt
-		) VALUES ( 
-					#{reportNo      },
-		           	#{reporterNo    },
-		           	#{reportedUserNo},
-		           	#{adminNo       },
-		           	#{reportType    },
-		           	#{targetId      },
-		           	#{reason        },
-		           	#{reportStatus  },
-		           	#{createDt      },
-		           	#{processDt     } 
-		)
+		INSERT INTO REPORT_INFO (
+		            REPORT_NO,
+		            REPORTER_NO,
+		            REPORTED_USER_NO,
+		            REPORT_TYPE,
+		            TARGET_ID,
+		            REASON,
+		            REPORT_STATUS,
+		            CREATE_DT
+		        ) VALUES (
+		            #{reportNo},
+		            #{reporterNo},
+		            #{reportedUserNo},
+		            #{reportType},
+		            #{targetId},
+		            #{reason},
+		            #{reportStatus},
+		            SYSDATE
+		        )
     </insert>
 
     <!-- 단건 삭제 -->
     <delete id="doDelete" parameterType="ReportVO">
-        DELETE FROM report_info WHERE report_no = #{reportNo}
+        DELETE FROM REPORT_INFO WHERE report_no = #{reportNo}
     </delete>
 
     <!-- 단건 조회 -->
     <select id="doSelectOne" parameterType="ReportVO">
-        SELECT * FROM report_info WHERE report_no = #{reportNo}
+        SELECT * FROM REPORT_INFO WHERE report_no = #{reportNo}
     </select>
 
     <!-- 목록 조회 (기본) -->
     <select id="doRetrieve" parameterType="DTO">
-        SELECT * FROM report_info
+        SELECT * FROM REPORT_INFO
     </select>
     
     <!-- 전체 건수 -->
     <select id="totalCnt" resultType="int">
-        SELECT COUNT(*) FROM report_info
+        SELECT COUNT(*) FROM REPORT_INFO
     </select>
 </mapper>
