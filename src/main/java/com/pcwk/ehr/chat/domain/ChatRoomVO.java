@@ -28,6 +28,9 @@ public class ChatRoomVO {
 
 	    /** 마지막 메시지 전송일 */
 	    private String lastMsgDt;
+	    
+	    /** 상품 거래 상태 */
+	    private String productStatus;
 
 	    public ChatRoomVO() {
 	    	

@@ -1,3 +1,109 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="mapper.chat.chatRoomMapper"></mapper>
+<mapper namespace="com.pcwk.ehr.chat.mapper.ChatRoomMapper">
+
+	<!-- 상품 + 구매자로 기존 방 조회 -->
+    <select id="selectRoomByUser" parameterType="ChatRoomVO" resultType="int">
+        SELECT CHAT_ROOM_NO
+          FROM CHAT_ROOM
+         WHERE PRODUCT_NO = #{productNo}
+           AND BUYER_NO   = #{buyerNo}
+    </select>	
+
+	<!-- 방 번호로 방 조회 -->
+    <select id="selectRoomByNo" parameterType="int" resultType="ChatRoomVO">
+    SELECT R.CHAT_ROOM_NO,
+           R.PRODUCT_NO,
+           R.SELLER_NO,
+           R.BUYER_NO,
+           R.ROOM_STATUS,
+           R.SELLER_EXIT_YN,
+           R.BUYER_EXIT_YN,
+           TO_CHAR(R.CREATE_DT,   'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT,
+           TO_CHAR(R.LAST_MSG_DT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MSG_DT,
+           P.STATUS AS PRODUCT_STATUS
+      FROM CHAT_ROOM R
+      JOIN PRODUCT P ON R.PRODUCT_NO = P.PRODUCT_NO
+     WHERE R.CHAT_ROOM_NO = #{chatRoomNo}
+    </select>
+    
+    <!-- 내 채팅방 목록 (내가 판매자거나 구매자인 방, 최근 순) -->
+    <select id="selectRoomListByMember" parameterType="int" resultType="ChatRoomVO">
+    SELECT R.CHAT_ROOM_NO,
+    	   R.PRODUCT_NO,
+    	   R.SELLER_NO,
+    	   R.BUYER_NO,
+    	   R.ROOM_STATUS,
+           R.SELLER_EXIT_YN,
+           R.BUYER_EXIT_YN,
+           TO_CHAR(R.CREATE_DT,   'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT,
+           TO_CHAR(R.LAST_MSG_DT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MSG_DT,
+           P.STATUS AS PRODUCT_STATUS
+      FROM CHAT_ROOM R
+      JOIN PRODUCT P ON R.PRODUCT_NO = P.PRODUCT_NO
+     WHERE (R.SELLER_NO = #{userNo} AND R.SELLER_EXIT_YN = 'N')
+        OR (R.BUYER_NO  = #{userNo} AND R.BUYER_EXIT_YN  = 'N')
+     ORDER BY R.LAST_MSG_DT DESC
+    </select>
+    
+    <!-- 새 채팅방 저장 -->
+    <insert id="insertRoom" parameterType="ChatRoomVO">
+        <selectKey keyProperty="chatRoomNo" resultType="int" order="BEFORE">
+            SELECT SEQ_CHAT_ROOM_NO.NEXTVAL FROM DUAL
+        </selectKey>
+        INSERT INTO CHAT_ROOM (
+            CHAT_ROOM_NO,
+            PRODUCT_NO,
+            SELLER_NO,
+            BUYER_NO,
+            ROOM_STATUS,
+            SELLER_EXIT_YN,
+            BUYER_EXIT_YN,
+            CREATE_DT,
+            LAST_MSG_DT
+        ) VALUES (
+            #{chatRoomNo},
+            #{productNo},
+            #{sellerNo},
+            #{buyerNo},
+            'A',
+            'N',
+            'N',
+            SYSDATE,
+            SYSDATE
+        )
+    </insert>
+    
+    <!-- 5. 마지막 메시지 시각 갱신 -->
+    <update id="updateLastMsgDt" parameterType="int">
+        UPDATE CHAT_ROOM
+           SET LAST_MSG_DT = SYSDATE
+         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    </update>
+    
+    <!-- 6. 판매자 나가기 처리 -->
+    <update id="updateSellerExit" parameterType="int">
+        UPDATE CHAT_ROOM
+           SET SELLER_EXIT_YN = 'Y'
+         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    </update>   
+
+    <!-- 7. 구매자 나가기 처리 -->
+    <update id="updateBuyerExit" parameterType="int">
+        UPDATE CHAT_ROOM
+           SET BUYER_EXIT_YN = 'Y'
+         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    </update>
+
+    <!-- 8. 방 삭제 -->
+    <delete id="deleteRoom" parameterType="int">
+        DELETE FROM CHAT_ROOM
+         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    </delete>
+
+
+
+
+
+
+</mapper>

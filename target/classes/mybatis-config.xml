@@ -12,6 +12,8 @@
 		<typeAlias type="com.pcwk.ehr.cmn.DTO" alias="DTO"/>
 		<typeAlias type="com.pcwk.ehr.user.domain.UserVO" alias="UserVO"/>
 		<typeAlias type="com.pcwk.ehr.report.domain.ReportVO" alias="ReportVO"/>
+		<typeAlias type="com.pcwk.ehr.chat.domain.ChatMessageVO" alias="ChatMessageVO"/>
+		<typeAlias type="com.pcwk.ehr.chat.domain.ChatRoomVO" alias="ChatRoomVO"/>
 
 	</typeAliases>
 </configuration>
