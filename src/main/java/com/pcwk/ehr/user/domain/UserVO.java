@@ -1,152 +1,234 @@
 package com.pcwk.ehr.user.domain;
 
-import com.pcwk.ehr.cmn.DTO;
+import java.io.Serializable;
+import java.util.Date;
 
-public class UserVO extends DTO {
-	// 카멜케이스
-	// ctrl+shift+y -> 소문자
-	// ctrl+shift+x : 대문자
-	private String userId;// 사용자ID
-	private String name;// 이름
-	private String password;// 비밀번호
+import org.springframework.format.annotation.DateTimeFormat;
 
-	private int login;// 로그인
-	private int recommend;// 추천
-	private String email;// 이메일
-	private Grade grade;// 등급
+public class UserVO implements Serializable {
 
-	private String regDt;// 등록일
-	
+    /*
+     * Serializable을 구현한 클래스에는 serialVersionUID를 두는 것이 안전
+     * 지금 프로젝트에서 세션에 UserVO를 저장하므로, WAS가 세션 직렬화를 할 수도 있음
+     */
+    private static final long serialVersionUID = 1L;
 
-	
-	// 전역변수
-	// Default 생성자 : alt+shift+s
-	// 인자있는 생성자
-	// getters/setters
-	// toString()
+    /*
+     * USER_NUM
+     * - 회원을 구분하는 내부 고유번호
+     * - DB에서는 PK이며 SEQ_USER_INFO.NEXTVAL로 생성
+     * - 사용자가 직접 입력하거나 수정하는 값 아님
+     */
+    private Long userNum;
 
-	public UserVO() {
-		super();
-	}
+    /*
+     * USER_ID
+     * - 01 정상/03 휴먼/04 정지 회원 기준 중복될 수 없음
+     * - 02 탈퇴 회원의 아이디는 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
+     */
+    private String userId;
 
-	public UserVO(String userId, String name, String password, int login, int recommend, String email, Grade grade,
-			String regDt) {
-		super();
-		this.userId = userId;
-		this.name = name;
-		this.password = password;
-		this.login = login;
-		this.recommend = recommend;
-		this.email = email;
-		this.grade = grade;
-		this.regDt = regDt;
-	}
+    /*
+     * PASSWORD
+     * - 회원가입 화면에서는 평문 비밀번호가 잠깐 들어옴
+     * - Service에서 PasswordUtil.hash()를 통해 SHA-256 해시값으로 바꾼 뒤 DB에 저장
+     * - 로그인 성공 후 반환되는 UserVO에서는 null로 제거
+     */
+    private String password;
 
-	//다음 등급 가져오기
-	public void upgrageLevel() {
-		Grade nextGrade = grade.getNextLevel();
-		
-		if(null == nextGrade) {
-			throw new IllegalArgumentException(this.grade+"은 등업 불가 합니다.");
-		}
-		else {
-			this.grade = nextGrade;
-		}
-	}
-	
-	
-	public String getUserId() {
-		return userId;
-	}
+    /*
+     * USER_NAME
+     * - NOT NULL
+     */
+    private String userName;
 
-	public void setUserId(String userId) {
-		this.userId = userId;
-	}
+    /*
+     * NICKNAME
+     * - 비어 있으면 Service에서 USER_NAME과 같은 값으로 기본 세팅
+     */
+    private String nickname;
 
-	public String getName() {
-		return name;
-	}
+    /*
+     * PHONE_NUM
+     * - 01 정상/03 휴먼/04 정지 회원 기준 중복 불가능
+     * - 02 탈퇴 회원의 전화번호는 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
+     */
+    private String phoneNum;
 
-	public void setName(String name) {
-		this.name = name;
-	}
+    /*
+     * EMAIL
+     * - 입력한 경우 01 정상/03 휴먼/04 정지 회원 기준 중복 불가능
+     * - 02 탈퇴 회원의 이메일은 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
+     */
+    private String email;
 
-	public String getPassword() {
-		return password;
-	}
+    /*
+     * BIRTH_DT
+     * - JSP의 <input type="date">는 yyyy-MM-dd 형식으로 값을 보냄
+     * - @DateTimeFormat 지정으로 Spring이 문자열을 Date로 변환하도록 함
+     */
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birthDt;
 
-	public void setPassword(String password) {
-		this.password = password;
-	}
+    /*
+     * USER_ROLE
+     * - 01: 일반회원
+     * - 02: 관리자
+     */
+    private String userRole;
 
-	public int getLogin() {
-		return login;
-	}
+    /*
+     * USER_STATUS
+     * - 01: 정상
+     * - 02: 탈퇴
+     * - 03: 휴먼
+     * - 04: 정지
+     */
+    private String userStatus;
 
-	public void setLogin(int login) {
-		this.login = login;
-	}
+    /*
+     * CREATE_DT
+     * - DB INSERT 시 SYSDATE로 저장
+     */
+    private Date createDt;
 
-	public int getRecommend() {
-		return recommend;
-	}
+    /*
+     * UPDATE_DT
+     * - 회원정보 수정, 비밀번호 변경, 상태/권한 변경 시 SYSDATE로 갱신
+     */
+    private Date updateDt;
 
-	public void setRecommend(int recommend) {
-		this.recommend = recommend;
-	}
+    /*
+     * WITHDRAW_DT
+     * - 회원탈퇴 처리 시 SYSDATE로 저장
+     */
+    private Date withdrawDt;
 
-	public String getEmail() {
-		return email;
-	}
+    public UserVO() {
+    }
 
-	public void setEmail(String email) {
-		this.email = email;
-	}
+    public Long getUserNum() {
+        return userNum;
+    }
 
-	public Grade getGrade() {
-		return grade;
-	}
+    public void setUserNum(Long userNum) {
+        this.userNum = userNum;
+    }
 
-	public void setGrade(Grade grade) {
-		this.grade = grade;
-	}
+    public String getUserId() {
+        return userId;
+    }
 
-	public String getRegDt() {
-		return regDt;
-	}
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
 
-	public void setRegDt(String regDt) {
-		this.regDt = regDt;
-	}
+    public String getPassword() {
+        return password;
+    }
 
-	@Override
-	public String toString() {
-		return "UserVO [userId=" + userId + ", name=" + name + ", password=" + password + ", login=" + login
-				+ ", recommend=" + recommend + ", email=" + email + ", grade=" + grade + ", regDt=" + regDt
-				+ ", toString()=" + super.toString() + "]";
-	}
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
-/**
- * 	단순한 데이터 그릇을 넘어 객체 지향적인 설계가 아주 잘 반영되어 있습니다. 
+    public String getUserName() {
+        return userName;
+    }
 
-	1. DTO 상속 (부모의 유산 활용)
-		public class UserVO extends DTO를 통해 아까 분석했던 DTO의 모든 기능(페이징, 검색 조건 등)을 그대로 물려받았습니다. 
-		덕분에 컨트롤러에서 UserVO 하나만 넘겨도 검색 결과와 페이지 정보를 모두 처리할 수 있게 된 거죠.
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-	2. 깔끔한 카멜케이스(Camel Case) 적용
-		DB 테이블 컬럼명은 USER_ID, REG_DT처럼 언더바를 쓰지만, 자바 객체에서는 userId, regDt로 완벽하게 변환했습니다. 
-		아까 mybatis-config.xml에서 설정했던 <setting name="mapUnderscoreToCamelCase" value="true"/> 설정 덕분에, MyBatis가 자동으로 이 매핑을 해줄 겁니다.
+    public String getNickname() {
+        return nickname;
+    }
 
-	3. 핵심은 upgrageLevel() 메서드
-		이 부분이 가장 인상적입니다! 보통 데이터만 담는 VO(Value Object)는 getter/setter만 있어야 한다고 생각하기 쉬운데, 
-		여기엔 '사용자의 등급을 올린다'는 비즈니스 로직이 직접 포함되어 있습니다.
-			- Grade라는 객체 내부의 getNextLevel()을 호출해서 다음 등급을 확인합니다.
-			- 만약 더 이상 등급을 올릴 수 없다면(null), IllegalArgumentException을 던져서 프로그램이 잘못된 로직으로 등급을 올리지 못하도록 안전장치를 걸어두었습니다.
-			- 객체 스스로 자신의 상태(등급)를 관리하는 아주 훌륭한 객체 지향 설계입니다.
+    public void setNickname(String nickname) {
+        this.nickname = nickname;
+    }
 
-	4. Grade 객체 사용
-		등급을 단순히 int 숫자(1, 2, 3)로만 관리하지 않고, Grade라는 별도의 객체 타입으로 관리하고 있네요. 
-		이건 등급의 종류가 바뀔 때 수정 범위를 최소화할 수 있는 아주 좋은 방법입니다.
- */
+    public String getPhoneNum() {
+        return phoneNum;
+    }
 
+    public void setPhoneNum(String phoneNum) {
+        this.phoneNum = phoneNum;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Date getBirthDt() {
+        return birthDt;
+    }
+
+    public void setBirthDt(Date birthDt) {
+        this.birthDt = birthDt;
+    }
+
+    public String getUserRole() {
+        return userRole;
+    }
+
+    public void setUserRole(String userRole) {
+        this.userRole = userRole;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
+
+    public Date getCreateDt() {
+        return createDt;
+    }
+
+    public void setCreateDt(Date createDt) {
+        this.createDt = createDt;
+    }
+
+    public Date getUpdateDt() {
+        return updateDt;
+    }
+
+    public void setUpdateDt(Date updateDt) {
+        this.updateDt = updateDt;
+    }
+
+    public Date getWithdrawDt() {
+        return withdrawDt;
+    }
+
+    public void setWithdrawDt(Date withdrawDt) {
+        this.withdrawDt = withdrawDt;
+    }
+
+    /*
+     * password는 해시값도 로그에 남기지 않는 편이 안전하기 때문에 출력하지 않음
+     */
+    @Override
+    public String toString() {
+        return "UserVO{" +
+                "userNum=" + userNum +
+                ", userId='" + userId + '\'' +
+                ", userName='" + userName + '\'' +
+                ", nickname='" + nickname + '\'' +
+                ", phoneNum='" + phoneNum + '\'' +
+                ", email='" + email + '\'' +
+                ", birthDt=" + birthDt +
+                ", userRole='" + userRole + '\'' +
+                ", userStatus='" + userStatus + '\'' +
+                ", createDt=" + createDt +
+                ", updateDt=" + updateDt +
+                ", withdrawDt=" + withdrawDt +
+                '}';
+    }
 }
