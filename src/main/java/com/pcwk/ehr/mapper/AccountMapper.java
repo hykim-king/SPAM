@@ -1,4 +1,4 @@
-package com.pcwk.ehr.account.mapper;
+package com.pcwk.ehr.mapper;
 
 import java.util.List;
 

@@ -26,6 +26,7 @@ public interface UserService {
 	int doUpdate(UserVO param);
 
 	/**
+	 * ],
 	 * 단건 삭제
 	 * 
 	 * @param param
