@@ -13,6 +13,7 @@
 		<typeAlias type="com.pcwk.ehr.time.domain.TimeVO" alias="TimeVO"/>
 		<typeAlias type="com.pcwk.ehr.user.domain.UserVO" alias="UserVO"/>
 		<typeAlias type="com.pcwk.ehr.report.domain.ReportVO" alias="ReportVO"/>
+		<typeAlias type="com.pcwk.ehr.account.domain.AccountVO" alias="AccountVO"/>
 	</typeAliases>
 </configuration>
 

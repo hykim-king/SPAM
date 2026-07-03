@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.mapper.AccountMapper">
+
+
+	<sql id="accountWhere">
+        <where>
+         <if test="searchWorld != null and searchWorld != ''">
+	         <choose>
+	         	<when test=" searchDiv == '10' ">
+	         		user_id LIKE #{searchWorld} || '%'
+	         	</when>
+	         	<when test=" searchDiv == '20' ">
+	         		name LIKE #{searchWorld} || '%'
+	         	</when>		                       
+	         	<when test=" searchDiv == '30' ">
+	         		email LIKE #{searchWorld} || '%'
+	         	</when>		
+	         	<otherwise>
+	         		
+	         	</otherwise>	                       
+	         </choose>
+         </if>     
+        </where>      
+    </sql>
+    
+    <select id="doRetrieve" 
+    	parameterType="com.pcwk.ehr.cmn.DTO" resultType="AccountVO">    	
+		  SELECT A.*,B.*
+		    FROM(
+		      SELECT tt1.account_id,                          
+		             tt1.user_num,                            
+		             tt1.bank_name,                           
+		             tt1.account_num,                         
+		             tt1.balance,                             
+		             TO_CHAR(tt1.create_dt,'YYYY/MM/DD') create_dt,                           
+		             TO_CHAR(tt1.update_dt,'YYYY/MM/DD') update_dt
+		        FROM(                                       
+		              SELECT ROWNUM rnum, t1.*                  
+		                FROM (                                  
+		                      SELECT *                              
+		                        FROM user_account         
+                               <include refid="accountWhere"></include>
+		                       ORDER BY  create_dt DESC                
+		               )t1                                      
+		            <![CDATA[    WHERE ROWNUM <= ( #{pageSize} * (#{pageNo} -1 ) + #{pageSize}  )  ]]>
+		        )tt1                                                                    
+		     <![CDATA[   WHERE rnum >= ( #{pageSize} * (#{pageNo} -1 ) + 1    ) ]]>    
+		   ) A CROSS JOIN (
+		      SELECT COUNT(*) total_cnt  
+		        FROM user_account 
+		        <include refid="accountWhere"></include> 
+		   ) B     
+    </select> 
+
+
+	<insert id="saveAll" parameterType="java.lang.Integer">
+		INSERT INTO user_account                             
+		SELECT LEVEL AS account_id,         
+			   LEVEL AS user_num,	     
+		       '기업은행'|| LEVEL AS bank_name,
+		       LEVEL AS account_num,
+		       10000 * LEVEL AS balance,          
+        	   SYSDATE AS create_dt,              
+        	   SYSDATE AS update_dt
+		  FROM dual                                    
+		  CONNECT BY LEVEL  <![CDATA[ <=  ]]> #{saveCount}      		            	
+	</insert>
+
+
+	<select id="doRetrieve" parameterType="DTO">
+        SELECT * FROM user_account
+    </select>
+	
+    <delete id="doDelete" parameterType="AccountVO">
+        DELETE FROM user_account WHERE account_id = #{accountId}
+    </delete>	
+	
+	<update id="doUpdate" parameterType="AccountVO">
+		UPDATE user_account
+		SET			 
+		    user_num    =   #{userNum},   
+		    bank_name   =   #{bankName},  
+		    account_num =   #{accountNum},
+		    balance     =   #{balance},		          
+		    update_dt   =   SYSDATE
+		WHERE
+			account_id  =   #{accountId}		         
+			
+	</update>
+	
+	<select id="doSelectOne" parameterType="AccountVO">
+        SELECT * FROM user_account WHERE account_id = #{accountId}
+    </select>	
+	
+	<select id="totalCnt" resultType="java.lang.Integer">
+		SELECT COUNT(*) AS total_cnt FROM user_account
+	</select>
+	
+	<insert id="doSave" parameterType="AccountVO">		
+		INSERT INTO user_account (
+		    account_id,
+		    user_num,
+		    bank_name,
+		    account_num,
+		    balance,
+		    create_dt,
+		    update_dt
+		) VALUES ( #{accountId},
+		           #{userNum},
+		           #{bankName},
+		           #{accountNum},
+		           #{balance},
+		           SYSDATE,
+		           SYSDATE )
+	
+	</insert>
+	
+	<delete id="deleteAll">
+		DELETE FROM user_account
+	</delete>
+	
+	
+</mapper>

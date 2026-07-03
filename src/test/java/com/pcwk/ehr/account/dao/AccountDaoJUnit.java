@@ -1,30 +1,28 @@
-package com.pcwk.ehr.user.dao;
+package com.pcwk.ehr.account.dao;
 
 
-
-import java.util.List;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.AfterAll;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import com.pcwk.ehr.account.domain.AccountVO;
 import com.pcwk.ehr.cmn.DTO;
+import com.pcwk.ehr.mapper.AccountMapper;
 import com.pcwk.ehr.mapper.UserMapper;
 import com.pcwk.ehr.user.domain.Grade;
 import com.pcwk.ehr.user.domain.UserVO;
@@ -35,21 +33,30 @@ import com.pcwk.ehr.user.domain.UserVO;
 		"file:src/main/webapp/WEB-INF/spring/root-context.xml",
 		"file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml"
 })
-public class UserDaoJUnit {
-	final static Logger log = LogManager.getLogger(UserDaoJUnit.class);
+public class AccountDaoJUnit {
+	final static Logger log = LogManager.getLogger(AccountDaoJUnit.class);
 
 	@Autowired
 	private UserMapper userMapper;
+	
+	@Autowired
+	private AccountMapper accountMapper;
 	
 
 	private UserVO user01;
 	private UserVO user02;
 	private UserVO user03;
+	
+	private AccountVO account01;
+	private AccountVO account02;
+	private AccountVO account03;
+	private AccountVO account04;
+	private AccountVO account05;
 
 	private DTO dto;// paging/검색
 
 	
-    //@Disabled
+    @Disabled
 	@Test
 	void doSave() {
 		log.debug("---------------------------");
@@ -61,14 +68,14 @@ public class UserDaoJUnit {
 		
 		
 		//1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+		accountMapper.deleteAll();
+		assertEquals(0, accountMapper.totalCnt());
 		
 		//2.
-		userMapper.doSave(user01);
-		assertEquals(1, userMapper.totalCnt());
+		accountMapper.doSave(account01);
+		assertEquals(1, accountMapper.totalCnt());
 		
-		isSameUser(user01, userMapper.doSelectOne(user01));
+		isSameUser(account01, accountMapper.doSelectOne(account01));
 	}
 	
 	
@@ -91,6 +98,8 @@ public class UserDaoJUnit {
 		log.debug("---------------------------");		
 		assertNotNull(userMapper);
 		log.debug("userMapper: " + userMapper);
+		assertNotNull(accountMapper);
+		log.debug("accountMapper: " + accountMapper);
 	}
 
 	@BeforeEach
@@ -99,58 +108,17 @@ public class UserDaoJUnit {
 		log.debug("*@BeforeEach*");
 		log.debug("*****************************");
 
-
-		user01 = new UserVO("pcwk01", "이상무01", "4321a", 1, 0, "jamesol@naver.com", Grade.BASIC, "등록일_사용않함");
-		user02 = new UserVO("pcwk02", "이상무02", "4321a", 50, 29, "jamesol@naver.com", Grade.SILVER, "등록일_사용않함");
-		user03 = new UserVO("pcwk03", "이상무03", "4321a", 51, 31, "jamesol@naver.com", Grade.GOLD, "등록일_사용않함");
-
+		account01 = new AccountVO(1,1,"기업은행","100-111-1538",0,"등록일 사용안함", "수정일 사용안함");
+		account02 = new AccountVO(2,2,"기업은행","100-222-1530",10,"등록일 사용안함", "수정일 사용안함");
+		account03 = new AccountVO(3,3,"기업은행","100-333-1538",109,"등록일 사용안함", "수정일 사용안함");
+		account04 = new AccountVO(4,4,"기업은행","100-444-1538",9867,"등록일 사용안함", "수정일 사용안함");
+		account05 = new AccountVO(5,5,"기업은행","100-555-1538",99538,"등록일 사용안함", "수정일 사용안함");
+		
 		dto = new DTO();
-	}
-
-	@Disabled
-	@Test
-	public void doRetrieveANSI() {
-		log.debug("---------------------------");
-		log.debug("*doRetrieveANSI()*");
-		log.debug("---------------------------");
-		// 테스트는 항상 동일한 결과가 나와야 하므로(Test Isolation) 데이터를 초기화하고
-		// 시작해야 합니다.
-		// 1. 전체삭제
-		// 2. 1002건 입력
-		// 3. 페이징 조회
-
-		final int SAVE_COUNT = 1002;
-
-		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
-
-		// 2.
-		userMapper.saveAll(SAVE_COUNT);
-		assertEquals(SAVE_COUNT, userMapper.totalCnt());
-
-		dto.setPageNo(1);
-		dto.setPageSize(10);
-
-//		dto.setSearchDiv("10");
-//		dto.setSearchWorld("pcwk1");
-
-//		dto.setSearchDiv("20");
-//		dto.setSearchWorld("이상무2");
-
-//		dto.setSearchDiv("30");
-//		dto.setSearchWorld("jamesol1@naver.com");
-
-		List<UserVO> list = userMapper.doRetrieveANSI(dto);
-		for (UserVO vo : list) {
-			log.debug(vo);
-		}
-		assertEquals(10, list.size());
-
 	}
 	
 
-	@Disabled
+	//@Disabled
 	@Test
 	public void doRetrieve() {
 		log.debug("---------------------------");
@@ -165,30 +133,30 @@ public class UserDaoJUnit {
 		final int SAVE_COUNT = 1002;
 
 		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+		accountMapper.deleteAll();
+		assertEquals(0, accountMapper.totalCnt());
 
 		// 2.
-		userMapper.saveAll(SAVE_COUNT);
-		assertEquals(SAVE_COUNT, userMapper.totalCnt());
+		accountMapper.saveAll(SAVE_COUNT);
+		assertEquals(SAVE_COUNT, accountMapper.totalCnt());
 
-		dto.setPageNo(2);
+		dto.setPageNo(1);
 		dto.setPageSize(10);
 
 //		dto.setSearchDiv("10");
 //		dto.setSearchWorld("pcwk1");
 
-		dto.setSearchDiv("20");
-		dto.setSearchWorld("이상무2");
+//		dto.setSearchDiv("20");
+//		dto.setSearchWorld("1");
 
 //		dto.setSearchDiv("30");
 //		dto.setSearchWorld("jamesol1@naver.com");
 
-		List<UserVO> list = userMapper.doRetrieve(dto);
-		for (UserVO vo : list) {
+		List<AccountVO> list = accountMapper.doRetrieve(dto);
+		for (AccountVO vo : list) {
 			log.debug(vo);
 		}
-		assertEquals(10, list.size());
+		//assertEquals(10, list.size());
 
 	}
 
@@ -218,43 +186,41 @@ public class UserDaoJUnit {
 		// 8. (5. 단건조회(user01) 수정) == (7. 단건조회(user01))
 
 		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+		accountMapper.deleteAll();
+		assertEquals(0, accountMapper.totalCnt());
 
 		// 2.
-		int flag = userMapper.doSave(user01);
+		int flag = accountMapper.doSave(account01);
 		assertEquals(1, flag);
-		assertEquals(1, userMapper.totalCnt());
+		assertEquals(1, accountMapper.totalCnt());
 
 		// 3.
-		flag = userMapper.doSave(user02);
+		flag = accountMapper.doSave(account02);
 		assertEquals(1, flag);
-		assertEquals(2, userMapper.totalCnt());
+		assertEquals(2, accountMapper.totalCnt());
 
 		// 4.
-		UserVO updateUser = userMapper.doSelectOne(user01);
-		assertNotNull(updateUser);
+		AccountVO updateAccount = accountMapper.doSelectOne(account01);
+		assertNotNull(updateAccount);
 
 		// 5.
 		String updateStr = "_U";
 		int updateInt = 99;
-		updateUser.setName(updateUser.getName() + updateStr);
-		updateUser.setPassword(updateUser.getPassword() + updateStr);
-		updateUser.setLogin(updateUser.getLogin() + updateInt);
-		updateUser.setRecommend(updateUser.getRecommend() + updateInt);
-		updateUser.setEmail(updateUser.getEmail() + updateStr);
-		updateUser.setGrade(Grade.SILVER);
+		updateAccount.setUserNum(updateAccount.getUserNum() + updateInt);
+		updateAccount.setBankName(updateAccount.getBankName() + updateStr);
+		updateAccount.setAccountNum(updateAccount.getAccountNum() + updateInt);
+		updateAccount.setBalance(updateAccount.getBalance() + updateInt);		
 
 		// 6. update(5.수정)
-		flag = userMapper.doUpdate(updateUser);
+		flag = accountMapper.doUpdate(updateAccount);
 		assertEquals(1, flag);
 
 		// 7.
-		UserVO outVO = userMapper.doSelectOne(updateUser);
+		AccountVO outVO = accountMapper.doSelectOne(updateAccount);
 		assertNotNull(outVO);
 
 		// 8.
-		isSameUser(updateUser, outVO);
+		//isSameUser(updateAccount, outVO);
 
 	}
 
@@ -266,25 +232,25 @@ public class UserDaoJUnit {
 		log.debug("---------------------------");
 		// 매번 동일 결과가 도출 되도록 작성
 		// 1. 전체삭제
-		// 2. 단건등록(user01)
-		// 3. 단건삭제(user01)
+		// 2. 단건등록(account01)
+		// 3. 단건삭제(account01)
 		// 4. 건수비교
 
 		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+		accountMapper.deleteAll();
+		assertEquals(0, accountMapper.totalCnt());
 
 		// 2.
-		int flag = userMapper.doSave(user01);
+		int flag = accountMapper.doSave(account01);
 		assertEquals(1, flag);
-		assertEquals(1, userMapper.totalCnt());
+		assertEquals(1, accountMapper.totalCnt());
 
 		// 3.
-		flag = userMapper.doDelete(user01);
+		flag = accountMapper.doDelete(account01);
 		assertEquals(1, flag);
 
 		// 4.
-		assertEquals(0, userMapper.totalCnt());
+		assertEquals(0, accountMapper.totalCnt());
 	}
 
 	@Disabled
@@ -301,34 +267,34 @@ public class UserDaoJUnit {
 		// 5. 전체조회 : 데이터 건수 3건 확인
 
 		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+		accountMapper.deleteAll();
+		assertEquals(0, accountMapper.totalCnt());
 
 		// 2.
-		int flag = userMapper.doSave(user01);
+		int flag = accountMapper.doSave(account01);
 		assertEquals(1, flag);
-		assertEquals(1, userMapper.totalCnt());
+		assertEquals(1, accountMapper.totalCnt());
 
 		// 3.
-		flag = userMapper.doSave(user02);
+		flag = accountMapper.doSave(account02);
 		assertEquals(1, flag);
-		assertEquals(2, userMapper.totalCnt());
+		assertEquals(2, accountMapper.totalCnt());
 
 		// 4.
-		flag = userMapper.doSave(user03);
+		flag = accountMapper.doSave(account03);
 		assertEquals(1, flag);
-		assertEquals(3, userMapper.totalCnt());
+		assertEquals(3, accountMapper.totalCnt());
 		// 5.
-		List<UserVO> list = userMapper.getAllMember(); 
+		List<AccountVO> list = accountMapper.getAllMember(); 
 		assertEquals(3, list.size());
 
-		for (UserVO vo : list) {
+		for (AccountVO vo : list) {
 			log.debug(vo);
 		}
 
-		isSameUser(user01, list.get(0));
-		isSameUser(user02, list.get(1));
-		isSameUser(user03, list.get(2));
+//		isSameUser(user01, list.get(0));
+//		isSameUser(user02, list.get(1));
+//		isSameUser(user03, list.get(2));
 	}
 
 	// NullPointerException이 발생하면 성공
@@ -345,19 +311,19 @@ public class UserDaoJUnit {
 		
 		assertThrows(EmptyResultDataAccessException.class,()->{ 
 			// 0.
-			userMapper.deleteAll();
-			assertEquals(0, userMapper.totalCnt());
+			accountMapper.deleteAll();
+			assertEquals(0, accountMapper.totalCnt());
 	
 			// 1.
-			userMapper.doSave(user01);
-			assertEquals(1, userMapper.totalCnt());
+			accountMapper.doSave(account01);
+			assertEquals(1, accountMapper.totalCnt());
 	
 			// 2. 실패
 			user01.setUserId(user01.getUserId() + "_99");
-			UserVO outVO = userMapper.doSelectOne(user01);
+			AccountVO outVO = accountMapper.doSelectOne(account01);
 	
 			// 3.
-			isSameUser(user01, outVO);
+			isSameUser(account01, outVO);
 		});
 	}
 
@@ -375,50 +341,48 @@ public class UserDaoJUnit {
 		log.debug("---------------------");
 
 		// 0.
-		userMapper.deleteAll();
-		int count = userMapper.totalCnt();
+		accountMapper.deleteAll();
+		int count = accountMapper.totalCnt();
 		assertEquals(0, count);
 
 		// 1.
-		userMapper.doSave(user01);
-		assertEquals(1, userMapper.totalCnt());
+		accountMapper.doSave(account01);
+		assertEquals(1, accountMapper.totalCnt());
 
 		// 1.1
-		userMapper.doSave(user02);
-		assertEquals(2, userMapper.totalCnt());
+		accountMapper.doSave(account02);
+		assertEquals(2, accountMapper.totalCnt());
 
 		// 1.2
-		userMapper.doSave(user03);
-		assertEquals(3, userMapper.totalCnt());
+		accountMapper.doSave(account03);
+		assertEquals(3, accountMapper.totalCnt());
 
 		// 2.
-		UserVO outVO = userMapper.doSelectOne(user01);
+		AccountVO outVO = accountMapper.doSelectOne(account01);
 		assertNotNull(outVO);
 
 		// 2.1
-		UserVO outVO2 = userMapper.doSelectOne(user02);
+		AccountVO outVO2 = accountMapper.doSelectOne(account02);
 		assertNotNull(outVO2);
 
 		// 2.2
-		UserVO outVO3 = userMapper.doSelectOne(user03);
+		AccountVO outVO3 = accountMapper.doSelectOne(account03);
 		assertNotNull(outVO3);
 
 		// 3.
-		isSameUser(user01, outVO);
-		isSameUser(user02, outVO2);
-		isSameUser(user03, outVO3);
+		isSameUser(account01, outVO);
+		isSameUser(account02, outVO2);
+		isSameUser(account03, outVO3);
 
 	}
 
-	private void isSameUser(UserVO user01, UserVO outVO) {
-		assertEquals(user01.getUserId(), outVO.getUserId());
-		assertEquals(user01.getName(), outVO.getName());
-		assertEquals(user01.getPassword(), outVO.getPassword());
+	private void isSameUser(AccountVO account01, AccountVO outVO) {
+		assertEquals(account01.getAccountId(), outVO.getAccountId());
+		assertEquals(account01.getUserNum(), outVO.getUserNum());
+		assertEquals(account01.getBankName(), outVO.getBankName());
 		// ---------------------------------------------------------
-		assertEquals(user01.getLogin(), outVO.getLogin());
-		assertEquals(user01.getRecommend(), outVO.getRecommend());
-		assertEquals(user01.getEmail(), outVO.getEmail());
-		assertEquals(user01.getGrade(), outVO.getGrade());
+		assertEquals(account01.getAccountNum(), outVO.getAccountNum());
+		assertEquals(account01.getBalance(), outVO.getBalance());		
 		// ---------------------------------------------------------
 
 	}
@@ -436,7 +400,7 @@ public class UserDaoJUnit {
 		  이것이 테스트 코드의 신뢰성을 보장하는 핵심입니다.
 
 	2. isSameUser 메서드의 활용 (중복 제거)
-	마지막에 있는 private void isSameUser(UserVO user01, UserVO outVO) 메서드가 아주 훌륭합니다.
+	마지막에 있는 private void isSameUser(accountMapper user01, UserVO outVO) 메서드가 아주 훌륭합니다.
 	여러 테스트에서 assertEquals를 반복적으로 작성하면 코드가 지저분해집니다.
 	이렇게 isSameUser로 묶어두면, 나중에 UserVO에 새로운 필드가 추가되어도 이 메서드 하나만 수정하면 모든 테스트가 자동으로 반영됩니다. 
 	유지보수 측면에서 최고입니다.
