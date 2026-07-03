@@ -2,11 +2,8 @@ package com.pcwk.ehr.account.service;
 
 import java.util.List;
 
-import org.springframework.dao.EmptyResultDataAccessException;
-
 import com.pcwk.ehr.account.domain.AccountVO;
 import com.pcwk.ehr.cmn.DTO;
-import com.pcwk.ehr.user.domain.UserVO;
 
 public interface AccountService {
 

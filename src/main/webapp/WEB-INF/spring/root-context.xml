@@ -74,9 +74,6 @@
 		<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
 	</bean>
 
-	<bean id="dummyMailService"
-		class="com.pcwk.ehr.user.service.DummyMailService"></bean>
-
 
 	<bean id="mailSenderImpl"
 		class="org.springframework.mail.javamail.JavaMailSenderImpl">
