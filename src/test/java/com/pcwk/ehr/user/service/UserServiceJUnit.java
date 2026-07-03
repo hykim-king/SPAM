@@ -1,224 +1,343 @@
 package com.pcwk.ehr.user.service;
 
-import static com.pcwk.ehr.user.service.UserServiceImpl.MIN_LOGIN_COUNT_FOR_SILVER;
-import static com.pcwk.ehr.user.service.UserServiceImpl.MIN_RECOMMEND_FOR_GOLD;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.util.Arrays;
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.annotation.Transactional;
 
-import com.pcwk.ehr.mapper.UserMapper;
-import com.pcwk.ehr.user.domain.Grade;
+import com.pcwk.ehr.user.domain.UserSearchDTO;
 import com.pcwk.ehr.user.domain.UserVO;
 
-//스프링 테스트(spring-test) 컨텍스트 프레임워크의 JUnit확장 기능
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(locations = { 
-		"file:src/main/webapp/WEB-INF/spring/root-context.xml",
-		"file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml"
+@ContextConfiguration(locations = {
+        "file:src/main/webapp/WEB-INF/spring/root-context.xml"
 })
+@Transactional
+@Rollback
 class UserServiceJUnit {
 
-	final static Logger log = LogManager.getLogger(UserServiceJUnit.class);
+    @Autowired
+    private UserService userService;
 
-	@Autowired
-	private ApplicationContext context;
+    private String uniqueValue;
 
-//	사용자 등급 : BASIC, SILVER, GOLD
-//	- BASIC : 최초가입
-//	- SILVER : 가입 후 50회 이상 로그
-//	- GOLD   : SILVER이면서 추천 30회
-//
-//	------------------------------------------
-//	- 사용자 등업은 정기적으로 일관 등업(트랜잭션)
-//	- 등업 대상들에게 EMAIL로 알림
-//	==========================================	
+    @BeforeEach
+    void setUp(TestInfo testInfo) {
+        uniqueValue = String.valueOf(System.currentTimeMillis());
+        logStart(testInfo.getDisplayName());
+        log("테스트 고유값", uniqueValue);
+    }
 
-	List<UserVO> members;
+    @Test
+    @DisplayName("Service Bean 주입 확인")
+    void serviceBeanInjectionTest() {
+        logStep("GIVEN", "root-context.xml에서 UserServiceImpl이 Spring Bean으로 등록되어 있어야 함");
 
-	@Autowired
-	UserServiceImpl userService;
+        assertNotNull(userService, "userService가 null이면 component-scan 설정을 확인해야 합니다.");
 
-	@Autowired
-	UserMapper userMapper;
+        logPass("UserService Bean 주입 성공");
+    }
 
+    @Test
+    @DisplayName("회원가입 후 로그인 성공")
+    void joinAndLoginTest() {
+        String userId = "svc" + uniqueValue;
+        String rawPassword = "1234";
+        UserVO joinUser = createJoinUser(userId, rawPassword, makePhone("2101"), "svc" + uniqueValue + "@test.com");
 
-	@BeforeEach
-	void setUp() throws Exception {
-		log.debug("*****************************");
-		log.debug("*@BeforeEach*");
-		log.debug("*****************************");
+        logStep("GIVEN", "회원가입 입력값 준비");
+        logUser("회원가입 입력값", joinUser);
 
-		members = Arrays.asList(
-				new UserVO("pcwk01", "이상무01", "4321a", MIN_LOGIN_COUNT_FOR_SILVER - 1, MIN_RECOMMEND_FOR_GOLD - 30,
-						"jamesol@naver.com", Grade.BASIC, "등록일_사용않함"),
-				// BASIC -> SILVER
-				new UserVO("pcwk02", "이상무02", "4321a", MIN_LOGIN_COUNT_FOR_SILVER, MIN_RECOMMEND_FOR_GOLD - 29,
-						"jamesol@naver.com", Grade.BASIC, "등록일_사용않함"),
-				new UserVO("pcwk03", "이상무03", "4321a", MIN_LOGIN_COUNT_FOR_SILVER + 1, MIN_RECOMMEND_FOR_GOLD - 1,
-						"jamesol@naver.com", Grade.SILVER, "등록일_사용않함"),
-				// SILVER -> GOLD
-				new UserVO("pcwk04", "이상무04", "4321a", MIN_LOGIN_COUNT_FOR_SILVER + 5, MIN_RECOMMEND_FOR_GOLD,
-						"jamesol@naver.com", Grade.SILVER, "등록일_사용않함"),
-				new UserVO("pcwk05", "이상무05", "4321a", MIN_LOGIN_COUNT_FOR_SILVER + 49, MIN_RECOMMEND_FOR_GOLD + 1,
-						"jamesol@naver.com", Grade.GOLD, "등록일_사용않함")
+        int joinCount = userService.join(joinUser);
 
-		);
-	}
+        logStep("WHEN", "userService.join(joinUser) 실행");
+        log("회원가입 처리 건수", joinCount);
 
-	@Disabled
-	@Test
-	void doSave() {
-		log.debug("---------------------");
-		log.debug("@Test doSave()");
-		log.debug("---------------------");
-		// 테스트는 항상 동일한 결과가 나와야 하므로(Test Isolation) 데이터를 초기화하고
-		// 시작해야 합니다.
-		// 1. 전체삭제
-		// 2. 등급 있는 사용자 등록 비교: pcwk02
-		// 3. 등급 없는 사용자 등록 비교: Grade.BASIC
+        assertEquals(1, joinCount, "회원가입 INSERT는 1건이어야 합니다.");
 
-		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+        UserVO loginUser = userService.login(userId, rawPassword);
 
-		// 2. 등급 있는 사용자 등록 비교: pcwk02(BASIC)
-		userService.doSave(members.get(1));
-		assertEquals(1, userMapper.totalCnt());
-		checkGrade(members.get(1), false);
+        logStep("WHEN", "userService.login(userId, rawPassword) 실행");
+        logUser("로그인 결과", loginUser);
 
-		// 3. 등급 있는 사용자 등록 비교: pcwk05(BASIC)
-		UserVO userNullGrade = members.get(4);
-		userNullGrade.setGrade(null);
+        assertNotNull(loginUser, "로그인 성공 시 UserVO가 반환되어야 합니다.");
+        assertNotNull(loginUser.getUserNum(), "로그인 성공 회원은 USER_NUM이 있어야 합니다.");
+        assertEquals(userId, loginUser.getUserId());
+        assertEquals("01", loginUser.getUserRole());
+        assertEquals("01", loginUser.getUserStatus());
+        assertNull(loginUser.getPassword(), "로그인 후 세션용 객체에는 password가 null이어야 합니다.");
 
-		log.debug("userNullGrade: " + userNullGrade);
-		userService.doSave(userNullGrade);
-		assertEquals(2, userMapper.totalCnt());
-		checkGrade(userMapper.doSelectOne(userNullGrade), false);
-	}
+        logPass("회원가입 후 로그인 성공 확인 완료");
+    }
 
-	//@Disabled
-	@Test
-	void upgradeLevels() throws Exception {
-		log.debug("---------------------");
-		log.debug("@Test upgradeLevels()");
-		log.debug("---------------------");
-		// 테스트는 항상 동일한 결과가 나와야 하므로(Test Isolation) 데이터를 초기화하고
-		// 시작해야 합니다.
-		// 1. 전체삭제
-		// 2. 5명 등록
-		// 3. 2명 등업
-		// 4. 등업 대상 비교: pcwk02, pcwk04
+    @Test
+    @DisplayName("01 정상 회원 아이디 중복 가입 방지")
+    void duplicateUserIdJoinFailTest() {
+        String sameUserId = "dupId" + uniqueValue;
+        UserVO firstUser = createJoinUser(sameUserId, "1234", makePhone("2201"), "first" + uniqueValue + "@test.com");
+        UserVO secondUser = createJoinUser(sameUserId, "1234", makePhone("2202"), "second" + uniqueValue + "@test.com");
 
-		// 1.
-		userMapper.deleteAll();
-		assertEquals(0, userMapper.totalCnt());
+        logStep("GIVEN", "첫 번째 회원가입 후 같은 USER_ID로 두 번째 가입 시도");
+        userService.join(firstUser);
+        logPass("첫 번째 회원가입 성공");
 
-		// 2.
-		for (UserVO vo : members) {
-			userMapper.doSave(vo);
-		}
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.join(secondUser)
+        );
 
-		assertEquals(members.size(), userMapper.totalCnt());
+        log("발생한 예외 메시지", exception.getMessage());
+        assertTrue(exception.getMessage().contains("아이디"));
 
-		// 3.
-		this.userService.upgradeLevels();
+        logPass("01 정상 회원 아이디 중복 방지 확인 완료");
+    }
 
-		// 4.
-		checkGrade(members.get(0), false);
-		checkGrade(members.get(1), true);
-		checkGrade(members.get(2), false);
-		checkGrade(members.get(3), true);
-		checkGrade(members.get(4), false);
+    @Test
+    @DisplayName("01 정상 회원 전화번호 중복 가입 방지")
+    void duplicatePhoneNumJoinFailTest() {
+        String samePhone = makePhone("2301");
+        UserVO firstUser = createJoinUser("phoneA" + uniqueValue, "1234", samePhone, "phoneA" + uniqueValue + "@test.com");
+        UserVO secondUser = createJoinUser("phoneB" + uniqueValue, "1234", samePhone, "phoneB" + uniqueValue + "@test.com");
 
-	}
+        logStep("GIVEN", "두 회원이 같은 전화번호를 사용하도록 준비");
+        userService.join(firstUser);
+        logPass("첫 번째 회원가입 성공");
 
-	/**
-	 * 등업 확인
-	 * 
-	 * @param user
-	 * @param true(등업), false(not 등업)
-	 */
-	private void checkGrade(UserVO user, boolean upgraded) {
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.join(secondUser)
+        );
 
-		UserVO updateGradeUser = userMapper.doSelectOne(user);
+        log("발생한 예외 메시지", exception.getMessage());
+        assertTrue(exception.getMessage().contains("전화번호"));
 
-		// true(등업)
-		if (true == upgraded) {
-			assertEquals(updateGradeUser.getGrade(), user.getGrade().getNextLevel());
-			// false(not 등업)
-		} else {
-			assertEquals(updateGradeUser.getGrade(), user.getGrade());
-		}
+        logPass("01 정상 회원 전화번호 중복 방지 확인 완료");
+    }
 
-	}
+    @Test
+    @DisplayName("01 정상 회원 이메일 중복 가입 방지")
+    void duplicateEmailJoinFailTest() {
+        String sameEmail = "same" + uniqueValue + "@test.com";
+        UserVO firstUser = createJoinUser("emailA" + uniqueValue, "1234", makePhone("2401"), sameEmail);
+        UserVO secondUser = createJoinUser("emailB" + uniqueValue, "1234", makePhone("2402"), sameEmail);
 
-	@AfterEach
-	void tearDown() throws Exception {
-		log.debug("*****************************");
-		log.debug("*@AfterEach*");
-		log.debug("*****************************");
-	}
+        logStep("GIVEN", "두 회원이 같은 이메일을 사용하도록 준비");
+        userService.join(firstUser);
+        logPass("첫 번째 회원가입 성공");
 
-	@Disabled
-	@Test
-	void beans() {
-		log.debug("---------------------");
-		log.debug("@Test beans()");
-		log.debug("---------------------");
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.join(secondUser)
+        );
 
-		assertNotNull(context);
-		assertNotNull(userService);
-		assertNotNull(userMapper);
+        log("발생한 예외 메시지", exception.getMessage());
+        assertTrue(exception.getMessage().contains("이메일"));
 
+        logPass("01 정상 회원 이메일 중복 방지 확인 완료");
+    }
 
-		log.debug("context: " + context);
-		log.debug("userService: " + userService);
-		log.debug("userMapper: " + userMapper);
+    @Test
+    @DisplayName("탈퇴 회원 아이디/전화번호/이메일 재사용 가입 가능")
+    void withdrawnUserRejoinSameIdentityTest() {
+        String sameUserId = "rejoin" + uniqueValue;
+        String samePhone = makePhone("2501");
+        String sameEmail = "rejoin" + uniqueValue + "@test.com";
+        String rawPassword = "1234";
 
-	}
+        UserVO firstUser = createJoinUser(sameUserId, rawPassword, samePhone, sameEmail);
 
-	/**
-	대장, UserServiceJUnit.java는 우리 프로젝트의 비즈니스 로직(업무 규칙)을 검증하는 핵심 성지입니다. 
-	DAO 테스트가 "데이터가 잘 들어가는가?"를 묻는다면, 이 테스트는 "우리 회사의 등급 정책이 정확히 계산되는가?"를 증명하고 있습니다.
-	이 클래스에서 특히 인상 깊은 부분들을 짚어 드릴게요.
+        logStep("GIVEN", "첫 번째 회원가입 후 탈퇴 처리");
+        userService.join(firstUser);
 
-	1. 테스트용 데이터의 정교함 (Boundary Test)
-	setUp() 메서드에 정의된 members 리스트를 보세요. 단순히 아무 데이터나 넣은 것이 아닙니다!
-	- 경계값 테스트(Boundary Value Analysis):
-		- MIN_LOGIN_COUNT_FOR_SILVER - 1: 등업 기준치 바로 직전(BASIC 유지)
-		- MIN_LOGIN_COUNT_FOR_SILVER: 등업 기준치 딱 맞음(SILVER로 등업)
-		- MIN_RECOMMEND_FOR_GOLD: GOLD 등업 기준치 딱 맞음
-	이렇게 조건의 경계에 있는 값들을 테스트 데이터로 사용하여, 로직이 조건문을 얼마나 정확하게 판단하는지 확인하고 있습니다. 이건 아주 수준 높은 테스트 설계입니다.
+        UserVO firstLoginUser = userService.login(sameUserId, rawPassword);
+        logUser("첫 번째 로그인 회원", firstLoginUser);
 
-	2. checkGrade 메서드의 통찰력
-	private void checkGrade(UserVO user, boolean upgraded) 이 메서드는 테스트 코드의 가독성을 극대화합니다.
-	- 의도 명확화: if (upgraded)를 통해 "이 사람은 등급이 올라야 정상이다", "아니면 그대로여야 정상이다"라는 비즈니스적 의도를 테스트 코드에 명확히 표현했습니다.
-	단순히 값을 비교하는 것을 넘어, '무엇이 성공인가'에 대한 기준을 정의한 것이죠.
+        int withdrawCount = userService.withdrawUser(firstLoginUser.getUserNum(), rawPassword);
+        log("탈퇴 처리 건수", withdrawCount);
+        assertEquals(1, withdrawCount, "탈퇴 처리는 1건이어야 합니다.");
 
-	3. 업무 시나리오 검증: upgradeLevels()
-	이 테스트 메서드는 UserServiceImpl의 가장 중요한 로직을 검증합니다.
-	- 5명의 회원을 등록하고 upgradeLevels()를 실행한 뒤, 각각의 회원이 의도대로 등급이 올랐는지(혹은 그대로인지) checkGrade로 순서대로 확인합니다.
-	- 통합 테스트의 예시: DB와 연동되어 있고, 서비스 로직이 동작하고, 다시 DB를 확인하는 흐름이므로 이 테스트가 통과한다는 것은 
-					'우리의 비즈니스 규칙이 시스템적으로 완벽하게 구현되었다'는 강력한 보증수표가 됩니다.
+        logStep("WHEN", "탈퇴한 계정과 같은 아이디/전화번호/이메일로 재가입 시도");
+        UserVO secondUser = createJoinUser(sameUserId, "5678", samePhone, sameEmail);
+        int rejoinCount = userService.join(secondUser);
+        log("재가입 처리 건수", rejoinCount);
 
-	4. 분석 현황
-	이제 DAO(데이터 저장)와 Service(비즈니스 로직)의 테스트까지 완벽하게 파악했습니다.
-	마지막 남은 테스트는 com.pcwk.ehr.user.controller 패키지입니다. 
-	컨트롤러 테스트는 실제 웹 브라우저처럼 요청을 보내고 응답을 검증하는 방식(보통 MockMvc를 사용하죠)일 텐데, 
-	이 녀석까지 보면 대장의 프로젝트 분석은 완전 정복입니다!
-	 */
+        assertEquals(1, rejoinCount, "탈퇴 회원의 아이디/전화번호/이메일은 재가입에 사용할 수 있어야 합니다.");
+
+        UserVO secondLoginUser = userService.login(sameUserId, "5678");
+        logUser("재가입 후 로그인 회원", secondLoginUser);
+
+        assertNotNull(secondLoginUser);
+        assertEquals("01", secondLoginUser.getUserStatus());
+
+        logPass("탈퇴 회원 정보 재사용 가입 정책 확인 완료");
+    }
+
+    @Test
+    @DisplayName("탈퇴한 기존 계정으로 로그인 불가")
+    void withdrawnOldAccountLoginFailTest() {
+        String userId = "wdLogin" + uniqueValue;
+        String password = "1234";
+        UserVO joinUser = createJoinUser(userId, password, makePhone("2601"), "wdLogin" + uniqueValue + "@test.com");
+
+        logStep("GIVEN", "회원가입 후 탈퇴 처리");
+        userService.join(joinUser);
+        UserVO loginUser = userService.login(userId, password);
+        userService.withdrawUser(loginUser.getUserNum(), password);
+
+        logStep("WHEN", "탈퇴한 기존 계정으로 로그인 시도");
+        IllegalStateException exception = assertThrows(
+                IllegalStateException.class,
+                () -> userService.login(userId, password)
+        );
+
+        log("발생한 예외 메시지", exception.getMessage());
+        assertTrue(exception.getMessage().contains("탈퇴"));
+
+        logPass("탈퇴 계정 로그인 차단 확인 완료");
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 시 01 정상 회원 전화번호 중복 방지")
+    void updateDuplicatePhoneNumFailTest() {
+        UserVO userA = createJoinUser("updPhoneA" + uniqueValue, "1234", makePhone("2701"), "updPhoneA" + uniqueValue + "@test.com");
+        UserVO userB = createJoinUser("updPhoneB" + uniqueValue, "1234", makePhone("2702"), "updPhoneB" + uniqueValue + "@test.com");
+
+        userService.join(userA);
+        userService.join(userB);
+
+        UserVO loginA = userService.login(userA.getUserId(), "1234");
+        UserVO loginB = userService.login(userB.getUserId(), "1234");
+
+        UserVO updateB = createUpdateUser(loginB.getUserNum(), "수정자", "수정닉", loginA.getPhoneNum(), "updChange" + uniqueValue + "@test.com");
+
+        logStep("WHEN", "B 회원이 A 회원의 전화번호로 변경 시도");
+
+        IllegalArgumentException exception = assertThrows(
+                IllegalArgumentException.class,
+                () -> userService.updateUser(updateB)
+        );
+
+        log("발생한 예외 메시지", exception.getMessage());
+        assertTrue(exception.getMessage().contains("전화번호"));
+
+        logPass("회원정보 수정 시 전화번호 중복 방지 확인 완료");
+    }
+
+    @Test
+    @DisplayName("회원정보 수정 시 탈퇴 회원 전화번호는 중복 검사 제외")
+    void updateWithdrawnPhoneNumAllowedTest() {
+        UserVO userA = createJoinUser("wdPhoneA" + uniqueValue, "1234", makePhone("2801"), "wdPhoneA" + uniqueValue + "@test.com");
+        UserVO userB = createJoinUser("wdPhoneB" + uniqueValue, "1234", makePhone("2802"), "wdPhoneB" + uniqueValue + "@test.com");
+
+        userService.join(userA);
+        userService.join(userB);
+
+        UserVO loginA = userService.login(userA.getUserId(), "1234");
+        UserVO loginB = userService.login(userB.getUserId(), "1234");
+
+        userService.withdrawUser(loginA.getUserNum(), "1234");
+
+        UserVO updateB = createUpdateUser(loginB.getUserNum(), "수정자", "수정닉", userA.getPhoneNum(), "wdPhoneChange" + uniqueValue + "@test.com");
+
+        logStep("WHEN", "B 회원이 탈퇴한 A 회원의 전화번호로 변경 시도");
+        int updateCount = userService.updateUser(updateB);
+
+        log("회원정보 수정 건수", updateCount);
+        assertEquals(1, updateCount, "탈퇴 회원의 전화번호는 수정 시 재사용 가능해야 합니다.");
+
+        logPass("회원정보 수정 시 탈퇴 회원 전화번호 재사용 확인 완료");
+    }
+
+    @Test
+    @DisplayName("관리자 회원목록 조회")
+    void userListTest() {
+        UserSearchDTO searchDTO = new UserSearchDTO();
+        searchDTO.setPageNo(1);
+        searchDTO.setPageSize(10);
+
+        logStep("WHEN", "관리자 회원목록 조회 실행");
+        List<UserVO> userList = userService.getUserList(searchDTO);
+        int totalCount = userService.getUserTotalCount(searchDTO);
+
+        log("조회 목록 크기", userList.size());
+        log("전체 회원 수", totalCount);
+
+        assertNotNull(userList, "회원목록은 null이면 안 됩니다.");
+        assertTrue(totalCount >= userList.size(), "전체 건수는 현재 페이지 목록 수보다 크거나 같아야 합니다.");
+
+        logPass("관리자 회원목록 조회 확인 완료");
+    }
+
+    private UserVO createJoinUser(String userId, String password, String phoneNum, String email) {
+        UserVO user = new UserVO();
+        user.setUserId(userId);
+        user.setPassword(password);
+        user.setUserName("테스트");
+        user.setNickname("테스터");
+        user.setPhoneNum(phoneNum);
+        user.setEmail(email);
+        return user;
+    }
+
+    private UserVO createUpdateUser(Long userNum, String userName, String nickname, String phoneNum, String email) {
+        UserVO user = new UserVO();
+        user.setUserNum(userNum);
+        user.setUserName(userName);
+        user.setNickname(nickname);
+        user.setPhoneNum(phoneNum);
+        user.setEmail(email);
+        return user;
+    }
+
+    private String makePhone(String middle) {
+        String last4 = uniqueValue.substring(uniqueValue.length() - 4);
+        return "010-" + middle + "-" + last4;
+    }
+
+    private void logUser(String title, UserVO user) {
+        System.out.println("  - " + title + " :");
+        System.out.println("    userNum    = " + user.getUserNum());
+        System.out.println("    userId     = " + user.getUserId());
+        System.out.println("    userName   = " + user.getUserName());
+        System.out.println("    nickname   = " + user.getNickname());
+        System.out.println("    phoneNum   = " + user.getPhoneNum());
+        System.out.println("    email      = " + user.getEmail());
+        System.out.println("    userRole   = " + user.getUserRole());
+        System.out.println("    userStatus = " + user.getUserStatus());
+        System.out.println("    password   = " + user.getPassword());
+    }
+
+    private void logStart(String testName) {
+        System.out.println();
+        System.out.println("============================================================");
+        System.out.println("[TEST START] " + testName);
+        System.out.println("============================================================");
+    }
+
+    private void logStep(String step, String message) {
+        System.out.println("[" + step + "] " + message);
+    }
+
+    private void log(String label, Object value) {
+        System.out.println("  - " + label + " : " + value);
+    }
+
+    private void logPass(String message) {
+        System.out.println("[PASS] " + message);
+        System.out.println("------------------------------------------------------------");
+    }
 }

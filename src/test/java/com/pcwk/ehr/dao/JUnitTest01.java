@@ -1,4 +1,4 @@
-package com.pcwk.ehr.user.dao;
+package com.pcwk.ehr.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,5 +48,4 @@ public class JUnitTest01 {
 		// 기대 값, 실제결과
 		assertEquals(32, result);
 	}
-
 }

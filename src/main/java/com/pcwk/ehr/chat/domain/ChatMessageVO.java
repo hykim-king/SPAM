@@ -9,7 +9,7 @@ public class ChatMessageVO {
     private int chatRoomNo;
 
     /** 보낸 회원 번호(FK) */
-    private int senderNo;
+    private Long senderNo;
 
     /** 채팅 내용 */
     private String chatContent;
@@ -26,7 +26,7 @@ public class ChatMessageVO {
     
     
 
-    public ChatMessageVO(int chatMsgNo, int chatRoomNo, int senderNo, String chatContent, String readYn,
+    public ChatMessageVO(int chatMsgNo, int chatRoomNo, Long senderNo, String chatContent, String readYn,
 			String sendDt) {
 		super();
 		this.chatMsgNo = chatMsgNo;
@@ -55,11 +55,11 @@ public class ChatMessageVO {
         this.chatRoomNo = chatRoomNo;
     }
 
-    public int getSenderNo() {
+    public Long getSenderNo() {
         return senderNo;
     }
 
-    public void setSenderNo(int senderNo) {
+    public void setSenderNo(Long senderNo) {
         this.senderNo = senderNo;
     }
 

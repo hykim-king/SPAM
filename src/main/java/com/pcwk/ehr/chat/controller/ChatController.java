@@ -34,7 +34,7 @@ public class ChatController {
 		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
 		
 		// param에 구매자번호를 세션 값으로 덮어쓰기
-//		param.setBuyerNo(loginUser.getUserNo());
+		param.setBuyerNo(loginUser.getUserNum());
 		 
 		// 서비스 호출해서 방 정보 받기
 		ChatRoomVO outVO = service.enterRoom(param);
@@ -42,22 +42,22 @@ public class ChatController {
 		return outVO;
 	}
 	
-//	@GetMapping("/getRoomList.do")
-//	@ResponseBody
-//	public List<ChatRoomVO> getRoomList(HttpSession session) {
-//		
-//		// 세션에서 로그인 사용자 꺼내기
-//		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-//		
-//		// userNo 뽑기
-//		int userNo = loginUser.getUserNo();
-//		
-//		// 채팅방 목록 뽑아서 반환
-//		return service.getRoomList(userNo);	
-//	}
-//	
-//	public List<ChatMessageVO> getmessageList(
-//			@)
+	@GetMapping("/getRoomList.do")
+	@ResponseBody
+	public List<ChatRoomVO> getRoomList(HttpSession session) {
+		
+		// 세션에서 로그인 사용자 꺼내기
+		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+		
+		// userNo 뽑기
+		Long userNo = loginUser.getUserNum();
+		
+		// 채팅방 목록 뽑아서 반환
+		return service.getRoomList(userNo);	
+	}
+	
+	public List<ChatMessageVO> getmessageList(
+			@)
 	
 	
 }

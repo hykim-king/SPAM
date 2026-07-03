@@ -9,10 +9,10 @@ public class ChatRoomVO {
 	    private int productNo;
 
 	    /** 판매자 번호(FK) */
-	    private int sellerNo;
+	    private Long sellerNo;
 
 	    /** 구매자 번호(FK) */
-	    private int buyerNo;
+	    private Long buyerNo;
 
 	    /** 채팅방 상태 */
 	    private String roomStatus;
@@ -38,7 +38,7 @@ public class ChatRoomVO {
 	    
 	    
 
-	    public ChatRoomVO(int chatRoomNo, int productNo, int sellerNo, int buyerNo, String roomStatus,
+	    public ChatRoomVO(int chatRoomNo, int productNo, Long sellerNo, Long buyerNo, String roomStatus,
 				String sellerExitYn, String buyerExitYn, String createDt, String lastMsgDt) {
 			super();
 			this.chatRoomNo = chatRoomNo;
@@ -70,19 +70,19 @@ public class ChatRoomVO {
 	        this.productNo = productNo;
 	    }
 
-	    public int getSellerNo() {
+	    public Long getSellerNo() {
 	        return sellerNo;
 	    }
 
-	    public void setSellerNo(int sellerNo) {
+	    public void setSellerNo(Long sellerNo) {
 	        this.sellerNo = sellerNo;
 	    }
 
-	    public int getBuyerNo() {
+	    public Long getBuyerNo() {
 	        return buyerNo;
 	    }
 
-	    public void setBuyerNo(int buyerNo) {
+	    public void setBuyerNo(Long buyerNo) {
 	        this.buyerNo = buyerNo;
 	    }
 
@@ -125,8 +125,21 @@ public class ChatRoomVO {
 	    public void setLastMsgDt(String lastMsgDt) {
 	        this.lastMsgDt = lastMsgDt;
 	    }
+	    
 
-	    @Override
+	    public String getProductStatus() {
+			return productStatus;
+		}
+
+
+
+		public void setProductStatus(String productStatus) {
+			this.productStatus = productStatus;
+		}
+
+
+
+		@Override
 	    public String toString() {
 	        return "ChatRoomVO [chatRoomNo=" + chatRoomNo
 	                + ", productNo=" + productNo

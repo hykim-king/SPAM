@@ -74,7 +74,7 @@
 		<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
 	</bean>
 
-	<bean id="dummyMailService"
+<!-- 	<bean id="dummyMailService"
 		class="com.pcwk.ehr.user.service.DummyMailService"></bean>
 
 
@@ -86,7 +86,7 @@
 		<property name="password" value="앱비밀번호"></property>
 		<property name="defaultEncoding" value="utf-8" />
 
-		<!-- SSL -->
+		SSL
 		<property name="javaMailProperties">
 			<props>
 				<prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
@@ -96,7 +96,7 @@
 			</props>
 		</property>
 
-	</bean>
+	</bean> -->
 
 
 
