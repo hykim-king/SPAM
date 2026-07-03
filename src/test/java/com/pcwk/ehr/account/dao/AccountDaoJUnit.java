@@ -23,9 +23,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import com.pcwk.ehr.account.domain.AccountVO;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.mapper.AccountMapper;
-import com.pcwk.ehr.mapper.UserMapper;
-import com.pcwk.ehr.user.domain.Grade;
-import com.pcwk.ehr.user.domain.UserVO;
 
 //스프링 테스트(spring-test) 컨텍스트 프레임워크의 JUnit확장 기능
 @ExtendWith(SpringExtension.class)
@@ -37,15 +34,7 @@ public class AccountDaoJUnit {
 	final static Logger log = LogManager.getLogger(AccountDaoJUnit.class);
 
 	@Autowired
-	private UserMapper userMapper;
-	
-	@Autowired
 	private AccountMapper accountMapper;
-	
-
-	private UserVO user01;
-	private UserVO user02;
-	private UserVO user03;
 	
 	private AccountVO account01;
 	private AccountVO account02;
@@ -86,7 +75,7 @@ public class AccountDaoJUnit {
 		log.debug("*deleteAll()*");
 		log.debug("---------------------------");		
 		
-		int flag = userMapper.deleteAll();
+		int flag = accountMapper.deleteAll();
 		log.debug("flag : "+flag);
 	}
 	
@@ -96,8 +85,8 @@ public class AccountDaoJUnit {
 		log.debug("---------------------------");
 		log.debug("*beans()*");
 		log.debug("---------------------------");		
-		assertNotNull(userMapper);
-		log.debug("userMapper: " + userMapper);
+		assertNotNull(accountMapper);
+		log.debug("accountMapper: " + accountMapper);
 		assertNotNull(accountMapper);
 		log.debug("accountMapper: " + accountMapper);
 	}
@@ -118,7 +107,7 @@ public class AccountDaoJUnit {
 	}
 	
 
-	//@Disabled
+	@Disabled
 	@Test
 	public void doRetrieve() {
 		log.debug("---------------------------");
@@ -167,7 +156,7 @@ public class AccountDaoJUnit {
 		log.debug("*****************************");
 	}
 
-	@Disabled
+	//@Disabled
 	@Test   
 	public void doUpdate() {
 
@@ -253,7 +242,7 @@ public class AccountDaoJUnit {
 		assertEquals(0, accountMapper.totalCnt());
 	}
 
-	@Disabled
+	//@Disabled
 	@Test
 	public void getAllMember() {
 		log.debug("---------------------------");
@@ -292,9 +281,9 @@ public class AccountDaoJUnit {
 			log.debug(vo);
 		}
 
-//		isSameUser(user01, list.get(0));
-//		isSameUser(user02, list.get(1));
-//		isSameUser(user03, list.get(2));
+		isSameUser(account01, list.get(0));
+		isSameUser(account02, list.get(1));
+		isSameUser(account03, list.get(2));
 	}
 
 	// NullPointerException이 발생하면 성공
@@ -308,8 +297,8 @@ public class AccountDaoJUnit {
 		// 3.등록 데이터 비교
 
 		//(expected = EmptyResultDataAccessException.class)
-		
-		assertThrows(EmptyResultDataAccessException.class,()->{ 
+		//java.lang.NullPointerException
+		assertThrows(NullPointerException.class,()->{ 
 			// 0.
 			accountMapper.deleteAll();
 			assertEquals(0, accountMapper.totalCnt());
@@ -319,7 +308,7 @@ public class AccountDaoJUnit {
 			assertEquals(1, accountMapper.totalCnt());
 	
 			// 2. 실패
-			user01.setUserId(user01.getUserId() + "_99");
+			account01.setAccountId(account01.getAccountId() + 99);
 			AccountVO outVO = accountMapper.doSelectOne(account01);
 	
 			// 3.

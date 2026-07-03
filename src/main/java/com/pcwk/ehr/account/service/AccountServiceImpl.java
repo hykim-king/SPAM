@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import com.pcwk.ehr.account.domain.AccountVO;
 import com.pcwk.ehr.cmn.DTO;
 import com.pcwk.ehr.mapper.AccountMapper;
-import com.pcwk.ehr.user.domain.UserVO;
 
 @Service
 public class AccountServiceImpl implements AccountService {
@@ -29,33 +28,28 @@ public class AccountServiceImpl implements AccountService {
 	}
 
 	@Override
-	public List<UserVO> doRetrieve(DTO param) {
-		// TODO Auto-generated method stub
-		return null;
+	public List<AccountVO> doRetrieve(DTO param) {
+		return accountMapper.doRetrieve(param);
 	}
 
 	@Override
 	public int doUpdate(AccountVO param) {
-		// TODO Auto-generated method stub
-		return 0;
+		return accountMapper.doUpdate(param);
 	}
 
 	@Override
 	public int doDelete(AccountVO param) {
-		// TODO Auto-generated method stub
-		return 0;
+		return accountMapper.doDelete(param);
 	}
 
 	@Override
-	public UserVO doSelectOne(AccountVO param) throws EmptyResultDataAccessException {
-		// TODO Auto-generated method stub
-		return null;
+	public AccountVO doSelectOne(AccountVO param) throws EmptyResultDataAccessException {
+		return accountMapper.doSelectOne(param);
 	}
 
 	@Override
-	public int doSave(UserVO param) {
-		
-		return 0;
+	public int doSave(AccountVO param) {
+		return accountMapper.doSave(param);
 	}
 
 }

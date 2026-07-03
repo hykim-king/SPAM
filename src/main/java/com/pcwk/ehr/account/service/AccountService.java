@@ -15,7 +15,7 @@ public interface AccountService {
 	 * @param param
 	 * @return List<T>
 	 */
-	List<UserVO> doRetrieve(DTO param);
+	List<AccountVO> doRetrieve(DTO param);
 	
 	/**
 	 * 수정
@@ -37,13 +37,13 @@ public interface AccountService {
 	 * @param param
 	 * @return T(성공)/null(실패)
 	 */
-	UserVO doSelectOne(AccountVO param) throws EmptyResultDataAccessException;
+	AccountVO doSelectOne(AccountVO param) throws Exception;
 	
 	/**
 	 * 회원가입
 	 * @param param
 	 * @return 1(성공)/0(실패)
 	 */
-	public int doSave(UserVO param);
+	public int doSave(AccountVO param);
 
 }

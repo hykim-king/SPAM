@@ -67,11 +67,21 @@
 		  CONNECT BY LEVEL  <![CDATA[ <=  ]]> #{saveCount}      		            	
 	</insert>
 
+	<select id="getAllMember" resultType="AccountVO">
+		 SELECT                                     
+		     account_id,                                
+		     user_num,                                  
+		     bank_name,                                 
+		     account_num,                               
+		     balance,                                  
+		     create_dt,               
+		     update_dt		                 
+		 FROM                                       
+		     user_account                                 
+		 ORDER BY account_id 	               	        	
+	</select>
 
-	<select id="doRetrieve" parameterType="DTO">
-        SELECT * FROM user_account
-    </select>
-	
+
     <delete id="doDelete" parameterType="AccountVO">
         DELETE FROM user_account WHERE account_id = #{accountId}
     </delete>	
