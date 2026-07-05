@@ -19,10 +19,10 @@ public interface ChatService {
 	 * @param userNo
 	 * @return
 	 */
-	List<ChatRoomVO> getRoomList(int userNo);
+	List<ChatRoomVO> getRoomList(Long userNo);
 	
 	/**
-	 * 저장된 메시지를 상대에게 push
+	 * 저장된 메시지를 상대에게 전송
 	 * @param chatMessageVO
 	 * @return
 	 */
@@ -34,7 +34,7 @@ public interface ChatService {
 	 * @param readerNo
 	 * @return
 	 */
-	List<ChatMessageVO> getMessageList(int chatRoomNo, int readerNo);
+	List<ChatMessageVO> getMessageList(int chatRoomNo, Long readerNo);
 	
 	/**
 	 * 채팅방 나가기
@@ -50,7 +50,7 @@ public interface ChatService {
 	 * @param memberNo   나가는 회원 번호 (세션에서 꺼낸 로그인 회원번호)
 	 * @return 처리 결과 행 수
 	 */
-	void exitRoom(int chatRoomNo, int userNo);
+	void exitRoom(int chatRoomNo, Long userNo);
 	
 	
 }

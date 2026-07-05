@@ -48,7 +48,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public List<ChatRoomVO> getRoomList(int userNo) {
+	public List<ChatRoomVO> getRoomList(Long userNo) {
 		
 		// 회원 번호로 내가 판매자거나 구매자인 방 목록(List) 반환
 		return chatRoomMapper.selectRoomListByMember(userNo);
@@ -69,7 +69,7 @@ public class ChatServiceImpl implements ChatService {
 	}
 
 	@Override
-	public List<ChatMessageVO> getMessageList(int chatRoomNo, int readerNo) {
+	public List<ChatMessageVO> getMessageList(int chatRoomNo, Long readerNo) {
 		
 		int flag = chatMessageMapper.updateReadYn(chatRoomNo, readerNo);
 		
@@ -82,7 +82,7 @@ public class ChatServiceImpl implements ChatService {
 
 	@Override
 	@Transactional
-	public void exitRoom(int chatRoomNo, int userNo) {
+	public void exitRoom(int chatRoomNo, Long userNo) {
 		
 		// 방 조회
 		ChatRoomVO searchRoom = chatRoomMapper.selectRoomByNo(chatRoomNo);

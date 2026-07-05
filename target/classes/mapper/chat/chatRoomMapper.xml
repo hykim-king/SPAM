@@ -28,7 +28,7 @@
     </select>
     
     <!-- 내 채팅방 목록 (내가 판매자거나 구매자인 방, 최근 순) -->
-    <select id="selectRoomListByMember" parameterType="int" resultType="ChatRoomVO">
+    <select id="selectRoomListByMember" parameterType="Long" resultType="ChatRoomVO">
     SELECT R.CHAT_ROOM_NO,
     	   R.PRODUCT_NO,
     	   R.SELLER_NO,
@@ -49,7 +49,7 @@
     <!-- 새 채팅방 저장 -->
     <insert id="insertRoom" parameterType="ChatRoomVO">
         <selectKey keyProperty="chatRoomNo" resultType="int" order="BEFORE">
-            SELECT SEQ_CHAT_ROOM_NO.NEXTVAL FROM DUAL
+            SELECT SEQ_CHAT_ROOM.NEXTVAL FROM DUAL
         </selectKey>
         INSERT INTO CHAT_ROOM (
             CHAT_ROOM_NO,
@@ -66,7 +66,7 @@
             #{productNo},
             #{sellerNo},
             #{buyerNo},
-            'A',
+            'Active',
             'N',
             'N',
             SYSDATE,
@@ -100,10 +100,5 @@
         DELETE FROM CHAT_ROOM
          WHERE CHAT_ROOM_NO = #{chatRoomNo}
     </delete>
-
-
-
-
-
 
 </mapper>

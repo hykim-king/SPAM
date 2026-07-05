@@ -30,7 +30,7 @@ public interface ChatMessageMapper {
 	 * @return
 	 */
 	int updateReadYn(@Param("chatRoomNo") int chatRoomNo,
-					 @Param("readerNo") int readerNo);
+					 @Param("readerNo") Long readerNo);
 	
 	/**
 	 * 채팅방 메시지 전체 삭제

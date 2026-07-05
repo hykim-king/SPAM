@@ -6,7 +6,7 @@
 	<insert id="insertMessage" parameterType="ChatMessageVO">
 		<!-- 시퀀스번호를 chatMsgNo에 저장 INSERT보다 먼저 실행시켜야 하므로 order: BEFORE -->
 		<selectKey keyProperty="chatMsgNo" resultType="int" order="BEFORE">
-			SELECT SEQ_CHAT_MSG_NO.NEXTVAL FROM DUAL
+			SELECT SEQ_CHAT_MSG.NEXTVAL FROM DUAL
 		</selectKey>
 		INSERT INTO CHAT_MSG (
 			CHAT_MSG_NO,
@@ -34,7 +34,7 @@
 			   CHAT_CONTENT,
 			   READ_YN,
                TO_CHAR(SEND_DT, 'YYYY-MM-DD HH24:MI:SS') AS SEND_DT
-          FROM CHAT_MESSAGE
+          FROM CHAT_MSG
          WHERE CHAT_ROOM_NO = #{chatRoomNo}
          ORDER BY CHAT_MSG_NO ASC		 
 	</select>
@@ -50,7 +50,7 @@
 	
 	<!-- 방 메시지 전체 삭제 -->
     <delete id="deleteMessageByRoom" parameterType="int">
-        DELETE FROM CHAT_MESSAGE
+        DELETE FROM CHAT_MSG
          WHERE CHAT_ROOM_NO = #{chatRoomNo}
     </delete>	
 

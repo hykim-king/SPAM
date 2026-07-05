@@ -28,7 +28,7 @@ public interface ChatRoomMapper {
 	 * @param memberNo
 	 * @return
 	 */
-	List<ChatRoomVO>selectRoomListByMember(int userNo);
+	List<ChatRoomVO>selectRoomListByMember(Long userNo);
 	
 	/**
 	 * 새 채팅방 저장

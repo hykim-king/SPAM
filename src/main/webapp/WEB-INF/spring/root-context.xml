@@ -15,7 +15,7 @@
     <!-- @Mapper interface-->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
-    	<property name="basePackage" value="com.pcwk.ehr.mapper"></property>
+    	<property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper, com.pcwk.ehr.chat.mapper"></property>
     	
     	<!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
     	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
@@ -106,9 +106,9 @@
 		<property name="driverClassName"
 			value="oracle.jdbc.driver.OracleDriver" />
 		<property name="jdbcUrl"
-			value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
-		<property name="username" value="scott" />
-		<property name="password" value="pcwk" />
+			value="jdbc:oracle:thin:@218.144.130.138:1522:xe" />
+		<property name="username" value="spampcwk" />
+		<property name="password" value="Q2w3e4r" />
 
 		<!-- option -->
 		<property name="maximumPoolSize" value="10" />
