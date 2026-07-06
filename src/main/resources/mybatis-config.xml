@@ -14,5 +14,7 @@
 		<!-- <package name="com.pcwk.ehr.user.domain" /> -->
 		<typeAlias alias="UserVO" type="com.pcwk.ehr.user.domain.UserVO" />
 		<typeAlias alias="UserSearchDTO" type="com.pcwk.ehr.user.domain.UserSearchDTO" />
+		<typeAlias alias="ReportVO" type="com.pcwk.ehr.report.domain.ReportVO" />
+		<typeAlias alias="ReportSearchDTO" type="com.pcwk.ehr.report.domain.ReportSearchDTO" />
 	</typeAliases>
 </configuration>
