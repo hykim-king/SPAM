@@ -10,13 +10,20 @@
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
     <!-- [추가] root-context만 읽는 JUnit에서도 UserServiceImpl을 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
-    <context:component-scan base-package="com.pcwk.ehr.user.service" />
+    <context:component-scan base-package="com.pcwk.ehr" />
 
     <!-- MyBatis설정 -->
     <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
-        <property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper" />
+        <property name="basePackage" value="
+        	com.pcwk.ehr.user.mapper,
+		    com.pcwk.ehr.account.mapper,
+		    com.pcwk.ehr.product.mapper,
+		    com.pcwk.ehr.transaction.mapper,
+		    com.pcwk.ehr.chat.mapper,
+		    com.pcwk.ehr.report.mapper" 
+    	/>
 
         <!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
@@ -107,9 +114,12 @@
     <!-- HikariCP -->
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-        <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
+<!--         <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
         <property name="username" value="spampcwk" />
-        <property name="password" value="Q2w3e4r" />
+        <property name="password" value="Q2w3e4r" /> -->
+        <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe"/>
+        <property name="username" value="scott" />
+        <property name="password" value="pcwk" />
 
         <!-- option -->
         <property name="maximumPoolSize" value="10" />
