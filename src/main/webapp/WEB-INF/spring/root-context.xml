@@ -1,129 +1,129 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:context="http://www.springframework.org/schema/context"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-	xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
-		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
-		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
-    
-    
-    
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.3.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
+
+    <!-- [추가] root-context만 읽는 JUnit에서도 UserServiceImpl을 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
+    <context:component-scan base-package="com.pcwk.ehr.user.service" />
+
     <!-- MyBatis설정 -->
-    <!-- @Mapper interface-->
+    <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
-    	<property name="basePackage" value="com.pcwk.ehr.mapper"></property>
-    	
-    	<!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
-    	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
+        <property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper" />
+
+        <!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
     </bean>
-    
+
     <!-- SqlSessionTemplate -->
     <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
-    	<constructor-arg index="0" ref="sqlSessionFactoryBean"></constructor-arg>
+        <constructor-arg index="0" ref="sqlSessionFactoryBean" />
     </bean>
 
-
     <!-- SqlSessionFactoryBean -->
-	<bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
-		<property name="dataSource" ref="dataSource"></property>
-		
-		<!-- mybatis-config.xml -->
-		<property name="configLocation" value="classpath:mybatis-config.xml"/>
-		
-		<!-- mapper : sql -->
-		<property name="mapperLocations" value="classpath:mapper/**/*.xml"></property>
-		
-	</bean>   
-  
+    <bean id="sqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource" />
 
-	<aop:config>
-		<aop:pointcut
-			expression="execution(* com.pcwk.ehr..service.*Impl.up*(..))"
-			id="txPointcut" />
-		<!-- advice + pointcut -->
-		<aop:advisor advice-ref="txAdvice"
-			pointcut-ref="txPointcut" />
-	</aop:config>
+        <!-- mybatis-config.xml -->
+        <property name="configLocation" value="classpath:mybatis-config.xml" />
 
+        <!-- mapper : sql -->
+        <property name="mapperLocations" value="classpath:mapper/**/*.xml" />
+    </bean>
+<!--
+    [수정]
+    수업용 AOP 트랜잭션 설정은 up* 메서드를 REQUIRES_NEW로 실행합니다.
 
-	<!-- 트랜잭션 Advice: 트랜잭션 규칙, 정책 name="up*" : 적용 대상 : 메서드 up로 시작 propagation="REQUIRES_NEW" 
-		: 항상 새로운 트랜잭션 생성 isolation="SERIALIZABLE" : 가장 경리 수준 예:) upgradeLevels() 
-		update() uploadFile() ========================================== name="*" 
-		: 모든 메서드 propagation="REQUIRED" : 기본값 read-only="true" : 읽기 전용 트랜잭션 예:) doSelectOne() 
-		doSave() doRetrieve() -->
-	<tx:advice id="txAdvice"
-		transaction-manager="transactionManager">
-		<tx:attributes>
-			<tx:method name="up*" propagation="REQUIRES_NEW"
-				isolation="SERIALIZABLE" />
-			<tx:method name="*" propagation="REQUIRED" read-only="true" />
-		</tx:attributes>
-	</tx:advice>
+    기존 설정:
+    execution(* com.pcwk.ehr..service.*Impl.up*(..))
 
-	<!-- 트랜잭션 어노테이션 활성화 : @Transactional -->
-	<tx:annotation-driven proxy-target-class="true"
-		transaction-manager="transactionManager" />
+    문제:
+    - updateUser()
+    - updatePassword()
+    - updateUserStatus()
+    - updateUserRole()
 
+    위 메서드들도 up으로 시작하기 때문에 의도치 않게 AOP 트랜잭션 대상이 됩니다.
 
-	<bean id="transactionManager"
-		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-		<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
-	</bean>
+    JUnit 테스트에서는 @Transactional @Rollback 환경에서 INSERT 후 UPDATE를 검증하는데,
+    updateUser()가 REQUIRES_NEW 새 트랜잭션으로 실행되면
+    테스트 트랜잭션에서 아직 commit되지 않은 회원 데이터를 볼 수 없어 UPDATE 건수가 0이 됩니다.
 
-	<bean id="dummyMailService"
-		class="com.pcwk.ehr.user.service.DummyMailService"></bean>
+    따라서 회원관리 프로젝트에서는 XML AOP 트랜잭션 대신
+    Service 메서드의 @Transactional을 사용합니다.
+-->
+<!-- 
+    <aop:config>
+        <aop:pointcut
+            expression="execution(* com.pcwk.ehr..service.*Impl.up*(..))"
+            id="txPointcut" />
+        advice + pointcut
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+    </aop:config>
 
+    트랜잭션 Advice: 트랜잭션 규칙, 정책
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="up*" propagation="REQUIRES_NEW" isolation="SERIALIZABLE" />
+            <tx:method name="*" propagation="REQUIRED" read-only="true" />
+        </tx:attributes>
+    </tx:advice>
+ -->
 
-	<bean id="mailSenderImpl"
-		class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="smtp.naver.com" />
-		<property name="port" value="465" />
-		<property name="username" value="메일ID@naver.com" />
-		<property name="password" value="앱비밀번호"></property>
-		<property name="defaultEncoding" value="utf-8" />
+    <!-- 트랜잭션 어노테이션 활성화 : @Transactional -->
+    <tx:annotation-driven proxy-target-class="true" transaction-manager="transactionManager" />
 
-		<!-- SSL -->
-		<property name="javaMailProperties">
-			<props>
-				<prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
-				<prop key="mail.smtp.ssl.enable">true</prop>
-				<prop key="mail.smtp.ssl.trust">smtp.naver.com</prop>
-				<prop key="mail.debug">true</prop>
-			</props>
-		</property>
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <constructor-arg name="dataSource" ref="dataSource" />
+    </bean>
+<!-- 
+    <bean id="dummyMailService" class="com.pcwk.ehr.user.service.DummyMailService" />
 
-	</bean>
+    <bean id="mailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+        <property name="host" value="smtp.naver.com" />
+        <property name="port" value="465" />
+        <property name="username" value="메일ID@naver.com" />
+        <property name="password" value="앱비밀번호" />
+        <property name="defaultEncoding" value="utf-8" />
 
+        SSL
+        <property name="javaMailProperties">
+            <props>
+                <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
+                <prop key="mail.smtp.ssl.enable">true</prop>
+                <prop key="mail.smtp.ssl.trust">smtp.naver.com</prop>
+                <prop key="mail.debug">true</prop>
+            </props>
+        </property>
+    </bean>
+ -->
+    <!-- HikariCP -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+<!--         <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
+        <property name="username" value="spampcwk" />
+        <property name="password" value="Q2w3e4r" /> -->
+		<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />  
+        <property name="username" value="scott" />
+        <property name="password" value="pcwk" />
+        <!-- option -->
+        <property name="maximumPoolSize" value="10" />
+        <property name="minimumIdle" value="5" />
+        <property name="connectionTimeout" value="30000" />
+        <property name="idleTimeout" value="600000" />
+        <property name="maxLifetime" value="1800000" />
 
-
-
-	<!-- HikariCP -->
-	<bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource">
-		<property name="driverClassName"
-			value="oracle.jdbc.driver.OracleDriver" />
-		<property name="jdbcUrl"
-			value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
-		<property name="username" value="scott" />
-		<property name="password" value="pcwk" />
-
-		<!-- option -->
-		<property name="maximumPoolSize" value="10" />
-		<property name="minimumIdle" value="5" />
-		<property name="connectionTimeout" value="30000" />
-		<property name="idleTimeout" value="600000" />
-		<property name="maxLifetime" value="1800000" />
-
-		<!-- maximumPoolSize : 풀에 유지할 최대 연결 수 minimumIdle : 유휴상태로 유지할수 있는 최대 연결 
-			수 connectionTimeout: 연결 시도 시 타임아웃 설정(밀리 초) idleTimeout : 유휴 연결이 풀에서 제거되기 
-			전 대기 시간(밀리 초) maxLifetime : 연결이 풀에서 제거되기 전 최대 생존 시간 입니다.(밀리 초) -->
-
-	</bean>
-
-
+        <!-- maximumPoolSize : 풀에 유지할 최대 연결 수 minimumIdle : 유휴상태로 유지할 수 있는 최대 연결 수
+             connectionTimeout : 연결 시도 시 타임아웃 설정(밀리 초)
+             idleTimeout : 유휴 연결이 풀에서 제거되기 전 대기 시간(밀리 초)
+             maxLifetime : 연결이 풀에서 제거되기 전 최대 생존 시간(밀리 초) -->
+    </bean>
 
 </beans>
-
