@@ -141,7 +141,7 @@
         ORDER BY
             CASE USER_STATUS
                 WHEN '01' THEN 1  /* 정상 회원 우선 */
-                WHEN '03' THEN 2  /* 휴먼 회원 */
+                WHEN '03' THEN 2  /* 휴면 회원 */
                 WHEN '04' THEN 3  /* 정지 회원 */
                 WHEN '02' THEN 4  /* 탈퇴 회원은 가장 뒤 */
                 ELSE 5
@@ -279,7 +279,7 @@
     <!--
         관리자 회원상태 변경
         - 02 탈퇴로 바뀌면 WITHDRAW_DT도 함께 저장
-        - 01 정상/03 휴먼/04 정지로 바뀌면 WITHDRAW_DT는 null 처리
+        - 01 정상/03 휴면/04 정지로 바뀌면 WITHDRAW_DT는 null 처리
     -->
     <update id="updateUserStatus" parameterType="com.pcwk.ehr.user.domain.UserVO">
         UPDATE USER_INFO

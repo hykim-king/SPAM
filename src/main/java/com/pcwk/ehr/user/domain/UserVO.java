@@ -23,7 +23,7 @@ public class UserVO implements Serializable {
 
     /*
      * USER_ID
-     * - 01 정상/03 휴먼/04 정지 회원 기준 중복될 수 없음
+     * - 01 정상/03 휴면/04 정지 회원 기준 중복될 수 없음
      * - 02 탈퇴 회원의 아이디는 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
      */
     private String userId;
@@ -50,14 +50,14 @@ public class UserVO implements Serializable {
 
     /*
      * PHONE_NUM
-     * - 01 정상/03 휴먼/04 정지 회원 기준 중복 불가능
+     * - 01 정상/03 휴면/04 정지 회원 기준 중복 불가능
      * - 02 탈퇴 회원의 전화번호는 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
      */
     private String phoneNum;
 
     /*
      * EMAIL
-     * - 입력한 경우 01 정상/03 휴먼/04 정지 회원 기준 중복 불가능
+     * - 입력한 경우 01 정상/03 휴면/04 정지 회원 기준 중복 불가능
      * - 02 탈퇴 회원의 이메일은 재가입 시 다시 사용할 수 있도록 중복 검사 대상에서 제외
      */
     private String email;
@@ -81,7 +81,7 @@ public class UserVO implements Serializable {
      * USER_STATUS
      * - 01: 정상
      * - 02: 탈퇴
-     * - 03: 휴먼
+     * - 03: 휴면
      * - 04: 정지
      */
     private String userStatus;

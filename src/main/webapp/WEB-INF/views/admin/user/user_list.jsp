@@ -5,109 +5,141 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>관리자 회원목록</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAM 관리자 회원목록</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
+    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
 </head>
 <body>
-<h2>관리자 회원목록</h2>
+    <main class="page-shell">
+        <header class="page-header">
+            <div>
+                <a class="brand" href="${pageContext.request.contextPath}/admin/user/list.do" aria-label="SPAM 관리자 회원목록">
+                    <span class="brand-mark">SP</span>
+                    <span>SPAM Admin</span>
+                </a>
+                <h1 class="page-title">관리자 회원목록</h1>
+                <p class="page-desc">회원 검색, 페이징 조회, 상세 화면 이동을 처리합니다.</p>
+            </div>
+            <nav class="header-actions">
+                <a class="btn outline" href="${pageContext.request.contextPath}/admin/user/list.do">전체 목록</a>
+                <a class="btn" href="${pageContext.request.contextPath}/user/logout.do">로그아웃</a>
+            </nav>
+        </header>
 
-<!--
-    관리자 회원 검색 form입니다.
+        <section class="panel stack">
+            <form class="search-box" action="${pageContext.request.contextPath}/admin/user/list.do" method="get">
+                <input type="hidden" name="pageNo" value="1">
 
-    GET 방식으로 검색하는 이유:
-    - 검색 조건이 URL에 남아서 새로고침/공유가 쉽습니다.
-    - 단순 조회는 POST보다 GET이 자연스럽습니다.
--->
-<form action="${pageContext.request.contextPath}/admin/user/list.do" method="get">
-    <select name="searchDiv">
-        <option value="" ${empty searchDTO.searchDiv ? 'selected' : ''}>전체</option>
-        <option value="userId" ${searchDTO.searchDiv == 'userId' ? 'selected' : ''}>아이디</option>
-        <option value="userName" ${searchDTO.searchDiv == 'userName' ? 'selected' : ''}>이름</option>
-        <option value="nickname" ${searchDTO.searchDiv == 'nickname' ? 'selected' : ''}>닉네임</option>
-        <option value="phoneNum" ${searchDTO.searchDiv == 'phoneNum' ? 'selected' : ''}>전화번호</option>
-        <option value="email" ${searchDTO.searchDiv == 'email' ? 'selected' : ''}>이메일</option>
-        <option value="userStatus" ${searchDTO.searchDiv == 'userStatus' ? 'selected' : ''}>상태</option>
-    </select>
+                <select class="select" id="searchDiv" name="searchDiv" aria-label="검색 조건">
+                    <option value="" ${empty searchDTO.searchDiv ? 'selected' : ''}>전체</option>
+                    <option value="userId" ${searchDTO.searchDiv == 'userId' ? 'selected' : ''}>아이디</option>
+                    <option value="userName" ${searchDTO.searchDiv == 'userName' ? 'selected' : ''}>이름</option>
+                    <option value="nickname" ${searchDTO.searchDiv == 'nickname' ? 'selected' : ''}>닉네임</option>
+                    <option value="phoneNum" ${searchDTO.searchDiv == 'phoneNum' ? 'selected' : ''}>전화번호</option>
+                    <option value="email" ${searchDTO.searchDiv == 'email' ? 'selected' : ''}>이메일</option>
+                    <option value="userStatus" ${searchDTO.searchDiv == 'userStatus' ? 'selected' : ''}>상태</option>
+                </select>
 
-    <input type="text" name="searchWord" value="${searchDTO.searchWord}">
+                <input class="input" id="searchWord" type="text" name="searchWord" value="<c:out value='${searchDTO.searchWord}'/>" placeholder="검색어를 입력하세요.">
 
-    <select name="pageSize">
-        <option value="10" ${searchDTO.pageSize == 10 ? 'selected' : ''}>10개</option>
-        <option value="20" ${searchDTO.pageSize == 20 ? 'selected' : ''}>20개</option>
-        <option value="50" ${searchDTO.pageSize == 50 ? 'selected' : ''}>50개</option>
-    </select>
+                <select class="select" name="pageSize" aria-label="페이지 크기">
+                    <option value="10" ${searchDTO.pageSize == 10 ? 'selected' : ''}>10개</option>
+                    <option value="20" ${searchDTO.pageSize == 20 ? 'selected' : ''}>20개</option>
+                    <option value="50" ${searchDTO.pageSize == 50 ? 'selected' : ''}>50개</option>
+                </select>
 
-    <button type="submit">검색</button>
-</form>
+                <button class="btn primary" type="submit">검색</button>
+            </form>
 
-<p>총 회원 수: ${totalCount}</p>
+            <div class="meta-bar">
+                <strong>총 회원 수: ${totalCount}</strong>
+                <span>현재 페이지: ${searchDTO.pageNo}</span>
+            </div>
 
-<table border="1">
-    <thead>
-        <tr>
-            <th>회원번호</th>
-            <th>아이디</th>
-            <th>이름</th>
-            <th>닉네임</th>
-            <th>전화번호</th>
-            <th>이메일</th>
-            <th>권한</th>
-            <th>상태</th>
-            <th>가입일</th>
-            <th>상세</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!--
-            userList는 AdminUserController에서 model.addAttribute("userList", userList)로 넘긴 값입니다.
-        -->
-        <c:forEach var="user" items="${userList}">
-            <tr>
-                <td>${user.userNum}</td>
-                <td>${user.userId}</td>
-                <td>${user.userName}</td>
-                <td>${user.nickname}</td>
-                <td>${user.phoneNum}</td>
-                <td>${user.email}</td>
+            <div class="table-wrap">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>회원번호</th>
+                            <th>아이디</th>
+                            <th>이름</th>
+                            <th>닉네임</th>
+                            <th>전화번호</th>
+                            <th>이메일</th>
+                            <th>권한</th>
+                            <th>상태</th>
+                            <th>가입일</th>
+                            <th>상세</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="user" items="${userList}">
+                            <tr>
+                                <td><c:out value="${user.userNum}" /></td>
+                                <td><c:out value="${user.userId}" /></td>
+                                <td><c:out value="${user.userName}" /></td>
+                                <td><c:out value="${user.nickname}" /></td>
+                                <td><c:out value="${user.phoneNum}" /></td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${empty user.email}">-</c:when>
+                                        <c:otherwise><c:out value="${user.email}" /></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${user.userRole == '02'}"><span class="badge role-admin">관리자</span></c:when>
+                                        <c:otherwise><span class="badge role-user">일반회원</span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${user.userStatus == '01'}"><span class="badge status-normal">정상</span></c:when>
+                                        <c:when test="${user.userStatus == '02'}"><span class="badge status-withdrawn">탈퇴</span></c:when>
+                                        <c:when test="${user.userStatus == '03'}"><span class="badge status-dormant">휴면</span></c:when>
+                                        <c:when test="${user.userStatus == '04'}"><span class="badge status-blocked">정지</span></c:when>
+                                        <c:otherwise><span class="badge"><c:out value="${user.userStatus}" /></span></c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td><fmt:formatDate value="${user.createDt}" pattern="yyyy-MM-dd" /></td>
+                                <td>
+                                    <a class="btn outline" href="${pageContext.request.contextPath}/admin/user/detail.do?userNum=${user.userNum}">상세</a>
+                                </td>
+                            </tr>
+                        </c:forEach>
 
-                <!--
-                    DB에는 01/02 권한 공통코드로 저장하지만 화면에는 한글로 보여줍니다.
-                -->
-                <td>
-                    <c:choose>
-                        <c:when test="${user.userRole == '02'}">관리자</c:when>
-                        <c:otherwise>일반회원</c:otherwise>
-                    </c:choose>
-                </td>
+                        <c:if test="${empty userList}">
+                            <tr>
+                                <td class="empty-row" colspan="10">조회된 회원이 없습니다.</td>
+                            </tr>
+                        </c:if>
+                    </tbody>
+                </table>
+            </div>
 
-                <!--
-                    DB에는 01/02/03/04 상태 공통코드로 저장하지만 화면에는 한글로 보여줍니다.
-                -->
-                <td>
-                    <c:choose>
-                        <c:when test="${user.userStatus == '01'}">정상</c:when>
-                        <c:when test="${user.userStatus == '02'}">탈퇴</c:when>
-                        <c:when test="${user.userStatus == '03'}">휴먼</c:when>
-                        <c:when test="${user.userStatus == '04'}">정지</c:when>
-                        <c:otherwise>${user.userStatus}</c:otherwise>
-                    </c:choose>
-                </td>
+            <div class="pagination">
+                <c:if test="${searchDTO.pageNo > 1}">
+                    <c:url var="prevUrl" value="/admin/user/list.do">
+                        <c:param name="pageNo" value="${searchDTO.pageNo - 1}" />
+                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                    </c:url>
+                    <a class="btn outline" href="${prevUrl}">이전</a>
+                </c:if>
 
-                <td><fmt:formatDate value="${user.createDt}" pattern="yyyy-MM-dd" /></td>
-                <td>
-                    <a href="${pageContext.request.contextPath}/admin/user/detail.do?userNum=${user.userNum}">상세</a>
-                </td>
-            </tr>
-        </c:forEach>
-
-        <!-- 회원목록이 비어 있을 때 표시합니다. -->
-        <c:if test="${empty userList}">
-            <tr>
-                <td colspan="10">조회된 회원이 없습니다.</td>
-            </tr>
-        </c:if>
-    </tbody>
-</table>
-
-<p>현재 페이지: ${searchDTO.pageNo}</p>
+                <c:if test="${searchDTO.pageNo * searchDTO.pageSize < totalCount}">
+                    <c:url var="nextUrl" value="/admin/user/list.do">
+                        <c:param name="pageNo" value="${searchDTO.pageNo + 1}" />
+                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                    </c:url>
+                    <a class="btn outline" href="${nextUrl}">다음</a>
+                </c:if>
+            </div>
+        </section>
+    </main>
 </body>
 </html>

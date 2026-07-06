@@ -37,7 +37,7 @@ public interface UserMapper {
      * 회원가입 아이디 중복 검사
      *
      * 현재 정책:
-     * - 01 정상/03 휴먼/04 정지 회원의 아이디는 중복 불가
+     * - 01 정상/03 휴면/04 정지 회원의 아이디는 중복 불가
      * - 02 탈퇴 회원의 아이디는 재가입 가능
      *
      * 따라서 SQL에서는 USER_STATUS <> '02' 조건 사용
@@ -48,7 +48,7 @@ public interface UserMapper {
      * 회원가입 전화번호 중복 검사
      *
      * 현재 정책:
-     * - 01 정상/03 휴먼/04 정지 회원의 전화번호는 중복 불가
+     * - 01 정상/03 휴면/04 정지 회원의 전화번호는 중복 불가
      * - 02 탈퇴 회원의 전화번호는 재가입 가능
      */
     int countByPhoneNum(@Param("phoneNum") String phoneNum);
@@ -113,7 +113,7 @@ public interface UserMapper {
 
     /*
      * 관리자 회원상태 변경
-     * - 01 정상 / 02 탈퇴 / 03 휴먼 / 04 정지 중 하나로 변경
+     * - 01 정상 / 02 탈퇴 / 03 휴면 / 04 정지 중 하나로 변경
      */
     int updateUserStatus(UserVO user);
 

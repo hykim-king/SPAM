@@ -103,7 +103,7 @@ public class AdminUserController {
      * 변경 가능 상태:
      * - 01 : 정상
      * - 02 : 탈퇴
-     * - 03 : 휴먼
+     * - 03 : 휴면
      * - 04 : 정지
      */
     @PostMapping("/statusUpdate.do")

@@ -4,47 +4,41 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAM 로그인</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
+    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
 </head>
-<body>
-<h2>로그인</h2>
+<body class="auth-page">
+    <main class="auth-card">
+        <a class="brand" href="${pageContext.request.contextPath}/user/login.do" aria-label="SPAM 로그인">
+            <span class="brand-mark">SP</span>
+            <span>SPAM</span>
+        </a>
 
-<!--
-    로그인 실패 또는 회원가입 성공 메시지를 출력 
+        <h1 class="auth-title">로그인</h1>
+        <p class="auth-desc">회원은 마이페이지로, 관리자는 회원관리 화면으로 이동합니다.</p>
 
-    예:
-    - 회원가입이 완료되었습니다. 로그인하세요.
-    - 아이디 또는 비밀번호가 일치하지 않습니다.
-    - 탈퇴 처리된 회원입니다.
--->
-<c:if test="${not empty msg}">
-    <p style="color:red;">${msg}</p>
-</c:if>
+        <c:if test="${not empty msg}">
+            <p class="alert"><c:out value="${msg}" /></p>
+        </c:if>
 
-<!--
-    로그인 form 
-    입력값은 UserController.login()의 @RequestParam("userId"), @RequestParam("password")로 전달 
--->
-<form action="${pageContext.request.contextPath}/user/login.do" method="post">
-    <table border="1">
-        <tr>
-            <th>아이디</th>
-            <td>
-                <!-- 로그인 실패 시 이전에 입력했던 아이디를 다시 보여줌 -->
-                <input type="text" name="userId" value="${userId}" required>
-            </td>
-        </tr>
-        <tr>
-            <th>비밀번호</th>
-            <td>
-                <!-- 비밀번호는 실패해도 다시 보여주지 않음 -->
-                <input type="password" name="password" required>
-            </td>
-        </tr>
-    </table>
+        <form id="loginForm" class="form-grid" action="${pageContext.request.contextPath}/user/login.do" method="post" novalidate>
+            <div class="form-row">
+                <label class="label" for="loginUserId">아이디 <span class="required">*</span></label>
+                <input class="input" type="text" id="loginUserId" name="userId" value="<c:out value='${userId}'/>" maxlength="30" autocomplete="username" required>
+            </div>
 
-    <button type="submit">로그인</button>
-    <a href="${pageContext.request.contextPath}/user/join.do">회원가입</a>
-</form>
+            <div class="form-row">
+                <label class="label" for="loginPassword">비밀번호 <span class="required">*</span></label>
+                <input class="input" type="password" id="loginPassword" name="password" autocomplete="current-password" required>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn primary block" type="submit">로그인</button>
+                <a class="btn outline block" href="${pageContext.request.contextPath}/user/join.do">회원가입</a>
+            </div>
+        </form>
+    </main>
 </body>
 </html>

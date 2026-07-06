@@ -16,7 +16,7 @@ import com.pcwk.ehr.user.util.PasswordUtil;
  * 1. 회원가입 시 필수값을 검사합니다.
  * 2. 팀 공통코드 기준으로 회원권한/회원상태를 저장합니다.
  *    - USER_ROLE   : 01 일반회원, 02 관리자
- *    - USER_STATUS : 01 정상, 02 탈퇴, 03 휴먼, 04 정지
+ *    - USER_STATUS : 01 정상, 02 탈퇴, 03 휴면, 04 정지
  * 3. 01/03/04 상태 회원 기준으로 아이디/전화번호/이메일 중복을 막습니다.
  * 4. 02 탈퇴 회원의 아이디/전화번호/이메일은 재가입 가능하도록 중복 검사에서 제외합니다.
  * 5. 비밀번호는 평문으로 저장하지 않고 SHA-256 해시값으로 저장합니다.
@@ -29,7 +29,7 @@ public class UserServiceImpl implements UserService {
     private static final String ROLE_USER = "01";
     private static final String ROLE_ADMIN = "02";
 
-    // 회원상태 공통코드: 01=정상, 02=탈퇴, 03=휴먼, 04=정지
+    // 회원상태 공통코드: 01=정상, 02=탈퇴, 03=휴면, 04=정지
     private static final String STATUS_ACTIVE = "01";
     private static final String STATUS_WITHDRAWN = "02";
     private static final String STATUS_DORMANT = "03";
@@ -130,9 +130,9 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("탈퇴 처리된 회원입니다.");
         }
 
-        // 03 휴먼 회원은 로그인 금지
+        // 03 휴면 회원은 로그인 금지
         if (STATUS_DORMANT.equals(savedUser.getUserStatus())) {
-            throw new IllegalStateException("휴먼 상태의 회원입니다.");
+            throw new IllegalStateException("휴면 상태의 회원입니다.");
         }
 
         // 04 정지 회원은 로그인 금지

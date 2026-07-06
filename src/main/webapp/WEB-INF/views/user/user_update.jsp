@@ -5,186 +5,126 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>회원정보 수정</title>
-
-    <script>
-        /*
-            회원탈퇴 영역 제어 JavaScript입니다.
-
-            현재 방식:
-            1. 처음에는 [회원탈퇴] 버튼만 보입니다.
-            2. 버튼을 누르면 비밀번호 확인 영역이 나타납니다.
-            3. [탈퇴 진행]을 누르면 비밀번호 입력 여부 확인 후 confirm 창을 띄웁니다.
-            4. 사용자가 confirm에서 확인을 누르면 서버로 POST 요청을 보냅니다.
-        */
-
-        function showWithdrawArea() {
-            /*
-                withdrawStartArea:
-                - 처음에 보이는 [회원탈퇴] 버튼 영역입니다.
-                - 탈퇴 확인 영역을 보여줄 때는 이 영역을 숨깁니다.
-            */
-            document.getElementById('withdrawStartArea').style.display = 'none';
-
-            /*
-                withdrawConfirmArea:
-                - 비밀번호 확인 입력칸과 [탈퇴 진행], [취소] 버튼이 있는 영역입니다.
-                - 처음에는 숨겨져 있다가 회원탈퇴 버튼을 누르면 보입니다.
-            */
-            document.getElementById('withdrawConfirmArea').style.display = 'block';
-
-            /*
-                사용자가 바로 비밀번호를 입력할 수 있도록 커서를 이동합니다.
-            */
-            document.getElementById('withdrawPassword').focus();
-        }
-
-        function hideWithdrawArea() {
-            /*
-                사용자가 탈퇴를 취소하면 비밀번호 확인 영역을 다시 숨깁니다.
-            */
-            document.getElementById('withdrawConfirmArea').style.display = 'none';
-
-            /*
-                처음에 보였던 [회원탈퇴] 버튼 영역을 다시 보여줍니다.
-            */
-            document.getElementById('withdrawStartArea').style.display = 'block';
-
-            /*
-                입력했던 비밀번호는 화면에 남기지 않도록 지웁니다.
-            */
-            document.getElementById('withdrawPassword').value = '';
-        }
-
-        function confirmWithdraw() {
-            /*
-                탈퇴 확인용 비밀번호 입력값을 가져옵니다.
-            */
-            var password = document.getElementById('withdrawPassword').value;
-
-            /*
-                비밀번호를 입력하지 않았으면 서버로 보내지 않습니다.
-            */
-            if (password == null || password.trim() === '') {
-                alert('회원탈퇴를 진행하려면 비밀번호를 입력하세요.');
-                document.getElementById('withdrawPassword').focus();
-                return false;
-            }
-
-            /*
-                마지막 확인 창입니다.
-                true이면 form submit이 진행되고,
-                false이면 submit이 취소됩니다.
-            */
-            return confirm('정말 탈퇴하시겠습니까?\n탈퇴 후 계정 상태가 탈퇴로 변경되며 로그인이 제한됩니다.');
-        }
-    </script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SPAM 회원정보 수정</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
+    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
 </head>
 <body>
-<h2>회원정보 수정</h2>
+    <main class="page-shell">
+        <header class="page-header">
+            <div>
+                <a class="brand" href="${pageContext.request.contextPath}/user/mypage.do" aria-label="SPAM 마이페이지">
+                    <span class="brand-mark">SP</span>
+                    <span>SPAM</span>
+                </a>
+                <h1 class="page-title">회원정보 수정</h1>
+                <p class="page-desc">기본 정보, 비밀번호 변경, 회원탈퇴를 한 화면에서 처리합니다.</p>
+            </div>
+            <nav class="header-actions">
+                <a class="btn outline" href="${pageContext.request.contextPath}/user/mypage.do">마이페이지</a>
+                <a class="btn" href="${pageContext.request.contextPath}/user/logout.do">로그아웃</a>
+            </nav>
+        </header>
 
-<!-- Controller가 전달한 안내/오류 메시지를 표시 -->
-<c:if test="${not empty msg}">
-    <p style="color:red;">${msg}</p>
-</c:if>
+        <c:if test="${not empty msg}">
+            <p class="alert"><c:out value="${msg}" /></p>
+        </c:if>
 
-<!-- Date 값을 yyyy-MM-dd 문자열로 변환 -->
-<fmt:formatDate value="${user.birthDt}" pattern="yyyy-MM-dd" var="birthDtText" />
+        <fmt:formatDate value="${user.birthDt}" pattern="yyyy-MM-dd" var="birthDtText" />
 
-<!--
-    회원 기본정보 수정 form
+        <div class="grid-2">
+            <section class="panel">
+                <h2 class="panel-title">기본 정보</h2>
+                <form id="updateForm" class="form-grid" action="${pageContext.request.contextPath}/user/update.do" method="post" novalidate>
+                    <input type="hidden" name="userNum" value="${user.userNum}">
 
-    - 수정 가능 항목: 이름, 닉네임, 전화번호, 이메일, 생년월일
-    - 수정 불가 항목: 아이디, 권한, 상태
--->
-<form action="${pageContext.request.contextPath}/user/update.do" method="post">
-    <!--
-        hidden userNum은 화면에서 보내지만, Controller에서 세션 userNum으로 다시 덮어씀
-        ㄴ 사용자가 개발자도구로 userNum을 바꾸는 조작을 막기 위해
-    -->
-    <input type="hidden" name="userNum" value="${user.userNum}">
+                    <div class="form-row">
+                        <label class="label" for="readonlyUserId">아이디</label>
+                        <input class="input" type="text" id="readonlyUserId" value="<c:out value='${user.userId}'/>" readonly>
+                        <p class="help-text">아이디는 변경할 수 없습니다.</p>
+                    </div>
 
-    <table border="1">
-        <tr>
-            <th>아이디</th>
-            <td>
-                ${user.userId}
-                <span style="color:gray;">변경 불가</span>
-            </td>
-        </tr>
-        <tr>
-            <th>이름 *</th>
-            <td>
-                <input type="text" name="userName" value="${user.userName}" maxlength="7" required>
-            </td>
-        </tr>
-        <tr>
-            <th>닉네임</th>
-            <td>
-                <input type="text" name="nickname" value="${user.nickname}" maxlength="30">
-            </td>
-        </tr>
-        <tr>
-            <th>전화번호 *</th>
-            <td>
-                <input type="text" name="phoneNum" value="${user.phoneNum}" maxlength="13" placeholder="010-0000-0000" required>
-            </td>
-        </tr>
-        <tr>
-            <th>이메일</th>
-            <td>
-                <input type="email" name="email" value="${user.email}" maxlength="100" placeholder="example@test.com">
-            </td>
-        </tr>
-        <tr>
-            <th>생년월일</th>
-            <td>
-                <input type="date" name="birthDt" value="${birthDtText}">
-            </td>
-        </tr>
-    </table>
+                    <div class="form-row">
+                        <label class="label" for="updateUserName">이름 <span class="required">*</span></label>
+                        <input class="input" type="text" id="updateUserName" name="userName" value="<c:out value='${user.userName}'/>" maxlength="7" required>
+                    </div>
 
-    <button type="submit">수정</button>
-    <a href="${pageContext.request.contextPath}/user/mypage.do">취소</a>
-</form>
+                    <div class="form-row">
+                        <label class="label" for="updateNickname">닉네임</label>
+                        <input class="input" type="text" id="updateNickname" name="nickname" value="<c:out value='${user.nickname}'/>" maxlength="30">
+                    </div>
 
-<hr>
+                    <div class="form-row">
+                        <label class="label" for="updatePhoneNum">전화번호 <span class="required">*</span></label>
+                        <input class="input" type="text" id="updatePhoneNum" name="phoneNum" value="<c:out value='${user.phoneNum}'/>" maxlength="13" placeholder="010-0000-0000" data-format="phone" required>
+                    </div>
 
-<h3>비밀번호 변경</h3>
+                    <div class="form-row">
+                        <label class="label" for="updateEmail">이메일</label>
+                        <input class="input" type="email" id="updateEmail" name="email" value="<c:out value='${user.email}'/>" maxlength="100" placeholder="example@test.com">
+                    </div>
 
-<!--
-    비밀번호 변경 form
+                    <div class="form-row">
+                        <label class="label" for="updateBirthDt">생년월일</label>
+                        <input class="input" type="date" id="updateBirthDt" name="birthDt" value="${birthDtText}">
+                    </div>
 
-    - currentPassword: 현재 비밀번호 확인
-	- newPassword: 새로 저장할 비밀번호
--->
-<form action="${pageContext.request.contextPath}/user/password.do" method="post">
-    현재 비밀번호
-    <input type="password" name="currentPassword" autocomplete="current-password" required>
+                    <div class="form-actions">
+                        <button class="btn primary" type="submit">수정 저장</button>
+                        <a class="btn outline" href="${pageContext.request.contextPath}/user/mypage.do">취소</a>
+                    </div>
+                </form>
+            </section>
 
-    새 비밀번호
-    <input type="password" name="newPassword" autocomplete="new-password" required>
+            <div class="stack">
+                <section class="panel">
+                    <h2 class="panel-title">비밀번호 변경</h2>
+                    <form id="passwordForm" class="form-grid" action="${pageContext.request.contextPath}/user/password.do" method="post" novalidate>
+                        <div class="form-row">
+                            <label class="label" for="currentPassword">현재 비밀번호 <span class="required">*</span></label>
+                            <input class="input" type="password" id="currentPassword" name="currentPassword" autocomplete="current-password" required>
+                        </div>
 
-    <button type="submit">비밀번호 변경</button>
-</form>
+                        <div class="form-row">
+                            <label class="label" for="newPassword">새 비밀번호 <span class="required">*</span></label>
+                            <input class="input" type="password" id="newPassword" name="newPassword" autocomplete="new-password" required>
+                        </div>
 
-<hr>
+                        <div class="form-row">
+                            <label class="label" for="newPasswordConfirm">새 비밀번호 확인 <span class="required">*</span></label>
+                            <input class="input" type="password" id="newPasswordConfirm" name="newPasswordConfirm" autocomplete="new-password" required>
+                        </div>
 
-<h3>회원탈퇴</h3>
+                        <div class="form-actions">
+                            <button class="btn primary" type="submit">비밀번호 변경</button>
+                        </div>
+                    </form>
+                </section>
 
-<div id="withdrawStartArea" style="display:${withdrawError ? 'none' : 'block'};">
-    <button type="button" onclick="showWithdrawArea();">회원탈퇴</button>
-</div>
+                <section class="panel">
+                    <h2 class="panel-title">회원탈퇴</h2>
+                    <p class="help-text">탈퇴하면 계정 상태가 탈퇴로 변경되고 로그인이 제한됩니다.</p>
 
-<div id="withdrawConfirmArea" style="display:${withdrawError ? 'block' : 'none'};">
-    <form action="${pageContext.request.contextPath}/user/withdraw.do" method="post" onsubmit="return confirmWithdraw();">
-        비밀번호 확인
-        <input type="password" id="withdrawPassword" name="password" autocomplete="current-password" required>
+                    <div id="withdrawStartArea" class="card-actions ${withdrawError ? 'hidden' : ''}">
+                        <button id="showWithdrawButton" class="btn ghost-danger" type="button">회원탈퇴</button>
+                    </div>
 
-        <button type="submit">탈퇴 진행</button>
-        <button type="button" onclick="hideWithdrawArea();">취소</button>
-    </form>
-</div>
-
+                    <div id="withdrawConfirmArea" class="withdraw-box ${withdrawError ? '' : 'hidden'}">
+                        <form id="withdrawForm" class="form-grid" action="${pageContext.request.contextPath}/user/withdraw.do" method="post" novalidate>
+                            <div class="form-row">
+                                <label class="label" for="withdrawPassword">비밀번호 확인 <span class="required">*</span></label>
+                                <input class="input" type="password" id="withdrawPassword" name="password" autocomplete="current-password" required>
+                            </div>
+                            <div class="form-actions">
+                                <button class="btn danger" type="submit">탈퇴 진행</button>
+                                <button id="hideWithdrawButton" class="btn outline" type="button">취소</button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
 </body>
 </html>
