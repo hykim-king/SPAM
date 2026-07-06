@@ -16,10 +16,10 @@
     <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
-        <property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper" />
-
-        <!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
-        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
+    	<property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper, com.pcwk.ehr.chat.mapper"></property>
+    	
+    	<!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
+    	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
     </bean>
 
     <!-- SqlSessionTemplate -->
@@ -59,6 +59,7 @@
     따라서 회원관리 프로젝트에서는 XML AOP 트랜잭션 대신
     Service 메서드의 @Transactional을 사용합니다.
 -->
+
 <!-- 
     <aop:config>
         <aop:pointcut

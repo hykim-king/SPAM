@@ -14,5 +14,7 @@
 		<!-- <package name="com.pcwk.ehr.user.domain" /> -->
 		<typeAlias alias="UserVO" type="com.pcwk.ehr.user.domain.UserVO" />
 		<typeAlias alias="UserSearchDTO" type="com.pcwk.ehr.user.domain.UserSearchDTO" />
+		<typeAlias type="com.pcwk.ehr.chat.domain.ChatMessageVO" alias="ChatMessageVO"/>
+		<typeAlias type="com.pcwk.ehr.chat.domain.ChatRoomVO" alias="ChatRoomVO"/>
 	</typeAliases>
 </configuration>
