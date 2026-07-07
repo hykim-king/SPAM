@@ -12,7 +12,7 @@
     <!-- [추가] root-context만 읽는 JUnit에서도 UserServiceImpl을 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
     <context:component-scan base-package="com.pcwk.ehr.user.service" />
     <context:component-scan base-package="com.pcwk.ehr.report.service" />
-
+	<context:component-scan base-package="com.pcwk.ehr.transact.service" />
     <!-- MyBatis설정 -->
     <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
