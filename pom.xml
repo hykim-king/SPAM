@@ -25,8 +25,11 @@
 		<mybatis-spring-version>2.1.1</mybatis-spring-version>
 	</properties>
 
+
 	<!-- 의존성 목록 -->
+	
 	<dependencies>
+		
 		<!-- Source: https://mvnrepository.com/artifact/com.google.code.gson/gson -->
 		<dependency>
 		    <groupId>com.google.code.gson</groupId>
@@ -155,6 +158,22 @@
 			<version>5.11.0</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- transact service 테스트시 필요함 -->
+		<dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>5.11.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- transact service 테스트시 필요함 -->
 
 		<!-- ========================= -->
 		<!-- 2. MyBatis + MyBatis-Spring -->
