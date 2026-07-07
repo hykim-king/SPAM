@@ -46,6 +46,7 @@ public class ReportServiceTest {
         report.setReportType("01");
         report.setTargetId(100L);
         report.setReason("서비스 테스트 이유");
+        report.setReportStatus("wait");
 
         int flag = reportService.doInsert(report);
         assertEquals(1, flag);

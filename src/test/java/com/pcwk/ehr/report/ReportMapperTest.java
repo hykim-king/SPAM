@@ -49,6 +49,7 @@ public class ReportMapperTest {
         report.setReportType("01");
         report.setTargetId(100L);
         report.setReason("욕설 및 비방");
+        report.setReportStatus("wait");
 
         int flag = reportMapper.insertReport(report);
         assertEquals(1, flag);

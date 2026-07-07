@@ -18,10 +18,10 @@
     <insert id="insertReport" parameterType="ReportVO">
         INSERT INTO REPORT_INFO (
             REPORT_NO, REPORTER_NO, REPORTED_USER_NO, REPORT_TYPE, 
-            TARGET_ID, REASON
+            TARGET_ID, REASON, REPORT_STATUS
         ) VALUES (
-            SEQ_REPORT_NO.NEXTVAL, #{reporterNo}, #{reportedUserNo}, #{reportType},
-            #{targetId}, #{reason}
+            SEQ_REPORT_INFO.NEXTVAL, #{reporterNo}, #{reportedUserNo}, #{reportType},
+            #{targetId}, #{reason}, #{reportStatus}
         )
     </insert>
     
