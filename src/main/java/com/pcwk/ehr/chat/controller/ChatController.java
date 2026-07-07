@@ -28,6 +28,11 @@ public class ChatController {
 	@Autowired
 	ChatService service;
 	
+	@GetMapping("/view.do")
+	public String view() {
+	    return "chat/chat_view";
+	}
+	
 	@PostMapping("/enterRoom.do")
 	@ResponseBody
 	public ChatRoomVO enterRoom(@ModelAttribute ChatRoomVO param, HttpSession session) {

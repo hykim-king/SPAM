@@ -12,13 +12,14 @@
     <!-- [추가] root-context만 읽는 JUnit에서도 UserServiceImpl을 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
     <context:component-scan base-package="com.pcwk.ehr.user.service" />
     <context:component-scan base-package="com.pcwk.ehr.report.service" />
-
-    <!-- MyBatis설정 -->
+	<context:component-scan base-package="com.pcwk.ehr.transact.service" />
+	
+	    <!-- MyBatis설정 -->
     <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
     	<property name="basePackage" value="com.pcwk.ehr.user.mapper, com.pcwk.ehr.chat.mapper,
-    										com.pcwk.ehr.report.mapper"></property>
+    										com.pcwk.ehr.report.mapper, com.pcwk.ehr.transact.mapper"></property>
     	
     	<!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
     	<property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
@@ -116,6 +117,7 @@
 		<property name="jdbcUrl" value="jdbc:oracle:thin:@218.144.130.138:1522:xe" />  
         <property name="username" value="spampcwk" />
         <property name="password" value="Q2w3e4r" />
+        
         <!-- option -->
         <property name="maximumPoolSize" value="10" />
         <property name="minimumIdle" value="5" />
