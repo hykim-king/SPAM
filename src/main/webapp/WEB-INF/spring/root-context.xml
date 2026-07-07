@@ -63,7 +63,6 @@
 			<tx:method name="*" propagation="REQUIRED" read-only="true" />
 		</tx:attributes>
 	</tx:advice>
-
 	<!-- 트랜잭션 어노테이션 활성화 : @Transactional -->
 	<tx:annotation-driven proxy-target-class="true"
 		transaction-manager="transactionManager" />
@@ -73,10 +72,6 @@
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<constructor-arg name="dataSource" ref="dataSource"></constructor-arg>
 	</bean>
-
-	<bean id="dummyMailService"
-		class="com.pcwk.ehr.user.service.DummyMailService"></bean>
-
 
 	<bean id="mailSenderImpl"
 		class="org.springframework.mail.javamail.JavaMailSenderImpl">
@@ -107,8 +102,8 @@
 			value="oracle.jdbc.driver.OracleDriver" />
 		<property name="jdbcUrl"
 			value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
-		<property name="username" value="scott" />
-		<property name="password" value="pcwk" />
+		<property name="username" value="spampcwk" />
+		<property name="password" value="Q2w3e4r" />
 
 		<!-- option -->
 		<property name="maximumPoolSize" value="10" />
