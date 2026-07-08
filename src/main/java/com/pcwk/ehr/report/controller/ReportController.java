@@ -26,14 +26,26 @@ public class ReportController {
     @Autowired
     private ReportService reportService;
 
+    // ================관리자================
+    // ================관리자================
+
     // 1. 신고 목록 조회 (관리자용)
     @GetMapping("/doRetrieve.do")
     public String doRetrieve(ReportSearchDTO search, Model model) {
         model.addAttribute("list", reportService.doRetrieve(search));
         return "report/report_list";
     }
-
-    // 2. 신고 등록 (사용자용)
+    
+    // ================사용자================
+    // ================사용자================
+    
+    // 1. 신고등록 페이지 GET 요청 
+    @GetMapping("/report_product_form.do")
+    public String reportForm() {
+        return "report/report_product_form"; 
+    }
+    
+    // 2. 신고 등록 POST 요청
     @PostMapping("/doInsert.do")
     public String doInsert(ReportVO report) {
         reportService.doInsert(report);
