@@ -11,6 +11,7 @@
 	<typeAliases>
 		<typeAlias alias="ProductVO" type="com.pcwk.ehr.product.domain.ProductVO"/>
 		<typeAlias alias="CategoryVO" type="com.pcwk.ehr.category.domain.CategoryVO"/>
+		<typeAlias alias="ProductImageVO" type="com.pcwk.ehr.product.domain.ProductImageVO"/>
 	</typeAliases>
 </configuration>
 

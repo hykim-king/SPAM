@@ -1,14 +1,19 @@
 package com.pcwk.ehr.product.service;
 
+import java.io.File;
 import java.util.List;
+import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.pcwk.ehr.product.domain.ProductImageVO;
 import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.mapper.ProductImageMapper;
 import com.pcwk.ehr.product.mapper.ProductMapper;
 
 @Service
@@ -22,10 +27,16 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private ProductMapper productMapper;
+    
+    @Autowired
+    private ProductImageMapper productImageMapper;   // 이미지 매퍼 주입 추가
+    
+    // 파일 저장 경로 (설정한 폴더)
+    private static final String UPLOAD_PATH = "D:\\SPAM\\Upload";
 
     @Override
     @Transactional
-    public int doInsert(ProductVO product) {
+    public int doInsert(ProductVO product, List<MultipartFile> files) {
         log.debug("1. doInsert(param): {}", product);
 
         // 1) 필수값/가격 검증
@@ -40,8 +51,46 @@ public class ProductServiceImpl implements ProductService {
         product.setChatCnt(0);   // 채팅수
         product.setAdminHideYn("N"); // 숨김상태
 
+        // 3) 상품 INSERT (여기서 productNo가 생성됨)
         int flag = productMapper.doInsert(product);
-        log.debug("2. doInsert(flag): {}", flag);
+        log.debug("2. 상품 등록 flag: {}, 생성된 productNo: {}", flag, product.getProductNo());
+
+        // 4) 이미지 저장 + INSERT
+        if (files != null && !files.isEmpty()) {
+            int order = 1;
+            for (MultipartFile file : files) {
+                if (file == null || file.isEmpty()) continue;  // 빈 슬롯 건너뛰기
+
+                try {
+                    // 원본 파일명 & 새 파일명(중복방지)
+                    String originName = file.getOriginalFilename();
+                    String ext = originName.substring(originName.lastIndexOf("."));  // 확장자
+                    String changeName = UUID.randomUUID().toString().replace("-", "") + ext;
+
+                    // 실제 폴더에 저장
+                    File saveDir = new File(UPLOAD_PATH);
+                    if (!saveDir.exists()) saveDir.mkdirs();  // 폴더 없으면 생성
+                    File saveFile = new File(saveDir, changeName);
+                    file.transferTo(saveFile);  // ★ 디스크에 실제 저장
+
+                    // 이미지 정보 INSERT
+                    ProductImageVO img = new ProductImageVO();
+                    img.setProductNo(product.getProductNo());  // 방금 생성된 상품번호
+                    img.setOriginName(originName);
+                    img.setChangeName(changeName);
+                    img.setFilePath("/upload/" + changeName);  // 웹 접근 경로
+                    img.setImageOrder(order);
+                    img.setThumbnalYn(order == 1 ? "Y" : "N");  // 첫 장을 대표로
+                    productImageMapper.doInsert(img);
+
+                    order++;
+                } catch (Exception e) {
+                    log.error("이미지 저장 실패: {}", e.getMessage());
+                    throw new RuntimeException("이미지 저장 실패", e);  // 롤백 유발
+                }
+            }
+        }
+
         return flag;
     }
 
@@ -75,15 +124,20 @@ public class ProductServiceImpl implements ProductService {
     public ProductVO doSelectOne(ProductVO product) {
         log.debug("1. doSelectOne(param): {}", product);
 
-        // 상품이 존재하는지 확인
         ProductVO outVO = productMapper.doSelectOne(product);
-        
+
         if (outVO != null) {
-            // 판매자 본인이 아닐 때만 조회수 증가
+            // 조회수 증가
             if (product.getSallerNo() != outVO.getSallerNo()) {
                 productMapper.updateViewCount(product);
                 outVO.setViewCount(outVO.getViewCount() + 1);
             }
+
+            // 이미지 목록 조회해서 담기
+            List<ProductImageVO> imageList =
+                productImageMapper.doRetrieveByProduct(outVO.getProductNo());
+            outVO.setImageList(imageList);
+            log.debug("이미지 {}장 조회됨", imageList.size());
         }
 
         log.debug("2. doSelectOne(outVO): {}", outVO);

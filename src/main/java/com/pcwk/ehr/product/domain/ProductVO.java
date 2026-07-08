@@ -1,6 +1,8 @@
 package com.pcwk.ehr.product.domain;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductVO implements Serializable {
 
@@ -22,6 +24,8 @@ public class ProductVO implements Serializable {
     private String modifyDt;        // MODIFY_DT (DATE)
     private int likeCnt;            // LIKE_CNT (NUMBER, DEFAULT 0)
     private int chatCnt;            // CHAT_CNT (NUMBER, DEFAULT 0)
+    
+    private List<ProductImageVO> imageList = new ArrayList<>();
     
  // 카테고리 경로 표시용 (조인으로 채움, 테이블 컬럼 아님)
     private String largeName;   // 대분류명
@@ -104,10 +108,30 @@ public class ProductVO implements Serializable {
 	public void setSmallName(String smallName) {
 		this.smallName = smallName;
 	}
+	
+
+	public List<ProductImageVO> getImageList() {
+		return imageList;
+	}
+
+	public void setImageList(List<ProductImageVO> imageList) {
+		this.imageList = imageList;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 
 	@Override
-    public String toString() {
-        return "ProductVO [productNo=" + productNo + ", userNum=" + sallerNo + ", categoryNo=" + categoryNo
-                + ", productTitle=" + productTitle + ", price=" + price + ", status=" + status + "]";
-    }
+	public String toString() {
+		return "ProductVO [productNo=" + productNo + ", sallerNo=" + sallerNo + ", categoryNo=" + categoryNo
+				+ ", productTitle=" + productTitle + ", productContent=" + productContent + ", productCondition="
+				+ productCondition + ", price=" + price + ", location=" + location + ", status=" + status
+				+ ", adminHideYn=" + adminHideYn + ", hideReason=" + hideReason + ", viewCount=" + viewCount
+				+ ", createDt=" + createDt + ", modifyDt=" + modifyDt + ", likeCnt=" + likeCnt + ", chatCnt=" + chatCnt
+				+ ", imageList=" + imageList + ", largeName=" + largeName + ", middleName=" + middleName
+				+ ", smallName=" + smallName + "]";
+	}
+
+	
 }

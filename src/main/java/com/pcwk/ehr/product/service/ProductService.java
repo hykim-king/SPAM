@@ -1,12 +1,15 @@
 package com.pcwk.ehr.product.service;
 
 import java.util.List;
+
+import org.springframework.web.multipart.MultipartFile;
+
 import com.pcwk.ehr.product.domain.ProductVO;
 
 public interface ProductService {
 
-    /** 상품 등록 */
-    int doInsert(ProductVO product);
+	/** 상품 등록 (이미지 파일 포함) */
+	int doInsert(ProductVO product, List<MultipartFile> files);
 
     /** 상품 수정 */
     int doUpdate(ProductVO product);

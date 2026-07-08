@@ -6,6 +6,9 @@
 
     <!-- 상품 등록 -->
     <insert id="doInsert" parameterType="ProductVO">
+        <selectKey keyProperty="productNo" resultType="int" order="BEFORE">
+        	SELECT SEQ_PRODUCT.NEXTVAL FROM DUAL
+    	</selectKey>
         INSERT INTO PRODUCT (
             PRODUCT_NO,
             SALLER_NO,
@@ -18,7 +21,7 @@
             STATUS,
             ADMIN_HIDE_YN
         ) VALUES (
-            SEQ_PRODUCT.NEXTVAL,
+            #{productNo},
             #{sallerNo},
             #{categoryNo},
             #{productTitle},
