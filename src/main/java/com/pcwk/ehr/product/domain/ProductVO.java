@@ -22,6 +22,11 @@ public class ProductVO implements Serializable {
     private String modifyDt;        // MODIFY_DT (DATE)
     private int likeCnt;            // LIKE_CNT (NUMBER, DEFAULT 0)
     private int chatCnt;            // CHAT_CNT (NUMBER, DEFAULT 0)
+    
+ // 카테고리 경로 표시용 (조인으로 채움, 테이블 컬럼 아님)
+    private String largeName;   // 대분류명
+    private String middleName;  // 중분류명
+    private String smallName;   // 소분류명
 
     public ProductVO() {}
 
@@ -73,8 +78,34 @@ public class ProductVO implements Serializable {
 
     public int getChatCnt() { return chatCnt; }
     public void setChatCnt(int chatCnt) { this.chatCnt = chatCnt; }
+    
+    
 
-    @Override
+    public String getLargeName() {
+		return largeName;
+	}
+
+	public void setLargeName(String largeName) {
+		this.largeName = largeName;
+	}
+
+	public String getMiddleName() {
+		return middleName;
+	}
+
+	public void setMiddleName(String middleName) {
+		this.middleName = middleName;
+	}
+
+	public String getSmallName() {
+		return smallName;
+	}
+
+	public void setSmallName(String smallName) {
+		this.smallName = smallName;
+	}
+
+	@Override
     public String toString() {
         return "ProductVO [productNo=" + productNo + ", userNum=" + sallerNo + ", categoryNo=" + categoryNo
                 + ", productTitle=" + productTitle + ", price=" + price + ", status=" + status + "]";

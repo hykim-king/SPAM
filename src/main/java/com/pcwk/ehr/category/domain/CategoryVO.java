@@ -1,4 +1,4 @@
-package com.pcwk.ehr.product.domain;
+package com.pcwk.ehr.category.domain;
 
 import java.io.Serializable;
 
@@ -11,20 +11,18 @@ public class CategoryVO implements Serializable {
     private String categoryName;    // CATEGORY_NAME (NVARCHAR2)
     private int categoryLevel;      // CATEGORY_LEVEL (1:대분류, 2:중분류, 3:소분류)
     private Integer sortOrder;      // SORT_ORDER (NULL 허용)
-    private String useYn;           // USE_YN (CHAR(1), DEFAULT 'Y')
     private String createDt;        // CREATE_DT (DATE, String으로 관리하여 날짜 포맷팅 편의성 제고)
     private String updateDt;        // UPDATE_DT (DATE)
 
     public CategoryVO() {}
 
     public CategoryVO(int categoryNo, Integer parentCategoryNo, String categoryName, int categoryLevel,
-            Integer sortOrder, String useYn, String createDt, String updateDt) {
+            Integer sortOrder, String createDt, String updateDt) {
         this.categoryNo = categoryNo;
         this.parentCategoryNo = parentCategoryNo;
         this.categoryName = categoryName;
         this.categoryLevel = categoryLevel;
         this.sortOrder = sortOrder;
-        this.useYn = useYn;
         this.createDt = createDt;
         this.updateDt = updateDt;
     }
@@ -45,9 +43,6 @@ public class CategoryVO implements Serializable {
     public Integer getSortOrder() { return sortOrder; }
     public void setSortOrder(Integer sortOrder) { this.sortOrder = sortOrder; }
 
-    public String getUseYn() { return useYn; }
-    public void setUseYn(String useYn) { this.useYn = useYn; }
-
     public String getCreateDt() { return createDt; }
     public void setCreateDt(String createDt) { this.createDt = createDt; }
 
@@ -57,7 +52,6 @@ public class CategoryVO implements Serializable {
     @Override
     public String toString() {
         return "CategoryVO [categoryNo=" + categoryNo + ", parentCategoryNo=" + parentCategoryNo + ", categoryName="
-                + categoryName + ", categoryLevel=" + categoryLevel + ", sortOrder=" + sortOrder + ", useYn=" + useYn
-                + ", createDt=" + createDt + ", updateDt=" + updateDt + "]";
+                + categoryName + ", categoryLevel=" + categoryLevel + ", sortOrder=" + sortOrder + ", createDt=" + createDt + ", updateDt=" + updateDt + "]";
     }
 }

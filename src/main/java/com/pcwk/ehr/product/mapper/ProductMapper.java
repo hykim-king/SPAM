@@ -1,4 +1,4 @@
-package com.pcwk.ehr.mapper;
+package com.pcwk.ehr.product.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
