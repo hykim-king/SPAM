@@ -2,59 +2,38 @@
  * 파일명: TransactHistMapper.java <br>
  * 작성자: Wholesome-Gee  <br>
  * 생성일: 2026-07-07 <br>
- * 설　명: <br>
+ * 설 명: 거래 내역 데이터베이스 매퍼 인터페이스 <br>
  */
 package com.pcwk.ehr.transact.mapper;
 
 import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Param; // @Param 임포트
 import com.pcwk.ehr.transact.domain.TransactHistVO;
-// 필요 시 검색/페이징을 위한 DTO import
-// import com.pcwk.ehr.transact.domain.TransactHistSearchDTO;
 
 public interface TransactHistMapper {
 
-    /**
-     * 거래내역 등록 (INSERT)
-     */
-    int insertTransact(TransactHistVO transact);
+    // 1. 거래 내역 등록
+    int insertTransact(TransactHistVO vo);
 
-    /**
-     * 거래내역 상세 조회 (SELECT ONE)
-     */
-    TransactHistVO selectByTxId(@Param("txId") Long txId);
+    // 2. 특정 거래내역 조회
+    TransactHistVO selectByTxId(Long txId);
 
-    /**
-     * 거래내역 상태 업데이트 (UPDATE)
-     * 예: 거래중 -> 거래완료, 거래취소 등
-     */
-    int updateStatus(TransactHistVO transact) ;
+    // 3. 거래 상태 업데이트
+    int updateStatus(TransactHistVO vo);
 
-    /**
-     * 거래내역 삭제 (DELETE) - 물리적 삭제보다는 상태 변경을 권장하지만 필요시 구현
-     */
-    int deleteTransact(@Param("txId") Long txId);
-    
-    /**
-     * 거래내역 전체 삭제 - 테스트 환경 초기화나 운영 데이터 정리 시 사용
-     */
+    // 4. 특정 거래내역 삭제
+    int deleteTransact(Long txId);
+
+    // 5. 전체 거래내역 삭제
     int deleteAll();
 
-    /**
-     * [추가기능] 특정 사용자의 거래 목록 조회 (판매자 또는 구매자 기준)
-     * mybatis에서 동적 SQL을 활용해 sellerNo 또는 receiverNo로 필터링
-     */
-    List<TransactHistVO> selectListByUser(@Param("userNum") Long userNum);
+    // 6. 특정 회원의 거래내역 조회
+    List<TransactHistVO> selectListByUser(Long userNum);
 
-    /**
-     * [추가기능] 특정 상품과 관련된 거래내역 조회
-     * 한 상품에 여러 거래가 발생할 수 있는 경우(경매 등)를 대비
-     */
-    List<TransactHistVO> selectListByProduct(@Param("productNo") Long productNo);
+    // 7. 특정 상품으로 거래내역 조회 (정렬 조건 추가로 다중 파라미터 매핑 적용)
+    List<TransactHistVO> selectListByProduct(@Param("productNo") Long productNo, @Param("sort") String sort);
 
-    /**
-     * [추가기능] 총 거래 건수 (페이징용)
-     */
+    // 8. 전체 데이터 총 개수 조회
     int totalCount();
 }
 
