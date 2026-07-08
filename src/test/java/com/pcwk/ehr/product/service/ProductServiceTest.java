@@ -38,7 +38,7 @@ public class ProductServiceTest {
         param.setPrice(1200000);
         param.setLocation("서울 강남구");
 
-        int flag = productService.doInsert(param);
+        int flag = productService.doInsert(param, null);
         System.out.println("등록 결과 flag: " + flag);
         assertEquals(1, flag);
     }
