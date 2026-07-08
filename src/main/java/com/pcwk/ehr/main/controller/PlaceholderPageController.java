@@ -58,23 +58,17 @@ public class PlaceholderPageController {
     }
 
     @GetMapping("/trade/history.do")
-    public String tradeHistory(Model model) {
-        model.addAttribute("pageTitle", "거래내역");
-        model.addAttribute("pageDesc", "거래내역 모듈의 구매/판매 내역 화면으로 연결할 예정입니다.");
-        return "placeholder/placeholder";
+    public String tradeHistory() {
+        return "redirect:/transact/list.do";
     }
 
     @GetMapping("/report/view.do")
-    public String reportView(Model model) {
-        model.addAttribute("pageTitle", "신고센터");
-        model.addAttribute("pageDesc", "신고 접수/처리 상태 확인 화면으로 연결할 예정입니다.");
-        return "placeholder/placeholder";
+    public String reportView() {
+        return "redirect:/report/doRetrieve.do";
     }
 
     @GetMapping("/guide/safe.do")
-    public String safeGuide(Model model) {
-        model.addAttribute("pageTitle", "안전거래 가이드");
-        model.addAttribute("pageDesc", "직거래 유의사항, 판매자 확인, 신고센터 이용 안내를 제공할 예정입니다.");
-        return "placeholder/placeholder";
+    public String safeGuide() {
+        return "redirect:/service/info.do?tab=safe";
     }
 }

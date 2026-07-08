@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="baby">
+  <rect width="128" height="128" rx="32" fill="#FFF1E6"/>
+  <path d="M36 62c0-16 12-30 28-30s28 14 28 30-12 30-28 30-28-14-28-30Z" fill="white" stroke="#FB923C" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M50 60h.5M77 60h.5M56 74c5 4 11 4 16 0" fill="none" stroke="#FB923C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="96" cy="32" r="10" fill="#FB923C" opacity=".18"/>
+  <circle cx="32" cy="96" r="8" fill="#FB923C" opacity=".14"/>
+</svg>

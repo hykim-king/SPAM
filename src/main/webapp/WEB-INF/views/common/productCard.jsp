@@ -1,13 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:if test="${empty CP}">
+    <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
+</c:if>
 
 <!--
-    [추가] 메인화면 상품 카드 공통 조각
-    [수정 필요] 상품관리 모듈 연동 후 productNo, imageFile, title, price 등의 필드명을 실제 ProductVO에 맞춰 조정한다.
+    [변경] 메인화면 상품 카드 공통 조각
+    [변경] 현재 프로젝트 범위에서 찜 기능은 제외되어 찜 버튼/찜 수 표시는 제거
+    [수정 필요] 상품관리 모듈 연동 후 ProductVO 필드명에 맞춰 조정
 -->
 <a class="product-card" href="${CP}/product/detail.do?productNo=${param.productNo}">
-    <span class="wish-button" aria-label="찜 개수">♡</span>
-
     <div class="product-thumb">
         <img src="${CP}/resources/images/products/${param.imageFile}" alt="${param.productTitle}">
     </div>
@@ -16,6 +19,5 @@
         <strong class="product-title">${param.productTitle}</strong>
         <span class="product-price"><fmt:formatNumber value="${param.price}" pattern="#,##0" />원</span>
         <span class="product-meta">${param.region} · ${param.regTime}</span>
-        <span class="product-wish">♡ ${param.wishCount}</span>
     </div>
 </a>

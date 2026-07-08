@@ -1,17 +1,25 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SPAM 회원가입</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
-    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css">
+    <script defer src="${CP}/resources/js/index.js"></script>
+    <script defer src="${CP}/resources/js/member.js"></script>
 </head>
-<body class="auth-page">
-    <main class="auth-card wide">
-        <a class="brand" href="${pageContext.request.contextPath}/user/login.do" aria-label="SPAM 로그인">
+<body>
+    <div class="page-shell" id="top">
+        <jsp:include page="../common/header.jsp" />
+        <jsp:include page="../common/nav.jsp" />
+
+        <main class="member-auth-main">
+            <section class="auth-card wide">
+        <a class="brand" href="${CP}/user/login.do" aria-label="SPAM 로그인">
             <span class="brand-mark">SP</span>
             <span>SPAM</span>
         </a>
@@ -23,7 +31,7 @@
             <p class="alert"><c:out value="${msg}" /></p>
         </c:if>
 
-        <form id="joinForm" class="form-grid two-col" action="${pageContext.request.contextPath}/user/join.do" method="post" novalidate>
+        <form id="joinForm" class="form-grid two-col" action="${CP}/user/join.do" method="post" novalidate>
             <div class="form-row full">
                 <label class="label" for="userId">아이디 <span class="required">*</span></label>
                 <input class="input" type="text" id="userId" name="userId" value="<c:out value='${user.userId}'/>" maxlength="30" autocomplete="username" required>
@@ -68,9 +76,15 @@
 
             <div class="form-actions full">
                 <button class="btn primary" type="submit">회원가입</button>
-                <a class="btn outline" href="${pageContext.request.contextPath}/user/login.do">로그인으로 이동</a>
+                <a class="btn outline" href="${CP}/user/login.do">로그인으로 이동</a>
             </div>
         </form>
-    </main>
+            </section>
+        </main>
+
+        <jsp:include page="../common/footer.jsp" />
+        <jsp:include page="../common/floatingBar.jsp" />
+        <jsp:include page="../common/mobileBottomNav.jsp" />
+    </div>
 </body>
 </html>

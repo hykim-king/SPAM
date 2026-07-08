@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="beauty">
+  <rect width="128" height="128" rx="32" fill="#FFF7D6"/>
+  <path d="M50 30h28v56H50z" fill="white" stroke="#F59E0B" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M46 86h36M56 24h16M56 46h16" fill="none" stroke="#F59E0B" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="96" cy="32" r="10" fill="#F59E0B" opacity=".18"/>
+  <circle cx="32" cy="96" r="8" fill="#F59E0B" opacity=".14"/>
+</svg>

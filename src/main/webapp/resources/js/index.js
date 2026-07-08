@@ -1,8 +1,7 @@
 /*
- * SPAM 메인화면 JS
+ * SPAM 공통/메인 JS
  *
- * [추가] 검색어 검증, TOP 이동, 모바일 메뉴 기본 동작을 담당한다.
- * [수정 필요] 상품관리/검색 API 연동 후 검색 조건과 자동완성 기능을 추가할 수 있다.
+ * [변경] 검색 검증, 카테고리 메가 메뉴, TOP 이동, 개인정보처리방침 팝업, 배너 버튼 기본 동작을 담당한다.
  */
 (function () {
     'use strict';
@@ -12,9 +11,10 @@
         bindScrollTop();
         bindMobileMenu();
         bindHeroButtons();
+        bindCategoryMegaMenu();
+        bindPrivacyModal();
     });
 
-    /** 검색어 없이 검색했을 때 빈 목록 페이지로 가지 않도록 안내 */
     function bindSearchValidation() {
         var searchForm = document.querySelector('.search-form');
         var searchInput = document.getElementById('mainSearchWord');
@@ -30,7 +30,6 @@
         });
     }
 
-    /** PC 플로팅바 TOP 버튼 */
     function bindScrollTop() {
         var topButtons = document.querySelectorAll('.js-scroll-top');
 
@@ -42,7 +41,6 @@
         });
     }
 
-    /** 모바일 메뉴 버튼: 현재는 카테고리 nav 위치로 이동 */
     function bindMobileMenu() {
         var button = document.querySelector('.mobile-menu-button');
         var categoryNav = document.querySelector('.category-nav');
@@ -50,18 +48,111 @@
         if (!button || !categoryNav) return;
 
         button.addEventListener('click', function () {
+            categoryNav.classList.toggle('is-open');
             categoryNav.scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
     }
 
-    /** 배너 좌우 버튼: 실제 슬라이더 붙이기 전 임시 안내 */
     function bindHeroButtons() {
         var arrows = document.querySelectorAll('.hero-arrow');
+        var dots = document.querySelectorAll('.hero-dots span');
+        var currentIndex = 0;
+
+        if (arrows.length === 0 || dots.length === 0) return;
+
+        function renderDots() {
+            dots.forEach(function (dot, index) {
+                dot.classList.toggle('active', index === currentIndex);
+            });
+        }
 
         arrows.forEach(function (arrow) {
             arrow.addEventListener('click', function () {
-                alert('배너 슬라이드는 추후 이벤트/추천 배너 데이터와 연결하면 됩니다.');
+                if (arrow.classList.contains('hero-arrow-left')) {
+                    currentIndex = (currentIndex - 1 + dots.length) % dots.length;
+                } else {
+                    currentIndex = (currentIndex + 1) % dots.length;
+                }
+                renderDots();
             });
         });
     }
-})();
+
+    function bindCategoryMegaMenu() {
+        var nav = document.querySelector('.js-category-nav');
+        var toggle = document.querySelector('.js-category-toggle');
+        var links = document.querySelectorAll('.category-link[data-category]');
+        var panels = document.querySelectorAll('.mega-panel[data-panel]');
+
+        if (!nav || !toggle || panels.length === 0) return;
+
+        function activatePanel(category) {
+            panels.forEach(function (panel) {
+                panel.classList.toggle('is-active', panel.getAttribute('data-panel') === category);
+            });
+        }
+
+        links.forEach(function (link) {
+            link.addEventListener('mouseenter', function () {
+                activatePanel(link.getAttribute('data-category'));
+            });
+
+            link.addEventListener('focus', function () {
+                activatePanel(link.getAttribute('data-category'));
+            });
+        });
+
+        toggle.addEventListener('click', function () {
+            var isOpen = nav.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+        });
+
+        document.addEventListener('click', function (event) {
+            if (!nav.contains(event.target)) {
+                nav.classList.remove('is-open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape') {
+                nav.classList.remove('is-open');
+                toggle.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    function bindPrivacyModal() {
+        var modal = document.getElementById('privacyPolicyModal');
+        var openButtons = document.querySelectorAll('.js-privacy-open');
+        var closeButtons = document.querySelectorAll('.js-privacy-close');
+
+        if (!modal || openButtons.length === 0) return;
+
+        function openModal() {
+            modal.classList.add('is-open');
+            modal.setAttribute('aria-hidden', 'false');
+            document.body.classList.add('no-scroll');
+        }
+
+        function closeModal() {
+            modal.classList.remove('is-open');
+            modal.setAttribute('aria-hidden', 'true');
+            document.body.classList.remove('no-scroll');
+        }
+
+        openButtons.forEach(function (button) {
+            button.addEventListener('click', openModal);
+        });
+
+        closeButtons.forEach(function (button) {
+            button.addEventListener('click', closeModal);
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && modal.classList.contains('is-open')) {
+                closeModal();
+            }
+        });
+    }
+}());

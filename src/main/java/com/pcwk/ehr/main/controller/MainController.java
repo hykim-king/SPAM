@@ -33,19 +33,19 @@ public class MainController {
         List<Map<String, Object>> products = sampleProductList();
 
         // [수정 필요] 상품관리 모듈 연동 후 실제 인기 상품 조회 결과로 교체
-        model.addAttribute("popularProductList", products.subList(0, 5));
+        model.addAttribute("popularProductList", products.subList(0, 4));
 
         // [수정 필요] 상품관리 모듈 연동 후 실제 추천 상품 조회 결과로 교체
-        model.addAttribute("recommendedProductList", products.subList(5, 10));
+        model.addAttribute("recommendedProductList", products.subList(4, 8));
 
         // [수정 필요] 상품관리 모듈 연동 후 실제 최신 등록 상품 조회 결과로 교체
-        model.addAttribute("latestProductList", products.subList(10, 15));
+        model.addAttribute("latestProductList", products.subList(8, 12));
 
         return "index";
     }
 
     /**
-     * [임시] 메인 화면 UI 확인용 상품 데이터 15개
+     * [임시] 메인 화면 UI 확인용 상품 데이터 15개 중 화면에는 섹션별 최대 4개만 노출
      *
      * [수정 필요] 추후 아래 기준으로 DB 조회를 붙이면 된다.
      * - 인기 상품 Top: 조회수 또는 찜 수 기준

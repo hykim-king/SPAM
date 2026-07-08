@@ -21,10 +21,10 @@
 <body>
     <!--
         [화면 구성]
-        header.jsp          : 이벤트 바 + 로고/검색/회원 메뉴
+        header.jsp          : 로고/검색/회원 메뉴
         nav.jsp             : 카테고리 내비게이션
         main                : 배너, 퀵 메뉴, 상품 섹션, 안전거래 가이드
-        footer.jsp          : 서비스 정보 + 관리자 링크
+        footer.jsp          : 서비스 정보 + 개인정보처리방침 팝업 + 관리자 링크
         floatingBar.jsp     : PC 우측 고정 메뉴
         mobileBottomNav.jsp : 모바일 하단 고정 메뉴
     -->
@@ -83,11 +83,11 @@
                     <img src="${CP}/resources/images/icons/05_chat.png" alt="" aria-hidden="true">
                     <span>채팅하기</span>
                 </a>
-                <a href="${CP}/trade/history.do" class="quick-card">
+                <a href="${CP}/service/info.do?tab=notice" class="quick-card">
                     <img src="${CP}/resources/images/icons/06_transaction_history.png" alt="" aria-hidden="true">
-                    <span>거래내역</span>
+                    <span>공지사항</span>
                 </a>
-                <a href="${CP}/report/view.do" class="quick-card">
+                <a href="${CP}/report/doRetrieve.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/07_report_center.png" alt="" aria-hidden="true">
                     <span>신고센터</span>
                 </a>
@@ -190,7 +190,7 @@
                     </article>
                 </div>
 
-                <a href="${CP}/guide/safe.do" class="guide-more">자세히 보기</a>
+                <a href="${CP}/service/info.do?tab=safe" class="guide-more">자세히 보기</a>
             </section>
         </main>
 

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128" role="img" aria-label="fashion">
+  <rect width="128" height="128" rx="32" fill="#FFF0F3"/>
+  <path d="M44 38c4-10 12-16 20-16s16 6 20 16l14 34c2 6-2 12-8 12H38c-6 0-10-6-8-12l14-34Z" fill="white" stroke="#F472B6" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M52 42c4 6 20 6 24 0M50 64h28" fill="none" stroke="#F472B6" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="96" cy="32" r="10" fill="#F472B6" opacity=".18"/>
+  <circle cx="32" cy="96" r="8" fill="#F472B6" opacity=".14"/>
+</svg>

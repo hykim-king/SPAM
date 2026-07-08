@@ -1,6 +1,10 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:if test="${empty CP}">
+    <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
+</c:if>
 
-<!-- [추가] 모바일 하단 고정 탭바 -->
+<!-- [변경] 모바일 하단 고정 탭바 -->
 <nav class="mobile-bottom-nav" aria-label="모바일 하단 메뉴">
     <a href="${CP}/main.do" class="mobile-tab active">
         <img src="${CP}/resources/images/icons/09_home_active.png" alt="" aria-hidden="true">
@@ -12,7 +16,7 @@
     </a>
     <a href="${CP}/product/reg.do" class="mobile-tab mobile-sell-tab">
         <span class="mobile-sell-icon">+</span>
-        <span>판매하기</span>
+        <span>판매</span>
     </a>
     <a href="${CP}/chat/view.do" class="mobile-tab">
         <img src="${CP}/resources/images/icons/11_chat_inactive.png" alt="" aria-hidden="true">
