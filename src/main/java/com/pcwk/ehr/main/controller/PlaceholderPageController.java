@@ -14,12 +14,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class PlaceholderPageController {
 
-//    @GetMapping("/product/list.do")
-//    public String productList(Model model) {
-//        model.addAttribute("pageTitle", "상품 목록");
-//        model.addAttribute("pageDesc", "상품관리 모듈 연동 후 실제 상품 목록 화면으로 교체할 예정입니다.");
-//        return "placeholder/placeholder";
-//    }
+    @GetMapping("/product/list.do")
+    public String productList(Model model) {
+        model.addAttribute("pageTitle", "상품 목록");
+        model.addAttribute("pageDesc", "상품관리 모듈 연동 후 실제 상품 목록 화면으로 교체할 예정입니다.");
+        return "placeholder/placeholder";
+    }
 
     @GetMapping("/product/detail.do")
     public String productDetail(@RequestParam(value = "productNo", required = false) Integer productNo,

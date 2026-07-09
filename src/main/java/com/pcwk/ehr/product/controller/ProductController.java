@@ -30,13 +30,13 @@ public class ProductController {
     @Autowired
     private CategoryService categoryService;
 
-    /** 목록 */
-    @GetMapping("/list.do")
-    public String list(Model model) {
-        List<ProductVO> list = productService.doRetrieve();
-        model.addAttribute("list", list);
-        return "product/productList";
-    }
+//    /** 목록 */
+//    @GetMapping("/list.do")
+//    public String list(Model model) {
+//        List<ProductVO> list = productService.doRetrieve();
+//        model.addAttribute("list", list);
+//        return "product/productList";
+//    }
 
     /** 상세 (상품+카테고리경로+이미지 다 담겨서 옴) */
     @GetMapping("/view.do")
