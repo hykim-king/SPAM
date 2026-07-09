@@ -1,9 +1,5 @@
 @charset "UTF-8";
 
-/*
-    SPAM 회원/관리자/보조 화면 CSS
-    [변경] 메인 화면의 흰색 카드 + 블랙 버튼 + 부드러운 회색 배경 톤에 맞춰 재정리
-*/
 :root {
     --member-bg: #F7F7F7;
     --member-surface: #FFFFFF;
@@ -28,9 +24,7 @@ body {
     background: var(--member-bg);
 }
 
-button,
-input,
-select {
+button, input, select {
     font: inherit;
 }
 
@@ -42,7 +36,6 @@ button {
 .member-auth-main {
     width: min(100%, 760px);
     margin: 0 auto;
-    padding: 48px 0 70px;
     display: flex;
     justify-content: center;
 }
@@ -59,7 +52,6 @@ button {
     border: 1px solid var(--member-line);
     border-radius: 26px;
     box-shadow: var(--member-shadow);
-    padding: 36px;
 }
 
 .auth-card.wide {
@@ -96,8 +88,7 @@ button {
     margin-bottom: 24px;
 }
 
-.page-title,
-.auth-title {
+.page-title, .auth-title {
     margin: 0;
     font-size: clamp(26px, 4vw, 36px);
     line-height: 1.2;
@@ -108,17 +99,13 @@ button {
     margin-bottom: 10px;
 }
 
-.page-desc,
-.auth-desc {
+.page-desc, .auth-desc {
     margin: 8px 0 0;
     color: var(--member-muted);
     font-size: 15px;
 }
 
-.header-actions,
-.form-actions,
-.card-actions,
-.pagination {
+.header-actions, .form-actions, .card-actions, .pagination {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
@@ -136,8 +123,7 @@ button {
     gap: 18px;
 }
 
-.panel,
-.info-card {
+.panel, .info-card {
     background: var(--member-surface);
     border: 1px solid var(--member-line);
     border-radius: var(--member-radius-lg);
@@ -152,8 +138,7 @@ button {
     padding: 24px;
 }
 
-.panel-title,
-.card-title {
+.panel-title, .card-title {
     margin: 0 0 16px;
     font-size: 20px;
     letter-spacing: -0.035em;
@@ -161,7 +146,6 @@ button {
 
 .form-grid {
     display: grid;
-    gap: 18px;
 }
 
 .form-grid.two-col {
@@ -170,7 +154,6 @@ button {
 
 .form-row {
     display: grid;
-    gap: 8px;
 }
 
 .form-row.full {
@@ -187,21 +170,17 @@ button {
     color: var(--member-danger);
 }
 
-.input,
-.select {
+.input, .select {
     width: 100%;
-    height: 46px;
     padding: 0 14px;
     border: 1px solid #DADADA;
-    border-radius: 12px;
     background: #FFFFFF;
     color: var(--member-text);
     outline: none;
     transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
 }
 
-.input:focus,
-.select:focus {
+.input:focus, .select:focus {
     border-color: #111111;
     box-shadow: 0 0 0 4px rgba(17, 17, 17, 0.08);
 }
@@ -380,8 +359,7 @@ button {
     background: #FFFFFF;
 }
 
-.data-table th,
-.data-table td {
+.data-table th, .data-table td {
     padding: 14px 16px;
     border-bottom: 1px solid var(--member-line);
     text-align: left;
@@ -432,7 +410,6 @@ button {
     display: none !important;
 }
 
-/* 채팅 화면 */
 .chat-wrap {
     min-height: 640px;
     display: grid;
@@ -451,8 +428,7 @@ button {
     background: #FFFFFF;
 }
 
-.room-panel h2,
-.msg-header {
+.room-panel h2, .msg-header {
     min-height: 66px;
     padding: 18px 20px;
     border-bottom: 1px solid var(--member-line);
@@ -463,8 +439,7 @@ button {
     font-weight: 900;
 }
 
-.refresh-btn,
-.exit-btn {
+.refresh-btn, .exit-btn {
     background: #FFFFFF;
     border: 1px solid var(--member-line);
     border-radius: 10px;
@@ -503,9 +478,7 @@ button {
     font-size: 14px;
 }
 
-.room-item .rsub,
-.room-empty,
-.msg-placeholder {
+.room-item .rsub, .room-empty, .msg-placeholder {
     font-size: 13px;
     color: var(--member-muted);
 }
@@ -514,8 +487,7 @@ button {
     margin-top: 4px;
 }
 
-.room-empty,
-.msg-placeholder {
+.room-empty, .msg-placeholder {
     padding: 22px;
     text-align: center;
 }
@@ -588,8 +560,7 @@ button {
         padding: 28px 16px 40px;
     }
 
-    .auth-card,
-    .auth-card.wide {
+    .auth-card, .auth-card.wide {
         padding: 26px 20px;
         border-radius: 22px;
     }
@@ -599,15 +570,11 @@ button {
         padding-top: 24px;
     }
 
-    .page-header,
-    .meta-bar {
+    .page-header, .meta-bar {
         display: grid;
     }
 
-    .grid-2,
-    .form-grid.two-col,
-    .search-box,
-    .chat-wrap {
+    .grid-2, .form-grid.two-col, .search-box, .chat-wrap {
         grid-template-columns: 1fr;
     }
 
@@ -626,14 +593,308 @@ button {
         gap: 4px;
     }
 
-    .form-actions,
-    .header-actions,
-    .card-actions,
-    .pagination {
+    .form-actions, .header-actions, .card-actions, .pagination {
         align-items: stretch;
     }
 
     .btn {
         width: 100%;
     }
+}
+
+.auth-card .brand, .page-header .brand {
+    display: none !important;
+}
+
+.auth-message-slot .alert {
+    margin: 0;
+}
+
+.label-line {
+    display: flex;
+}
+
+.label-note {
+    font-weight: 700;
+}
+
+.field-message {
+    color: var(--member-danger);
+    font-weight: 700;
+}
+
+.field-message:empty::before, .admin-result-message:empty::before {
+    content: " ";
+}
+
+.input.is-invalid, .select.is-invalid {
+    border-color: var(--member-danger);
+    box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.08);
+}
+
+.admin-filter-box, .admin-change-form {
+    padding: 18px;
+    border: 1px solid #EEEEEE;
+}
+
+.admin-filter-box .select, .admin-change-form .select {
+    min-height: 44px;
+    border-radius: 12px;
+    background: #FFFFFF;
+    border-color: #DDDDDD;
+    cursor: pointer;
+}
+
+.admin-result-message {
+    min-height: 20px;
+    margin: 8px 0 0;
+    color: #166534;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.page-header .header-actions .btn[href$="/admin/user/list.do"] {
+    background: #FFFFFF;
+}
+
+@media screen and (max-width: 767px) {
+    .label-line {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
+
+.field-message[data-error-for="readonlyUserId"] {
+    color: var(--member-muted);
+}
+
+.member-auth-main, .member-page-shell {
+    flex: 1 0 auto;
+}
+
+.member-auth-main {
+    min-height: auto !important;
+    padding: 36px 20px 52px !important;
+}
+
+.auth-card.wide {
+    padding: 28px 28px 24px !important;
+}
+
+.auth-card {
+    padding: 30px 28px 26px !important;
+}
+
+.auth-message-slot {
+    min-height: 34px !important;
+    margin-bottom: 8px !important;
+}
+
+.auth-message-slot .alert.success, .auth-message-slot .alert.join-success, .auth-message-slot .alert[data-success="join"] {
+    display: none !important;
+}
+
+.form-grid {
+    gap: 12px !important;
+}
+
+.form-row {
+    gap: 5px !important;
+}
+
+.label-line {
+    align-items: flex-start !important;
+    justify-content: flex-start !important;
+    gap: 8px !important;
+}
+
+.label-note {
+    font-size: 11px !important;
+    line-height: 1.4;
+    color: #777777;
+    white-space: normal !important;
+}
+
+.field-message {
+    min-height: 16px !important;
+    margin: 3px 0 0 !important;
+    font-size: 11px !important;
+    line-height: 1.35 !important;
+}
+
+.input, .select {
+    height: 42px !important;
+    border-radius: 10px !important;
+}
+
+.form-actions {
+    margin-top: 2px;
+}
+
+.spam-confirm-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+}
+
+.spam-confirm-modal.is-open {
+    display: flex;
+}
+
+.spam-confirm-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(17, 17, 17, 0.46);
+}
+
+.spam-confirm-card {
+    position: relative;
+    width: min(320px, 100%);
+    padding: 28px 26px 24px;
+    border-radius: 22px;
+    background: #FFFFFF;
+    box-shadow: 0 28px 80px rgba(17, 17, 17, 0.22);
+    text-align: center;
+}
+
+.spam-confirm-icon {
+    width: 36px;
+    height: 36px;
+    margin: 0 auto 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #111111;
+    color: #FFFFFF;
+    font-weight: 900;
+}
+
+.spam-confirm-card h2 {
+    margin: 0 0 8px;
+    font-size: 22px;
+    letter-spacing: -0.04em;
+}
+
+.spam-confirm-message {
+    margin: 0 0 20px;
+    color: #666666;
+    font-size: 14px;
+    line-height: 1.55;
+}
+
+.spam-confirm-actions {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.spam-confirm-actions button {
+    min-width: 86px;
+    height: 38px;
+    border-radius: 10px;
+    border: 1px solid #E3E3E3;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.spam-confirm-cancel {
+    background: #FFFFFF;
+    color: #222222;
+}
+
+.spam-confirm-ok {
+    background: #111111;
+    color: #FFFFFF;
+    border-color: #111111 !important;
+}
+
+.select.is-custom-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+
+.spam-select {
+    position: relative;
+    width: 100%;
+}
+
+.spam-select-current {
+    width: 100%;
+    height: 42px;
+    padding: 0 38px 0 14px;
+    border: 1px solid #DDDDDD;
+    border-radius: 10px;
+    background: #FFFFFF;
+    color: #111111;
+    text-align: left;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.spam-select-current::after {
+    content: "";
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid #555555;
+    border-bottom: 2px solid #555555;
+    transform: translateY(-70%) rotate(45deg);
+}
+
+.spam-select-options {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% + 6px);
+    z-index: 80;
+    display: none;
+    overflow: hidden;
+    padding: 6px;
+    border: 1px solid #E4E4E4;
+    border-radius: 14px;
+    background: #FFFFFF;
+    box-shadow: 0 16px 36px rgba(17, 17, 17, 0.14);
+}
+
+.spam-select.is-open .spam-select-options {
+    display: grid;
+    gap: 4px;
+}
+
+.spam-select-option {
+    width: 100%;
+    height: 38px;
+    padding: 0 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    color: #333333;
+    text-align: left;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.spam-select-option:hover, .spam-select-option.is-selected {
+    background: #111111;
+    color: #FFFFFF;
+}
+
+.admin-filter-box, .admin-change-form {
+    border-radius: 18px !important;
+    background: #FAFAFA !important;
+}
+
+.admin-change-form .btn.primary {
+    margin-top: 2px;
 }

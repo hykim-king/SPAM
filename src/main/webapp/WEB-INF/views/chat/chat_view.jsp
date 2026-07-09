@@ -19,12 +19,7 @@
         <main class="member-page-shell">
             <header class="page-header">
                 <div>
-                    <a class="brand" href="${CP}/chat/view.do" aria-label="SPAM 채팅">
-                        <span class="brand-mark">SP</span>
-                        <span>SPAM Chat</span>
-                    </a>
                     <h1 class="page-title">채팅</h1>
-                    <p class="page-desc">거래 상대와 채팅방별 대화를 확인합니다.</p>
                 </div>
                 <nav class="header-actions">
                     <a class="btn outline" href="${CP}/main.do">메인</a>
