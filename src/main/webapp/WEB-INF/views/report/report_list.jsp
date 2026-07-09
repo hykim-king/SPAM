@@ -19,10 +19,6 @@
         <main class="member-page-shell">
             <header class="page-header">
                 <div>
-                    <a class="brand" href="${CP}/report/doRetrieve.do" aria-label="SPAM 신고센터">
-                        <span class="brand-mark">SP</span>
-                        <span>SPAM Report</span>
-                    </a>
                     <h1 class="page-title">신고센터</h1>
                     <p class="page-desc">접수된 신고 내역과 처리 상태를 확인합니다.</p>
                 </div>

@@ -20,9 +20,8 @@
 
         <main class="main-content service-page">
             <section class="service-hero">
-                <p class="service-kicker">SPAM GUIDE</p>
                 <h1>서비스 안내</h1>
-                <p>공지사항, 이용약관, FAQ, 안전거래 가이드를 한 곳에서 확인할 수 있습니다.</p>
+                <p>서비스 이용 안내와 안전거래 가이드를 확인할 수 있습니다.</p>
             </section>
 
             <nav class="service-tabs" aria-label="서비스 안내 탭">
@@ -125,6 +124,31 @@
                     </div>
                 </div>
 
+                <h3 class="safe-section-title">판매자 안전거래 가이드</h3>
+                <div class="safe-grid safe-grid-seller">
+                    <article>
+                        <span>01</span>
+                        <h3>상품 상태 정확히 작성</h3>
+                        <p>하자, 사용 기간, 구성품 여부를 숨기지 말고 상품 설명에 정확히 남깁니다.</p>
+                    </article>
+                    <article>
+                        <span>02</span>
+                        <h3>실제 사진 등록</h3>
+                        <p>인터넷 이미지보다 직접 촬영한 사진을 사용하고, 주요 하자는 확대 사진으로 안내합니다.</p>
+                    </article>
+                    <article>
+                        <span>03</span>
+                        <h3>거래 조건 명확히 안내</h3>
+                        <p>가격, 거래 장소, 거래 가능 시간, 환불 가능 여부를 채팅에 남겨 분쟁을 줄입니다.</p>
+                    </article>
+                    <article>
+                        <span>04</span>
+                        <h3>외부 거래 유도 금지</h3>
+                        <p>외부 링크나 별도 연락처로 거래를 유도하지 않고 SPAM 채팅 기록을 남깁니다.</p>
+                    </article>
+                </div>
+
+                <h3 class="safe-section-title">구매자 안전거래 가이드</h3>
                 <div class="safe-grid">
                     <article>
                         <span>01</span>

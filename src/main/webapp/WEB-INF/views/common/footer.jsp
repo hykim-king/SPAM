@@ -4,18 +4,12 @@
     <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 </c:if>
 
-<!--
-    [변경] 공통 Footer
-    - 고객센터 링크 재구성
-    - 1600-1234는 실제 사용 중인 번호라 삭제하고 프로젝트용 이메일 안내로 변경
-    - 개인정보처리방침은 페이지 이동이 아닌 팝업 모달로 표시
-    - 저작권 연도 2026으로 수정
--->
+<!-- 공통 Footer -->
 <footer class="site-footer">
     <div class="footer-inner">
         <div class="footer-brand">
             <strong>SPAM</strong>
-            <p>SPAM은 필요한 사람에게 물건을 연결하는 중고거래 플랫폼 프로젝트입니다.</p>
+            <p>SPAM은 필요한 사람에게 물건을 연결하는 중고거래 플랫폼입니다.</p>
             <div class="footer-social" aria-label="SNS 링크 준비 영역">
                 <span aria-label="instagram">◎</span>
                 <span aria-label="facebook">●</span>
@@ -24,7 +18,7 @@
         </div>
 
         <div class="footer-column">
-            <strong>서비스 안내</strong>
+            <a class="footer-heading" href="${CP}/service/info.do">서비스 안내</a>
             <a href="${CP}/service/info.do?tab=notice">공지사항</a>
             <a href="${CP}/service/info.do?tab=terms">이용약관</a>
             <a href="${CP}/service/info.do?tab=faq">FAQ</a>
@@ -52,7 +46,7 @@
         <div>
             <a href="${CP}/service/info.do?tab=terms">이용약관</a>
             <button type="button" class="footer-policy-button js-privacy-open">개인정보처리방침</button>
-            <a class="admin-link" href="${CP}/admin/user/list.do">관리자</a>
+            <a class="admin-link ${sessionScope.loginUser.userRole == '02' ? 'is-admin-login' : ''}" href="${CP}/admin/user/list.do">관리자</a>
         </div>
     </div>
 
