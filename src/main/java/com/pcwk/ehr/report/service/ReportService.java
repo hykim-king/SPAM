@@ -42,4 +42,18 @@ public interface ReportService {
      * 신고 총 건수 조회
      */
     int totalCnt();
+
+    /**
+     * 이거 어카지?
+     * @param currentMemberNo
+     * @return
+     */
+	List<ReportVO> doRetrieveReceivedReports(int currentMemberNo);
+	
+    /**
+     * 이거 어카지?
+     * @param currentMemberNo
+     * @return
+     */
+	List<ReportVO> doRetrieveMyReports(int currentMemberNo);
 }

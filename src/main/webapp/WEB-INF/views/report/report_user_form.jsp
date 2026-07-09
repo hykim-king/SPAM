@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPAM - 상품 신고하기</title>
+    <title>SPAM - 사용자 신고하기</title>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
     <style>
     	* {
@@ -45,7 +45,7 @@
         .textarea-wrapper {
     		width: 100%;
     		position: relative;
-		}
+        }
         textarea.input {	
     		width: 100%;
             height: 140px;
@@ -62,7 +62,7 @@
     		right: 0px;
 		    font-size: 12px;
     		color: #666666;
-    		pointer-events: none; /* 카운터 영역이 마우스 클릭을 방해하지 않도록 설정 */
+            pointer-events: none; /* 카운터 영역이 마우스 클릭을 방해하지 않도록 설정 */
 		}
 		
 		/* 버튼 비활성화 상태일 때의 스타일 정의 */
@@ -80,33 +80,36 @@
         
         <header class="page-header" style="margin-bottom: 20px; border-bottom: none; padding-bottom: 0;">
             <div>
-                <h1 class="page-title" style="font-size: 20px; color: #212529;">허위매물 및 상품 신고</h1>
-                <p class="page-desc" style="margin-top: 4px;">해당 상품의 위반 사항을 선택하고 상세 사유를 적어주세요.</p>
+                <h1 class="page-title" style="font-size: 20px; color: #212529;">사용자 비매너 및 이용 위반 신고</h1>
+                <p class="page-desc" style="margin-top: 4px;">해당 회원의 위반 사항을 선택하고 상세 사유를 적어주세요.</p>
             </div>
         </header>
 
         <div class="report-summary-box">
-            <p><strong>신고 대상 상품 번호:</strong> <span><c:out value="${param.targetId}"/></span></p>
             <p><strong>피신고 회원 번호:</strong> <span><c:out value="${param.reportedUserNo}"/></span></p>
+            <c:if test="${not empty param.targetId}">
+                <p><strong>연관 상품 번호:</strong> <span><c:out value="${param.targetId}"/></span></p>
+            </c:if>
         </div>
 
         <form id="reportForm" action="${pageContext.request.contextPath}/report/doInsert.do" method="post" class="form-grid">
             
             <input type="hidden" name="targetId" value="${param.targetId}">
             <input type="hidden" name="reportedUserNo" value="${param.reportedUserNo}">
-            <input type="hidden" name="reportType" value="${empty param.reportType ? 'PRODUCT' : param.reportType}">
+            <input type="hidden" name="reportType" value="${empty param.reportType ? 'USER' : param.reportType}">
 
 			<div class="form-row">
 				<label class="label" for="reportReasonSelect">신고 사유 선택<span class="required-star">*</span></label> 
 				<select class="select" id="reportReasonSelect" name="reason" onchange="handleReasonChange(this)" required>
-					<option value="">-- 상품 신고 사유를 선택하세요 --</option>
-					<option value="판매금지 물품 등록">판매금지 물품 등록</option>
-					<option value="전문 업자 의심">전문 업자 의심</option>
-					<option value="허위성 매물">허위성 매물</option>
-					<option value="카테고리 위반">카테고리 위반</option>
-					<option value="음란물 및 유해콘텐츠 게시">음란물 및 유해콘텐츠 게시</option>
-					<option value="광고 및 홍보 도배">광고 및 홍보 도배</option>
-					<option value="불량 상품판매">불량 상품판매</option>
+					<option value="">-- 유저 신고 사유를 선택하세요 --</option>
+                    <option value="상품 미배송">상품 미배송</option>
+					<option value="외부 결제 유도">외부 결제 유도</option>
+					<option value="노쇼">노쇼</option>
+					<option value="거래파기">거래파기</option>
+					<option value="욕설 및 언어폭력">욕설 및 언어폭력</option>
+					<option value="개인정보 침해 및 유출">개인정보 침해 및 유출</option>
+					<option value="계정도용">계정도용</option>
+                    <option value="기타 (직접 입력)">기타 (직접 입력)</option>
 				</select>
 			</div>
 
@@ -138,11 +141,9 @@
 		    if (!submitBtn) return;
 		    
 		    const selectValue = select ? select.value : "";
-		    // 앞뒤 공백 제거 후 순수 글자 수 체크
 		    const textLength = textarea ? textarea.value.trim().length : 0; 
 		    const rawLength = textarea ? textarea.value.length : 0;
 		    
-		    // 조건: 사유 미선택 OR 공백제외 0자 OR 전체 원본 글자수 1000자일 때 비활성화
 		    if (selectValue === "" || textLength === 0 || rawLength >= 1000) {
 		        submitBtn.disabled = true;
 		    } else {
@@ -168,31 +169,25 @@
                 textarea.value = "";
             }
             
-            // 셀렉트 박스로 값이 자동 주입될 때도 숫자를 실시간으로 변경
             if (charCount) {
                 charCount.textContent = textarea.value.length;
             }
             
-         	// 값 변경 완료 후 즉시 버튼 상태 실시간 갱신
             checkSubmitButtonStatus();
         }
         
-        // DOM이 로드된 후 실행될 실시간 이벤트 및 서브밋 제어
         document.addEventListener("DOMContentLoaded", function() {
             const textarea = document.getElementById('reason');
             const charCount = document.getElementById('charCount');
             const select = document.getElementById('reportReasonSelect');
             const form = document.getElementById('reportForm');
 
-            // 텍스트 직접 입력 시 실시간 카운팅 및 유효성 검사
             if (textarea && charCount) {
                 textarea.addEventListener('input', function() {
                     const currentLength = textarea.value.length;
                     
-                    // 실시간 글자 수 업데이트
                     charCount.textContent = currentLength;
                     
-                    // 1000자에 가까워지면(예: 900자 이상) 숫자를 빨간색으로 강조
                     if (currentLength >= 900) {
                         charCount.style.color = 'red';
                         charCount.style.fontWeight = 'bold';
@@ -201,27 +196,24 @@
                         charCount.style.fontWeight = 'normal';
                     }
                     
-                    // 키보드 입력이 일어날 때마다 버튼 상태 실시간 체크
                     checkSubmitButtonStatus();
                 });
             }
 
-            // 폼 제출 전 최종 시점 컨펌창 제어
             if (form) {
                 form.addEventListener('submit', function(e) {
-                    // 버튼이 비활성화 상태라면 폼 제출을 강제 차단
                     if(document.getElementById('submitBtn').disabled) {
                         e.preventDefault();
                         return;
                     }
                     
-                    if(!confirm('정말로 이 상품을 신고하시겠습니까?\n허위 신고일 경우 서비스 이용이 제한될 수 있습니다.')) {
+                    // 💡 컨펌 창 메시지도 '회원' 단위에 맞게 수정
+                    if(!confirm('정말로 이 회원을 신고하시겠습니까?\n허위 신고일 경우 서비스 이용이 제한될 수 있습니다.')) {
                         e.preventDefault();
                     }
                 });
             }
             
-            // 💡 [수정] 폼 제출(submit) 이벤트 바깥으로 꺼내어, 화면이 켜지자마자 버튼 비활성화 상태를 즉시 적용함
             checkSubmitButtonStatus();
         });
     </script>

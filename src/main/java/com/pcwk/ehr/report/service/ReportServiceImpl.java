@@ -20,7 +20,19 @@ import com.pcwk.ehr.report.mapper.ReportMapper;
 @Transactional
 public class ReportServiceImpl implements ReportService {
 
-    @Autowired
+    @Override
+	public List<ReportVO> doRetrieveReceivedReports(int currentMemberNo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public List<ReportVO> doRetrieveMyReports(int currentMemberNo) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Autowired
     private ReportMapper reportMapper;
 
     @Override
