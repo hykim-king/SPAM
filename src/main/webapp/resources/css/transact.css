@@ -1,174 +1,35 @@
-/* =========================================
-   SPAM 판매자 상점 (상품 목록) 스타일 
-   파일명: transact.css
-   ========================================= */
+/* 기본 레이아웃 */
+body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; color: #111; }
+.main-container { width: 1250px; margin: 50px auto; }
 
-/* 기본 레이아웃 (메인 페이지 규격 1250px 준수) */
-body { 
-    font-family: 'Pretendard', sans-serif; 
-    margin: 0; 
-    padding: 0; 
-    color: #111; 
-}
+/* 1. 상단 탭 */
+.store-tabs { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 30px; }
+.store-tabs a { text-decoration: none; color: #888; font-size: 18px; font-weight: 500; padding-bottom: 15px; }
+.store-tabs a.active { color: #111; font-weight: 700; border-bottom: 3px solid #111; }
 
-.main-container {
-    width: 1250px;
-    margin: 50px auto;
-}
+/* 2. 상품 개수 및 정렬 필터 */
+.store-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.product-count { font-size: 16px; font-weight: 700; }
+.sort-options { display: flex; gap: 12px; font-size: 13px; }
+.sort-options a { text-decoration: none; color: #999; position: relative; }
+.sort-options a.active { color: #111; font-weight: 700; }
+.sort-options a:not(:last-child)::after { content: ""; position: absolute; right: -7px; top: 3px; width: 1px; height: 10px; background-color: #ddd; }
 
-/* 1. 상단 탭 디자인 */
-.store-tabs {
-    display: flex;
-    gap: 40px; /* 탭 개수가 줄었으므로 간격을 살짝 넓혀 시원하게 배치 */
-    border-bottom: 1px solid #eee;
-    margin-bottom: 30px;
-}
-
-.store-tabs a {
-    text-decoration: none;
-    color: #888;
-    font-size: 18px;
-    font-weight: 500;
-    padding-bottom: 15px;
-}
-
-/* 활성화된 탭 강조 (검은색 글씨 + 하단 테두리) */
-.store-tabs a.active {
-    color: #111;
-    font-weight: 700;
-    border-bottom: 3px solid #111;
-}
-
-/* 2. 상품 개수 및 정렬 필터 영역 */
-.store-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.product-count {
-    font-size: 16px;
-    font-weight: 700;
-}
-
-.sort-options {
-    display: flex;
-    gap: 12px;
-    font-size: 13px;
-}
-
-.sort-options a {
-    text-decoration: none;
-    color: #999;
-    position: relative;
-}
-
-.sort-options a.active {
-    color: #111;
-    font-weight: 700;
-}
-
-/* 정렬 옵션 사이의 | 구분선 */
-.sort-options a:not(:last-child)::after {
-    content: "";
-    position: absolute;
-    right: -7px;
-    top: 3px;
-    width: 1px;
-    height: 10px;
-    background-color: #ddd;
-}
-
-/* 3. 상품 그리드 (5열 배치) */
-.product-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr); /* 5칸으로 동일하게 분할 */
-    gap: 20px 15px; /* 세로 간격 20px, 가로 간격 15px */
-}
+/* 3. 상품 그리드 */
+.product-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px 15px; }
 
 /* 4. 개별 상품 카드 */
-.product-card {
-    display: flex;
-    flex-direction: column;
-    cursor: pointer;
-}
-
-/* 이미지 컨테이너 (정사각형 비율) */
-.img-wrap {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: 6px;
-    overflow: hidden;
-    background-color: #f8f8f8;
-    margin-bottom: 12px;
-}
-
-/* 상품 이미지 */
-.img-wrap img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.2s ease;
-}
-
-/* 마우스 올렸을 때 이미지 살짝 확대 효과 */
-.product-card:hover .img-wrap img {
-    transform: scale(1.03);
-}
-
-/* 우측 상단 찜(하트) 버튼 */
-.btn-like {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    color: #fff;
-    font-size: 22px;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.3); 
-    cursor: pointer;
-    padding: 0;
-}
+.product-card { display: flex; flex-direction: column; cursor: pointer; }
+.img-wrap { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 6px; overflow: hidden; background-color: #f8f8f8; margin-bottom: 12px; }
+.img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.2s ease; }
+.product-card:hover .img-wrap img { transform: scale(1.03); }
 
 /* 5. 텍스트 정보 영역 */
-.info-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-}
+.info-wrap { display: flex; flex-direction: column; gap: 6px; }
+.price { font-size: 18px; font-weight: 700; color: #111; }
+.title { font-size: 14px; color: #333; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.meta { font-size: 12px; color: #999; margin-top: 2px; } /* 찜 삭제에 따라 flex-justify-content 제거 */
 
-/* 가격 */
-.price {
-    font-size: 18px;
-    font-weight: 700;
-    color: #111;
-}
-
-/* 상품 제목 (한 줄 초과 시 ... 처리) */
-.title {
-    font-size: 14px;
-    color: #333;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-/* 하단 시간 및 찜 개수 (메타 정보) */
-.meta {
-    display: flex;
-    justify-content: space-between;
-    font-size: 12px;
-    color: #999;
-    margin-top: 2px;
-}
-
-/* 6. 데이터가 없을 때의 화면 */
-.no-data {
-    grid-column: 1 / -1; 
-    text-align: center;
-    padding: 80px 0;
-    color: #777;
-    font-size: 15px;
+/* 6. 데이터 없음 */
+.no-data { grid-column: 1 / -1; text-align: center; padding: 80px 0; color: #777; font-size: 15px; }ont-size: 15px;
 }

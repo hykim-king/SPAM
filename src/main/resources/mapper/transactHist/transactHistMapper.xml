@@ -16,11 +16,8 @@
     </resultMap>
 
     <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
-        INSERT INTO TRANSACTIN_HIST (
-            TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT
-        ) VALUES (
-            SEQ_TRANSACTIN_HIST.NEXTVAL, #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, '01', SYSDATE
-        )
+        INSERT INTO TRANSACTIN_HIST (TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT)
+        VALUES (SEQ_TRANSACT_ID.NEXTVAL, #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, '01', SYSDATE)
     </insert>
 
     <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
@@ -49,25 +46,21 @@
         ORDER BY CREATE_DT DESC
     </select>
 
-    <select id="selectListByProduct" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST 
-        WHERE PRODUCT_NO = #{productNo}
-        <choose>
-            <when test="sort == 'popular'">
-                ORDER BY AMOUNT DESC
-            </when>
-            <when test="sort == 'lowPrice'">
-                ORDER BY AMOUNT ASC
-            </when>
-            <when test="sort == 'highPrice'">
-                ORDER BY AMOUNT DESC
-            </when>
-            <otherwise>
-                ORDER BY CREATE_DT DESC
-            </otherwise>
-        </choose>
-    </select>
-    
+    <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
+    SELECT * FROM TRANSACTIN_HIST 
+    WHERE SELLER_NO = #{loginUserNo}  <choose>
+        <when test="sort == 'lowPrice'">
+            ORDER BY AMOUNT ASC
+        </when>
+        <when test="sort == 'highPrice'">
+            ORDER BY AMOUNT DESC
+        </when>
+        <otherwise>
+            ORDER BY CREATE_DT DESC
+        </otherwise>
+    </choose>
+</select>
+
     <select id="totalCount" resultType="int">
         SELECT COUNT(*) FROM TRANSACTIN_HIST
     </select>
