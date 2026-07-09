@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pcwk.ehr.mapper.ProductImageMapper">
+<mapper namespace="com.pcwk.ehr.product.mapper.ProductImageMapper">
 
     <!-- 이미지 등록 -->
     <insert id="doInsert" parameterType="ProductImageVO">
@@ -11,7 +11,7 @@
             CHANGE_NAME,
             FILE_PATH,
             IMAGE_ORDER,
-            THUMBNAL_YN,
+            THUMBNAIL_YN,
             CRATE_DT
         ) VALUES (
             SEQ_PRODUCT_IMAGE.NEXTVAL,
@@ -20,7 +20,7 @@
             #{changeName},
             #{filePath},
             #{imageOrder},
-            #{thumbnalYn},
+            #{thumbnailYn},
             SYSDATE
         )
     </insert>
@@ -33,7 +33,7 @@
                CHANGE_NAME   AS changeName,
                FILE_PATH     AS filePath,
                IMAGE_ORDER   AS imageOrder,
-               THUMBNAL_YN   AS thumbnalYn
+               THUMBNAIL_YN   AS thumbnailYn
           FROM PRODUCT_IMAGE
          WHERE PRODUCT_NO = #{productNo}
          ORDER BY IMAGE_ORDER
