@@ -68,7 +68,7 @@ public class TransactHistMapperTest {
         
         // 방금 넣은 데이터의 PK(시퀀스값)를 알기 어렵다면 
         // 리스트 조회로 데이터를 가져와서 테스트합니다.
-        List<TransactHistVO> list = mapper.selectListByProduct(100L);
+        List<TransactHistVO> list = mapper.selectListByProduct(100L, "latest");
         TransactHistVO savedVo = list.get(0);
         Long txId = savedVo.getTxId();
         
