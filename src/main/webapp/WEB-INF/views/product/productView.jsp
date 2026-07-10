@@ -1,330 +1,169 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-
-<c:set var="CP" value="${pageContext.request.contextPath}" />
-
+<c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-<meta charset="UTF-8">
-<title>상품 상세</title>
-
-<style>
-    body {
-        margin: 0;
-        font-family: Arial, sans-serif;
-        background: #f5f6f8;
-        color: #222;
-    }
-
-    .container {
-        width: 1000px;
-        margin: 40px auto;
-        background: white;
-        border-radius: 16px;
-        padding: 35px;
-        box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-
-    .back {
-        display: inline-block;
-        margin-bottom: 25px;
-        text-decoration: none;
-        color: #555;
-    }
-
-    .detail-wrap {
-        display: flex;
-        gap: 40px;
-    }
-
-    .image-area {
-        width: 430px;
-    }
-
-    .main-image {
-        width: 430px;
-        height: 430px;
-        border-radius: 14px;
-        background: #eee;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        color: #777;
-    }
-
-    .main-image img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .sub-images {
-        display: flex;
-        gap: 10px;
-        margin-top: 12px;
-        flex-wrap: wrap;
-    }
-
-    .sub-images img {
-        width: 76px;
-        height: 76px;
-        border-radius: 8px;
-        object-fit: cover;
-        border: 1px solid #ddd;
-    }
-
-    .info-area {
-        flex: 1;
-    }
-
-    .category {
-        font-size: 14px;
-        color: #777;
-        margin-bottom: 12px;
-    }
-
-    .title {
-        font-size: 30px;
-        font-weight: bold;
-        margin-bottom: 16px;
-    }
-
-    .price {
-        font-size: 32px;
-        color: #ff7a00;
-        font-weight: bold;
-        margin-bottom: 20px;
-    }
-
-    .status {
-        display: inline-block;
-        padding: 7px 13px;
-        border-radius: 20px;
-        background: #eef0f3;
-        margin-bottom: 22px;
-        font-size: 14px;
-    }
-
-    .info-list {
-        border-top: 1px solid #eee;
-        border-bottom: 1px solid #eee;
-        padding: 18px 0;
-        margin-bottom: 25px;
-        line-height: 2;
-        color: #555;
-    }
-
-    .content {
-        margin-top: 35px;
-        padding-top: 25px;
-        border-top: 1px solid #eee;
-    }
-
-    .content h3 {
-        margin-top: 0;
-    }
-
-    .content-box {
-        min-height: 150px;
-        line-height: 1.8;
-        white-space: pre-line;
-        color: #333;
-    }
-
-    .button-area {
-        display: flex;
-        gap: 10px;
-        margin-top: 25px;
-        flex-wrap: wrap;
-    }
-
-    button, .btn {
-        border: none;
-        padding: 12px 18px;
-        border-radius: 8px;
-        cursor: pointer;
-        text-decoration: none;
-        font-size: 15px;
-        font-weight: bold;
-    }
-
-    .btn-chat {
-        background: #ff7a00;
-        color: white;
-    }
-
-    .btn-edit {
-        background: #333;
-        color: white;
-    }
-
-    .btn-delete {
-        background: #e74c3c;
-        color: white;
-    }
-
-    .btn-list {
-        background: #ddd;
-        color: #333;
-    }
-</style>
-
-<script>
-    function deleteProduct() {
-        if (!confirm("정말 삭제하시겠습니까?")) {
-            return;
-        }
-
-        const formData = new FormData();
-        formData.append("productNo", "${product.productNo}");
-
-        /*
-            로그인 기능이 있다면 아래 sallerNo는
-            sessionScope.loginUser.userNum 또는 프로젝트에서 쓰는 로그인 회원번호로 바꿔야 합니다.
-        */
-        formData.append("sallerNo", "${product.sallerNo}");
-
-        fetch("${CP}/product/doDelete.do", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result.trim() === "1") {
-                alert("삭제되었습니다.");
-                location.href = "${CP}/product/list.do";
-            } else {
-                alert("삭제에 실패했습니다.");
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            alert("삭제 중 오류가 발생했습니다.");
-        });
-    }
-
-    function updateStatus(status) {
-        const formData = new FormData();
-        formData.append("productNo", "${product.productNo}");
-        formData.append("sallerNo", "${product.sallerNo}");
-        formData.append("status", status);
-
-        fetch("${CP}/product/updateStatus.do", {
-            method: "POST",
-            body: formData
-        })
-        .then(response => response.text())
-        .then(result => {
-            if (result.trim() === "1") {
-                alert("거래 상태가 변경되었습니다.");
-                location.reload();
-            } else {
-                alert("상태 변경에 실패했습니다.");
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            alert("상태 변경 중 오류가 발생했습니다.");
-        });
-    }
-</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><c:out value="${empty product ? '상품 상세' : product.productTitle}"/> | SPAM</title>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css">
+    <link rel="stylesheet" href="${CP}/resources/css/product.css">
+    <script defer src="${CP}/resources/js/index.js"></script>
+    <script defer src="${CP}/resources/js/product.js"></script>
 </head>
-
 <body>
+<div class="page-shell" id="top">
+    <jsp:include page="../common/header.jsp" />
+    <jsp:include page="../common/nav.jsp" />
 
-<div class="container">
-
-    <a class="back" href="${CP}/product/list.do">← 목록으로</a>
-
-    <c:if test="${empty product}">
-        <h2>상품 정보를 찾을 수 없습니다.</h2>
-    </c:if>
-
-    <c:if test="${not empty product}">
-        <div class="detail-wrap">
-
-            <div class="image-area">
-                <div class="main-image">
-                    <c:choose>
-                        <c:when test="${not empty product.imageList}">
-                            <img src="${CP}${product.imageList[0].filePath}" alt="상품 이미지">
-                        </c:when>
-                        <c:otherwise>
-                            등록된 이미지가 없습니다.
-                        </c:otherwise>
-                    </c:choose>
+    <main class="product-page product-detail-page">
+        <c:choose>
+            <c:when test="${empty product}">
+                <div class="product-empty-state">
+                    <strong>상품 정보를 찾을 수 없습니다.</strong>
+                    <p>삭제되었거나 존재하지 않는 상품입니다.</p>
+                    <a class="product-primary-button" href="${CP}/product/list.do">상품 목록으로</a>
                 </div>
+            </c:when>
+            <c:otherwise>
+                <nav class="product-breadcrumb" aria-label="현재 위치">
+                    <a href="${CP}/main.do">홈</a><span>›</span>
+                    <a href="${CP}/product/list.do">전체 상품</a><span>›</span>
+                    <c:if test="${not empty product.largeName}"><span><c:out value="${product.largeName}"/></span></c:if>
+                    <c:if test="${not empty product.middleName}"><span>›</span><span><c:out value="${product.middleName}"/></span></c:if>
+                    <c:if test="${not empty product.smallName}"><span>›</span><span><c:out value="${product.smallName}"/></span></c:if>
+                </nav>
 
-                <c:if test="${not empty product.imageList}">
-                    <div class="sub-images">
-                        <c:forEach var="img" items="${product.imageList}">
-                            <img src="${CP}${img.filePath}" alt="${img.originName}">
-                        </c:forEach>
+                <section class="product-detail-card" aria-labelledby="productDetailTitle">
+                    <div class="product-gallery">
+                        <div class="product-gallery-main">
+                            <c:choose>
+                                <c:when test="${not empty product.imageList}">
+                                    <img class="js-product-main-image" src="${CP}${product.imageList[0].filePath}"
+                                         alt="<c:out value='${product.productTitle}'/> 대표 이미지">
+                                </c:when>
+                                <c:otherwise>
+                                    <div class="product-image-placeholder"><span>등록된 이미지가 없습니다.</span></div>
+                                </c:otherwise>
+                            </c:choose>
+                        </div>
+
+                        <c:if test="${not empty product.imageList}">
+                            <div class="product-gallery-thumbs" aria-label="상품 이미지 선택">
+                                <c:forEach var="image" items="${product.imageList}" varStatus="status">
+                                    <button type="button"
+                                            class="product-gallery-thumb js-product-gallery-thumb ${status.first ? 'is-active' : ''}"
+                                            data-image-src="${CP}${image.filePath}"
+                                            data-image-alt="<c:out value='${image.originName}'/>"
+                                            aria-pressed="${status.first ? 'true' : 'false'}">
+                                        <img src="${CP}${image.filePath}" alt="<c:out value='${image.originName}'/>">
+                                    </button>
+                                </c:forEach>
+                            </div>
+                        </c:if>
                     </div>
-                </c:if>
-            </div>
 
-            <div class="info-area">
+                    <div class="product-detail-info">
+                        <div class="product-detail-status-row">
+                            <p class="product-detail-category">
+                                <c:out value="${product.largeName}"/>
+                                <c:if test="${not empty product.middleName}"> · <c:out value="${product.middleName}"/></c:if>
+                                <c:if test="${not empty product.smallName}"> · <c:out value="${product.smallName}"/></c:if>
+                            </p>
+                            <c:choose>
+                                <c:when test="${product.status eq '01'}"><span class="product-status-badge product-status-sale">판매중</span></c:when>
+                                <c:when test="${product.status eq '02'}"><span class="product-status-badge product-status-reserved">예약중</span></c:when>
+                                <c:when test="${product.status eq '03'}"><span class="product-status-badge product-status-sold">거래완료</span></c:when>
+                                <c:otherwise><span class="product-status-badge product-status-sold">상태 미정</span></c:otherwise>
+                            </c:choose>
+                        </div>
 
-                <div class="category">
-                    ${product.largeName}
-                    <c:if test="${not empty product.middleName}"> &gt; ${product.middleName}</c:if>
-                    <c:if test="${not empty product.smallName}"> &gt; ${product.smallName}</c:if>
-                </div>
+                        <h1 class="product-detail-title" id="productDetailTitle"><c:out value="${product.productTitle}"/></h1>
+                        <div class="product-detail-price"><fmt:formatNumber value="${product.price}" pattern="#,##0"/>원</div>
 
-                <div class="title">${product.productTitle}</div>
+                        <dl class="product-detail-meta">
+                            <div>
+                                <dt>거래지역</dt>
+                                <dd><c:out value="${empty product.location ? '지역 미입력' : product.location}"/></dd>
+                            </div>
+                            <div>
+                                <dt>상품상태</dt>
+                                <dd><c:out value="${empty product.productCondition ? '정보 없음' : product.productCondition}"/></dd>
+                            </div>
+                            <div>
+                                <dt>등록일</dt>
+                                <dd><c:out value="${product.createDt}"/></dd>
+                            </div>
+                            <div>
+                                <dt>조회수</dt>
+                                <dd><fmt:formatNumber value="${product.viewCount}" pattern="#,##0"/>회</dd>
+                            </div>
+                        </dl>
 
-                <div class="price">
-                    <fmt:formatNumber value="${product.price}" pattern="#,###" />원
-                </div>
+                        <div class="product-seller-summary">
+                            <div class="product-seller-main">
+                                <span class="product-seller-avatar" aria-hidden="true">S</span>
+                                <div>
+                                    <strong>판매자 #<c:out value="${product.sallerNo}"/></strong>
+                                    <span><c:out value="${empty product.location ? '거래지역 미입력' : product.location}"/></span>
+                                </div>
+                            </div>
+                            <a class="product-seller-link" href="${CP}/product/seller.do?sallerNo=${product.sallerNo}">판매자 보기</a>
+                        </div>
 
-                <div class="status">
-                    <c:choose>
-                        <c:when test="${product.status eq '01'}">판매중</c:when>
-                        <c:when test="${product.status eq '02'}">예약중</c:when>
-                        <c:when test="${product.status eq '03'}">판매완료</c:when>
-                        <c:otherwise>상태 미정</c:otherwise>
-                    </c:choose>
-                </div>
+                        <c:set var="isOwner" value="${not empty sessionScope.loginUser and sessionScope.loginUser.userNum == product.sallerNo}" />
+                        <div class="product-detail-actions">
+                            <c:choose>
+                                <c:when test="${isOwner}">
+                                    <a class="product-primary-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}&amp;sallerNo=${product.sallerNo}">상품 수정</a>
+                                </c:when>
+                                <c:otherwise>
+                                    <button type="button" class="product-primary-button js-product-chat"
+                                            data-login="${not empty sessionScope.loginUser}"
+                                            data-login-url="${CP}/user/login.do"
+                                            data-chat-url="${CP}/chat/enterRoom.do"
+                                            data-chat-view-url="${CP}/chat/view.do"
+                                            data-product-no="${product.productNo}"
+                                            data-seller-no="${product.sallerNo}">채팅하기</button>
+                                </c:otherwise>
+                            </c:choose>
+                            <a class="product-secondary-button"
+                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.sallerNo}&amp;reportType=PRODUCT">신고하기</a>
+                            <a class="product-secondary-button" href="${CP}/product/list.do">목록으로</a>
+                        </div>
 
-                <div class="info-list">
-                    판매지역: ${product.location}<br>
-                    상품상태: ${product.productCondition}<br>
-                    조회수: ${product.viewCount}<br>
-                    찜 수: ${product.likeCnt}<br>
-                    채팅 수: ${product.chatCnt}<br>
-                    등록일: ${product.createDt}
-                </div>
+                        <c:if test="${isOwner}">
+                            <div class="product-owner-actions" aria-label="판매자 상품 관리">
+                                <button type="button" class="product-secondary-button js-product-status"
+                                        data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
+                                        data-seller-no="${product.sallerNo}" data-status="01" data-status-text="판매중">판매중</button>
+                                <button type="button" class="product-secondary-button js-product-status"
+                                        data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
+                                        data-seller-no="${product.sallerNo}" data-status="02" data-status-text="예약중">예약중</button>
+                                <button type="button" class="product-secondary-button js-product-status"
+                                        data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
+                                        data-seller-no="${product.sallerNo}" data-status="03" data-status-text="거래완료">거래완료</button>
+                                <button type="button" class="product-danger-button js-product-delete"
+                                        data-product-no="${product.productNo}" data-seller-no="${product.sallerNo}"
+                                        data-delete-url="${CP}/product/doDelete.do" data-redirect-url="${CP}/product/list.do">삭제</button>
+                            </div>
+                        </c:if>
+                    </div>
+                </section>
 
-                <div class="button-area">
-                    <button type="button" class="btn-chat">채팅하기</button>
+                <section class="product-detail-description" aria-labelledby="productDescriptionTitle">
+                    <h2 id="productDescriptionTitle">상품 설명</h2>
+                    <div class="product-detail-description-body"><c:out value="${product.productContent}"/></div>
+                </section>
+            </c:otherwise>
+        </c:choose>
+    </main>
 
-                    <a class="btn btn-edit"
-                       href="${CP}/product/updateForm.do?productNo=${product.productNo}&sallerNo=${product.sallerNo}">
-                        수정
-                    </a>
-
-                    <button type="button" class="btn-delete" onclick="deleteProduct()">삭제</button>
-
-                    <button type="button" class="btn-list" onclick="updateStatus('01')">판매중</button>
-                    <button type="button" class="btn-list" onclick="updateStatus('02')">예약중</button>
-                    <button type="button" class="btn-list" onclick="updateStatus('03')">판매완료</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="content">
-            <h3>상품 설명</h3>
-            <div class="content-box">
-                ${product.productContent}
-            </div>
-        </div>
-    </c:if>
-
+    <jsp:include page="../common/footer.jsp" />
+    <jsp:include page="../common/floatingBar.jsp" />
+    <jsp:include page="../common/mobileBottomNav.jsp" />
 </div>
-
 </body>
 </html>

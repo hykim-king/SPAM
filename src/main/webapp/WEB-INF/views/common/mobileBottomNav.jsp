@@ -14,7 +14,7 @@
         <img src="${CP}/resources/images/icons/10_category_inactive.png" alt="" aria-hidden="true">
         <span>카테고리</span>
     </a>
-    <a href="${CP}/product/reg.do" class="mobile-tab mobile-sell-tab">
+    <a href="${CP}/product/saveForm.do" class="mobile-tab mobile-sell-tab">
         <span class="mobile-sell-icon">+</span>
         <span>판매</span>
     </a>

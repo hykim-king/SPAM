@@ -52,7 +52,7 @@
 
                             <div class="hero-actions">
                                 <a href="${CP}/product/list.do" class="btn btn-dark">상품 둘러보기</a>
-                                <a href="${CP}/product/reg.do" class="btn btn-light">판매하기</a>
+                                <a href="${CP}/product/saveForm.do" class="btn btn-light">판매하기</a>
                             </div>
                         </div>
                     </article>

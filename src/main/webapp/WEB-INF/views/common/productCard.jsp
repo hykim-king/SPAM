@@ -9,7 +9,7 @@
     메인화면 상품 카드 공통 조각
     [수정 필요] 상품관리 모듈 연동 후 ProductVO 필드명에 맞춰 조정
 -->
-<a class="product-card" href="${CP}/product/detail.do?productNo=${param.productNo}">
+<a class="product-card" href="${CP}/product/view.do?productNo=${param.productNo}&amp;sallerNo=0">
     <div class="product-thumb">
         <img src="${CP}/resources/images/products/${param.imageFile}" alt="${param.productTitle}">
     </div>

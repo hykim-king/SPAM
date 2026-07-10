@@ -33,7 +33,7 @@
                         <a href="${CP}/user/mypage.do">마이페이지</a>
                     </c:otherwise>
                 </c:choose>
-                <a class="sell-link" href="${CP}/product/reg.do">판매하기</a>
+                <a class="sell-link" href="${CP}/product/saveForm.do">판매하기</a>
             </nav>
 
             <div class="mobile-header-actions">

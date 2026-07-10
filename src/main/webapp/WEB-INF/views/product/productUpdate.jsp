@@ -79,7 +79,7 @@
                             <select class="product-form-select" id="status" name="status" required>
                                 <option value="01" ${product.status eq '01' ? 'selected' : ''}>판매중</option>
                                 <option value="02" ${product.status eq '02' ? 'selected' : ''}>예약중</option>
-                                <option value="03" ${product.status eq '03' ? 'selected' : ''}>판매완료</option>
+                                <option value="03" ${product.status eq '03' ? 'selected' : ''}>거래완료</option>
                             </select>
                         </div>
 
