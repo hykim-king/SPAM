@@ -113,17 +113,28 @@
     }
 
     /* 상태 관리 배지 */
-    .badge {
-        display: inline-block;
-        padding: 5px 12px;
-        font-size: 12px;
-        font-weight: 600;
-        border-radius: 30px;
-    }
-    .badge-waiting { background-color: #f1f3f5; color: #6c757d; }
-    .badge-processing { background-color: #e0f2fe; color: #0369a1; }
-    .badge-completed { background-color: #dcfce7; color: #15803d; }
-
+    .status-badge {
+		padding: 6px 14px;
+		border-radius: 20px;
+		font-size: 14px;
+		font-weight: 600;
+	}
+	/* 접수/진행중 */
+	.status-ing {
+		background-color: #e3fafc;
+		color: #0b7285;
+	} 
+	/* 처리 완료 */
+	.status-done {
+		background-color: #ebfbee;
+		color: #2b8a3e;
+	} 
+	/* 반려 */
+	.status-reject {
+		background-color: #fff0f6;
+		color: #c2255c;
+	} 
+	
     /* 폼 요소 스타일링 */
     .form-group {
         margin-bottom: 20px;
@@ -188,7 +199,7 @@
     .btn-primary {
         background-color: var(--primary-color);
         color: white;
-        width: 100%; /* 우측 카드 안 버튼은 꽉 차게 */
+        width: 100%;
     }
 
     .btn-primary:hover {
@@ -231,23 +242,24 @@
                 </tr>
                 <tr>
                     <th>신고자 닉네임</th>
-    				<%-- 💡 outVO.reporterNickname이 비어있으면 번호를, 있으면 닉네임을 출력하도록 변경 --%>
-				    <td>${empty outVO.reporterNickname ? outVO.reporterNo : outVO.reporterNickname}</td>
+                    <td>${empty outVO.reporterNickname ? outVO.reporterNo : outVO.reporterNickname}</td>
                 </tr>
                 <tr>
-    				<th>피신고자 닉네임</th>
-    				<td>
-	        			<c:choose>
-            			<%-- 💡 숫자가 아닌 닉네임 변수(reportedNickname)가 비어있는지 확인하고 출력하도록 변경 --%>
-	            			<c:when test="${empty outVO.reportedNickname}">-</c:when>
-            				<c:otherwise>${outVO.reportedNickname}</c:otherwise>
-        				</c:choose>
-    				</td>
-				</tr>
-                <tr>
-                    <th>대상 ID (PK)</th>
-                    <td>${outVO.targetId}</td>
+                    <th>피신고자 닉네임</th>
+                    <td>
+                        <c:choose>
+                            <c:when test="${empty outVO.reportedNickname}">-</c:when>
+                            <c:otherwise>${outVO.reportedNickname}</c:otherwise>
+                        </c:choose>
+                    </td>
                 </tr>
+                <%-- 💡 targetId가 0이 아닐 때만 대상 ID 행을 표시 --%>
+                <c:if test="${outVO.targetId != 0}">
+                    <tr>
+                        <th>신고 게시글</th>
+                        <td>${outVO.targetId}</td>
+                    </tr>
+                </c:if>
                 <tr>
                     <th>신고 일시</th>
                     <td>${outVO.createDt}</td>
@@ -267,15 +279,14 @@
                 
                 <form action="${pageContext.request.contextPath}/report/doUpdateStatus.do" method="post">
                     <input type="hidden" name="reportNo" value="${outVO.reportNo}">
-                    
+               
                     <div class="form-group">
                         <label>현재 진행 상태</label>
                         <div style="margin-bottom: 15px;">
                             <c:choose>
-                                <c:when test="${outVO.reportStatus == '01'}"><span class="badge badge-waiting">처리 대기</span></c:when>
-                                <c:when test="${outVO.reportStatus == '02'}"><span class="badge badge-processing">접수 / 진행중</span></c:when>
-                                <c:when test="${outVO.reportStatus == '03'}"><span class="badge badge-completed">처리 완료</span></c:when>
-                                <c:otherwise><span class="badge badge-waiting">${outVO.reportStatus}</span></c:otherwise>
+                                <c:when test="${outVO.reportStatus == '01'}"><span class="status-badge status-ing">접수중</span></c:when>
+                                <c:when test="${outVO.reportStatus == '02'}"><span class="status-badge status-done">처리완료</span></c:when>
+                                <c:when test="${outVO.reportStatus == '03'}"><span class="status-badge status-reject">반려</span></c:when>
                             </c:choose>
                         </div>
                     </div>
@@ -283,15 +294,15 @@
                     <div class="form-group">
                         <label for="reportStatus">상태 변경하기</label>
                         <select name="reportStatus" id="reportStatus" class="form-control">
-                            <option value="01" ${outVO.reportStatus == '01' ? 'selected' : ''}>처리 대기 (01)</option>
-                            <option value="02" ${outVO.reportStatus == '02' ? 'selected' : ''}>접수 / 진행중 (02)</option>
-                            <option value="03" ${outVO.reportStatus == '03' ? 'selected' : ''}>처리 완료 (03)</option>
+                            <option value="01" ${outVO.reportStatus == '01' ? 'selected' : ''}>접수중</option>
+                            <option value="02" ${outVO.reportStatus == '02' ? 'selected' : ''}>처리완료</option>
+                            <option value="03" ${outVO.reportStatus == '03' ? 'selected' : ''}>반려</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>최종 처리 관리자 번호</label>
-                        <input type="text" class="form-control" value="${empty outVO.adminNo ? '미처리' : outVO.adminNo}" disabled>
+                        <label>최종 처리 관리자</label>
+                        <input type="text" class="form-control" value="관리자 ${empty outVO.adminNickName ? '미처리' : outVO.adminNickName}" disabled>
                     </div>
 
                     <div class="form-group">

@@ -35,9 +35,44 @@ public class ReportController {
 
     // 1. 신고 목록 조회 (관리자용 전체 조회)
     @GetMapping("/admin_doRetrieve.do")
-    public String doRetrieve(ReportSearchDTO search, Model model) {
-        model.addAttribute("list", reportService.doRetrieve(search));
-        return "report/admin_report_list"; // 관리자 전용 목록 view
+    public String doRetrieve(ReportSearchDTO search, Model model, HttpSession session) {
+    	// 1. 보안 유효성 검사 (관리자 권한 확인)
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
+            return "redirect:/user/login.do"; 
+        }
+
+        // 2. 파라미터가 비어있거나 잘못 왔을 때 강제 보정
+        int pNo = search.getPageNo() <= 0 ? 1 : search.getPageNo();
+        int pSize = 10; // 대장이 요청한 한 페이지당 10개 고정
+        
+        // 3. 연산 순서 꼬임 방지를 위해 직접 연산 후 DTO 변수에 강제 주입
+        int computedStart = (pNo - 1) * pSize + 1;
+        int computedEnd = computedStart + pSize - 1;
+        
+        // DTO 멤버 변수에 정확한 값 세팅
+        search.setPageNo(pNo);
+        search.setPageSize(pSize);
+        search.setStartRow(computedStart);
+        search.setEndRow(computedEnd);
+        
+        // 💡 디버깅 로그: 이 숫자가 콘솔에 정확히 찍히는지 확인용
+        System.out.println("====== [페이징 디버깅] ======");
+        System.out.println("요청 PageNo : " + search.getPageNo());
+        System.out.println("보낼 StartRow : " + search.getStartRow());
+        System.out.println("보낼 EndRow : " + search.getEndRow());
+        System.out.println("============================");
+
+        // 4. 데이터 조회 및 총 건수 조회
+        List<ReportVO> list = reportService.doRetrieve(search);
+        int totalCount = reportService.totalCnt();
+
+        // 5. JSP로 모델 전달    
+        model.addAttribute("list", list);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("search", search);
+
+        return "report/admin_report_list";
     }
     
     // 2. 신고 상세 조회 (관리자용)
@@ -48,7 +83,7 @@ public class ReportController {
         UserVO loginUser = (UserVO) session.getAttribute("loginUser");
         if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
             // 프로젝트 설계에 맞춘 관리자 권한 체크 조건 (예: ROLE_ADMIN 또는 ADMIN)
-            return "redirect:/login/loginView.do"; 
+            return "redirect:/user/login.do"; 
         }
 
         // 2. 파라미터 검증 및 서비스 호출을 통한 단건 상세 데이터 조회
@@ -74,7 +109,7 @@ public class ReportController {
             // 혹시 세션이 만료되었거나 로그인이 안 된 경우를 위한 예외 처리 (선택)
             return "<script>" +
                    "alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');" +
-                   "location.href='/ehr/login/loginView.do';" +
+                   "location.href='/ehr/user/login.do';" +
                    "</script>";
         }
     	
@@ -101,7 +136,41 @@ public class ReportController {
         return "report/report_user_form"; 
     }
     
-    // 3. 신고 등록 POST 요청 (@ResponseBody 활용 문자열 반환)
+    // 3. 나의 신고 내역 목록 조회 (내가 한 신고 / 내가 당한 신고)
+    @GetMapping("/myReportList.do")
+    public String myReportList(HttpSession session, Model model) {
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        
+        // 로그인 되어있지 않으면 로그인 페이지로 강제 리다이렉트
+        if (loginUser == null) {
+            return "redirect:/user/login.do";
+        }
+        
+        // 내가 신고한 목록 조회 및 바인딩
+        long currentUserNum = loginUser.getUserNum();
+        List<ReportVO> myReportList = reportService.doRetrieveMyReports(currentUserNum);
+        model.addAttribute("myReportList", myReportList);
+        
+        // 내가 신고당한 목록 조회 및 바인딩 
+        List<ReportVO> receivedReportList = reportService.doRetrieveReceivedReports(currentUserNum);
+        model.addAttribute("receivedReportList", receivedReportList);
+        
+        return "report/my_report_list"; 
+    }
+    
+    // 5. 신고 상세 조회
+    @GetMapping("/doSelectOne.do")
+    public String doSelectOne(ReportVO report, Model model) {
+        // 신고번호(reportNo)를 기준으로 서비스에서 데이터를 조회해와
+        ReportVO outVO = reportService.doSelectOne(report);
+        
+        // 조회된 데이터를 모델에 담아서 JSP로 전달
+        model.addAttribute("outVO", outVO);
+        
+        return "report/report_detail";
+    }
+    
+ // 3. 신고 등록 POST 요청 (@ResponseBody 활용 문자열 반환)
     @PostMapping(value="/doInsert.do", produces="text/html; charset=UTF-8")
     @ResponseBody
     public String doInsert(ReportVO report, HttpSession session) {
@@ -151,39 +220,5 @@ public class ReportController {
                "alert('신고서 제출이 완료되었습니다.');" +
                "location.href='/report/myReportList.do';" +
                "</script>";
-    }
-    
-    // 4. 나의 신고 내역 목록 조회 (내가 한 신고 / 내가 당한 신고)
-    @GetMapping("/myReportList.do")
-    public String myReportList(HttpSession session, Model model) {
-        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-        
-        // 로그인 되어있지 않으면 로그인 페이지로 강제 리다이렉트
-        if (loginUser == null) {
-            return "redirect:/login/loginView.do";
-        }
-        
-        // 내가 신고한 목록 조회 및 바인딩
-        long currentUserNum = loginUser.getUserNum();
-        List<ReportVO> myReportList = reportService.doRetrieveMyReports(currentUserNum);
-        model.addAttribute("myReportList", myReportList);
-        
-        // 내가 신고당한 목록 조회 및 바인딩 
-        List<ReportVO> receivedReportList = reportService.doRetrieveReceivedReports(currentUserNum);
-        model.addAttribute("receivedReportList", receivedReportList);
-        
-        return "report/report_list"; 
-    }
-    
-    // 5. 신고 상세 조회
-    @GetMapping("/doSelectOne.do")
-    public String doSelectOne(ReportVO report, Model model) {
-        // 신고번호(reportNo)를 기준으로 서비스에서 데이터를 조회해와
-        ReportVO outVO = reportService.doSelectOne(report);
-        
-        // 조회된 데이터를 모델에 담아서 JSP로 전달
-        model.addAttribute("reportVO", outVO);
-        
-        return "report/report_detail";
     }
 }

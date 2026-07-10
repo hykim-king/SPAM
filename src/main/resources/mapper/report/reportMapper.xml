@@ -13,6 +13,8 @@
         <result property="reportStatus"   column="REPORT_STATUS" />
         <result property="createDt"       column="CREATE_DT" />
         <result property="processDt"      column="PROCESS_DT" />
+        <result property="reporterNickname" column="REPORTER_NICKNAME" />
+    	<result property="reportedNickname" column="REPORTED_NICKNAME" />
     </resultMap>
     
     <select id="doRetrieveReceivedReports" parameterType="long" resultMap="reportMap">
@@ -59,43 +61,55 @@
 
 	<!-- 단건 조회 -->
 	<select id="doSelectOne"
-		parameterType="com.pcwk.ehr.report.domain.ReportVO"
-		resultType="com.pcwk.ehr.report.domain.ReportVO">
+		parameterType="ReportVO"
+		resultType="ReportVO">
 		SELECT
-		r.REPORT_NO as reportNo,
-		r.REPORT_TYPE as reportType,
-		r.REPORTER_NO as reporterNo,
-		r.REPORTED_USER_NO as reportedUserNo,
-		r.TARGET_ID as targetId,
-		r.CREATE_DT as createDt,
-		r.REASON as reason,
-		r.REPORT_STATUS as reportStatus,
-		r.PROCESS_DT as processDt,
-		r.ADMIN_NO as adminNo,
-		u1.USER_NAME as adminName, u2.NICKNAME as reporterNickname, u3.NICKNAME
-		as reportedNickname FROM REPORT_INFO r
-		LEFT OUTER JOIN USER_INFO u1 ON r.ADMIN_NO = u1.USER_NUM
-		LEFT OUTER JOIN USER_INFO u2 ON r.REPORTER_NO = u2.USER_NUM
-		LEFT OUTER JOIN USER_INFO u3 ON r.REPORTED_USER_NO = u3.USER_NUM
-		WHERE r.REPORT_NO = #{reportNo}
+			r.REPORT_NO as reportNo,
+			r.REPORT_TYPE as reportType,
+			r.REPORTER_NO as reporterNo,
+			r.REPORTED_USER_NO as reportedUserNo,
+			r.TARGET_ID as targetId,
+			r.CREATE_DT as createDt,
+			r.REASON as reason,
+			r.REPORT_STATUS as reportStatus,
+			r.PROCESS_DT as processDt,
+			r.ADMIN_NO as adminNo,
+			u1.NICKNAME as adminNickName, 
+			u2.NICKNAME as reporterNickname, 
+			u3.NICKNAME as reportedNickname,
+			p.PRODUCT_TITLE as productTitle
+		  FROM REPORT_INFO r
+		  LEFT OUTER JOIN USER_INFO u1 ON r.ADMIN_NO = u1.USER_NUM
+		  LEFT OUTER JOIN USER_INFO u2 ON r.REPORTER_NO = u2.USER_NUM
+		  LEFT OUTER JOIN USER_INFO u3 ON r.REPORTED_USER_NO = u3.USER_NUM
+		  LEFT OUTER JOIN PRODUCT   p  ON r.TARGET_ID = p.PRODUCT_NO
+		 WHERE r.REPORT_NO = #{reportNo}
 	</select>
 
     <!-- 목록 조회 (기본) -->
     <select id="doRetrieve" parameterType="ReportSearchDTO" resultMap="reportMap">
-        SELECT 
-        		REPORT_NO,
-        		REPORTER_NO,
-        		REPORTED_USER_NO,
-        		ADMIN_NO,
-        		REPORT_TYPE,
-        		TARGET_ID,
-        		REASON,
-        		REPORT_STATUS,
-        		TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI:SS', 'NLS_DATE_LANGUAGE=KOREAN') AS CREATE_DT,
-        		TO_CHAR(PROCESS_DT, 'YYYY-MM-DD (DY) HH24:MI:SS', 'NLS_DATE_LANGUAGE=KOREAN') AS PROCESS_DT
-    	  FROM REPORT_INFO
-    	 WHERE 1=1
-    </select>
+	    SELECT * FROM (
+	        SELECT ROWNUM AS rnum, A.* FROM (
+	            SELECT 
+	                r.REPORT_NO,
+	                r.REPORTER_NO,
+	                r.REPORTED_USER_NO,
+	                r.ADMIN_NO,
+	                r.REPORT_TYPE,
+	                r.TARGET_ID,
+	                r.REASON,
+	                r.REPORT_STATUS,
+	                TO_CHAR(r.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') as CREATE_DT,
+	                r.PROCESS_DT,
+	                u1.NICKNAME as REPORTER_NICKNAME,
+	                u2.NICKNAME as REPORTED_NICKNAME
+	            FROM REPORT_INFO r
+	            LEFT OUTER JOIN USER_INFO u1 ON r.REPORTER_NO = u1.USER_NUM
+	            LEFT OUTER JOIN USER_INFO u2 ON r.REPORTED_USER_NO = u2.USER_NUM
+	            ORDER BY r.REPORT_NO DESC
+	        ) A WHERE ROWNUM &lt;= #{endRow}
+	    ) WHERE rnum &gt;= #{startRow}
+	</select>
 
     <!-- 전체 건수 -->
     <select id="totalCnt" resultType="int">
