@@ -4,7 +4,7 @@
     <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 </c:if>
 
-<!-- [변경] 모바일 하단 고정 탭바 -->
+<!-- 모바일 하단 고정 탭바 -->
 <nav class="mobile-bottom-nav" aria-label="모바일 하단 메뉴">
     <a href="${CP}/main.do" class="mobile-tab active">
         <img src="${CP}/resources/images/icons/09_home_active.png" alt="" aria-hidden="true">

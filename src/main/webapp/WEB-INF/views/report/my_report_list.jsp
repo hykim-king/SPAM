@@ -41,7 +41,7 @@
             transition: all 0.2s ease;
         }
         .tab-item.active {
-            color: #ff4d4f; /* SPAM 프로젝트 포인트 컬러 (예시) */
+            color: #ff4d4f; /* SPAM 프로젝트 포인트 컬러 */
             border-bottom: 2px solid #ff4d4f;
         }
         /* 테이블 스타일 */
@@ -81,9 +81,9 @@
             font-size: 12px;
             font-weight: bold;
         }
-        .status-0 { background-color: #e9ecef; color: #495057; } /* 접수완료 */
-        .status-1 { background-color: #e3faf2; color: #0ca678; } /* 처리완료 */
-        .status-2 { background-color: #fff0f6; color: #d6336c; } /* 반려 */
+        .status-01 { background-color: #e9ecef; color: #495057; } /* 접수완료/처리대기 */
+        .status-02 { background-color: #e3faf2; color: #0ca678; } /* 처리완료 */
+        .status-03 { background-color: #fff0f6; color: #d6336c; } /* 반려 (필요 시 유지) */
         
         .empty-msg {
             text-align: center;
@@ -103,14 +103,15 @@
         <div class="tab-item" onclick="switchTab('received-reports')">내가 신고 당한 목록</div>
     </div>
     
+    <%-- 섹션 1: 내가 신고한 목록 --%>
     <div id="my-reports" class="report-table-panel active">
         <table class="report-table">
             <thead>
                 <tr>
-                    <th style="width: 10%;">번호</th>
-                    <th style="width: 15%;">신고유형</th>
+                    <th style="width: 7%;">번호</th>
+                    <th style="width: 12%;">신고유형</th>
                     <th style="width: 45%;">신고사유(상세)</th>
-                    <th style="width: 15%;">신고일자</th>
+                    <th style="width: 21%;">신고일자</th>
                     <th style="width: 15%;">처리상태</th>
                 </tr>
             </thead>
@@ -119,25 +120,29 @@
                     <c:when test="${not empty myReportList}">
                         <c:forEach var="report" items="${myReportList}" varStatus="status">
                             <tr onclick="goDetail('${report.reportNo}')">
-                                <td>${status.count}</td>
+                                <td>${status.count}</td> <%-- 💡 reportStatus.count를 status.count로 수정 완료! --%>
                                 <td><strong>${report.reportType}</strong></td>
                                 <td>
-                                    <c:choose>
-                                        <c:when test="${report.reason.length() > 30}">
-                                            <c:out value="${report.reason.substring(0, 30)}..."/>
-                                        </c:when>
-                                        <c:otherwise>
-                                            <c:out value="${report.reason}"/>
-                                        </c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>${report.regDate}</td>
+    								<a href="${pageContext.request.contextPath}/report/doSelectOne.do?reportNo=${report.reportNo}" 
+								       style="text-decoration: none; color: inherit; display: block;">
+								        <c:choose>
+								            <c:when test="${report.reason.length() > 30}">
+								                <c:out value="${report.reason.substring(0, 30)}..."/>
+								            </c:when>
+								            <c:otherwise>
+								                <c:out value="${report.reason}"/>
+								            </c:otherwise>
+								        </c:choose>
+								    </a>
+								</td>
+                                <td>${report.createDt}</td>
                                 <td>
-                                    <span class="status-badge status-${report.status}">
+                                    <%-- 💡 DB 코드 규칙이 '01', '02' 형태이므로 맞춰서 바인딩할 수 있도록 유연하게 설계 --%>
+                                    <span class="status-badge status-${report.reportStatus}">
                                         <c:choose>
-                                            <c:when test="${report.status == 0}">접수완료</c:when>
-                                            <c:when test="${report.status == 1}">처리완료</c:when>
-                                            <c:when test="${report.status == 2}">반려</c:when>
+                                            <c:when test="${report.reportStatus == '01' || report.reportStatus == '0'}">처리대기</c:when>
+                                            <c:when test="${report.reportStatus == '02' || report.reportStatus == '1'}">처리완료</c:when>
+                                            <c:otherwise>반려</c:otherwise>
                                         </c:choose>
                                     </span>
                                 </td>
@@ -154,25 +159,26 @@
         </table>
     </div>
     
+    <%-- 섹션 2: 내가 신고 당한 목록 --%>
     <div id="received-reports" class="report-table-panel">
         <table class="report-table">
             <thead>
                 <tr>
-                    <th style="width: 10%;">번호</th>
-                    <th style="width: 15%;">신고유형</th>
+                    <th style="width: 7%;">번호</th>
+                    <th style="width: 12%;">신고유형</th>
                     <th style="width: 60%;">신고사유(상세)</th>
-                    <th style="width: 15%;">신고일자</th>
+                    <th style="width: 21%;">신고일자</th>
                 </tr>
             </thead>
             <tbody>
                 <c:choose>
                     <c:when test="${not empty receivedReportList}">
                         <c:forEach var="received" items="${receivedReportList}" varStatus="status">
-                            <tr>
-                                <td>${status.count}</td>
+                            <tr onclick="goDetail('${received.reportNo}')">
+                                <td>${status.count}</td> 
                                 <td><span style="color: #ff4d4f;">${received.reportType}</span></td>
                                 <td><c:out value="${received.reason}"/></td>
-                                <td>${received.regDate}</td>
+                                <td>${received.createDt}</td>
                             </tr>
                         </c:forEach>
                     </c:when>
@@ -191,7 +197,7 @@
     // 1. 탭 전환 스크립트
     function switchTab(tabId) {
         // 모든 탭 아이템 active 제거
-        document.querySelectorAll('.tab-item').forEach(tab => {
+        document.querySelectorAll('.tab-menu .tab-item').forEach(tab => {
             tab.classList.remove('active');
         });
         // 모든 테이블 패널 숨기기

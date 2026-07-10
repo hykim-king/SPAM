@@ -93,3 +93,9 @@ public class TransacHistSearchDTO implements Serializable {
         return pageNo * pageSize;
     }
 }
+//2. 삭제해도 되는 것
+//TransacHistSearchDTO.java: 현재 파일이 업로드되어 있는데, 
+//컨트롤러의 /list.do 메서드에서 이 DTO를 사용하고 있나요? 
+//현재 컨트롤러 코드에는 tab, sort, productNo만 사용되고 DTO는 사용하지 않습니다.
+//
+//조언: 만약 페이징 처리나 추가 검색 조건(검색어 등)이 향후에 필요 없다면, 이 파일은 불필요한 코드가 되므로 삭제하셔도 무방합니다. (프로젝트가 깔끔해집니다.)

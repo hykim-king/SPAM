@@ -1,62 +1,63 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>거래내역 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <title>내 상점 | SPAM</title>
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/transact.css">
 </head>
 <body>
-    <div class="page-shell" id="top">
-        <jsp:include page="../common/header.jsp" />
-        <jsp:include page="../common/nav.jsp" />
+    <div class="main-container">
+        <div class="store-tabs">
+            <a href="list.do?tab=product" class="${empty param.tab or param.tab eq 'product' ? 'active' : ''}">판매상품</a>
+            <a href="list.do?tab=review" class="${param.tab eq 'review' ? 'active' : ''}">거래후기</a>
+        </div>
 
-        <main class="member-page-shell">
-            <header class="page-header">
-                <div>
-                    <a class="brand" href="${CP}/transact/list.do" aria-label="SPAM 거래내역">
-                        <span class="brand-mark">SP</span>
-                        <span>SPAM Trade</span>
-                    </a>
-                    <h1 class="page-title">거래내역</h1>
-                    <p class="page-desc">상품별 거래 진행 내역을 확인합니다.</p>
+        <div class="store-header">
+            <c:if test="${empty param.tab or param.tab eq 'product'}">
+                <div class="product-count">상품 <span>${list.size()}</span></div>
+                
+                <c:set var="currentTab" value="${empty param.tab ? 'product' : param.tab}" />
+                <div class="sort-options">
+                    <a href="list.do?tab=${currentTab}&sort=latest" class="${empty param.sort or param.sort eq 'latest' ? 'active' : ''}">최신순</a>
+                    <a href="list.do?tab=${currentTab}&sort=lowPrice" class="${param.sort eq 'lowPrice' ? 'active' : ''}">낮은 가격순</a>
+                    <a href="list.do?tab=${currentTab}&sort=highPrice" class="${param.sort eq 'highPrice' ? 'active' : ''}">높은 가격순</a>
                 </div>
-                <nav class="header-actions">
-                    <a class="btn outline" href="${CP}/product/list.do">상품 보기</a>
-                    <a class="btn" href="${CP}/main.do">메인</a>
-                </nav>
-            </header>
+            </c:if>
+            <c:if test="${param.tab eq 'review'}">
+                <div class="product-count">후기 <span>${reviewList.size()}</span></div>
+            </c:if>
+        </div>
 
-            <section class="panel stack">
-                <div class="simple-list">
-                    <c:choose>
-                        <c:when test="${empty list}">
-                            <article class="simple-list-card">
-                                <h3>조회된 거래내역이 없습니다.</h3>
-                                <p>거래내역 모듈 데이터가 연결되면 이 영역에 상품별 거래 내역이 표시됩니다.</p>
-                            </article>
-                        </c:when>
-                        <c:otherwise>
-                            <c:forEach var="item" items="${list}">
-                                <article class="simple-list-card">
-                                    <h3>거래내역</h3>
-                                    <p><c:out value="${item}" /></p>
-                                </article>
-                            </c:forEach>
-                        </c:otherwise>
-                    </c:choose>
+        <c:choose>
+            <c:when test="${empty param.tab or param.tab eq 'product'}">
+                <div class="product-grid">
+                    <c:forEach var="vo" items="${list}">
+                        <div class="product-card">
+                            <div class="img-wrap">
+                                <img src="${pageContext.request.contextPath}${vo.imagePath}" alt="${vo.productTitle}">
+                            </div>
+                            <div class="info-wrap">
+                                <div class="price"><fmt:formatNumber value="${vo.price}" pattern="#,###"/>원</div>
+                                <div class="title">${vo.productTitle}</div>
+                                </div>
+                        </div>
+                    </c:forEach>
+                    
+                    <c:if test="${empty list}">
+                        <div class="no-data">등록된 판매 상품이 없습니다.</div>
+                    </c:if>
                 </div>
-            </section>
-        </main>
+            </c:when>
 
-        <jsp:include page="../common/footer.jsp" />
-        <jsp:include page="../common/floatingBar.jsp" />
-        <jsp:include page="../common/mobileBottomNav.jsp" />
+            <c:when test="${param.tab eq 'review'}">
+                <div class="review-list">
+                    <div class="no-data">등록된 거래 후기가 없습니다.</div>
+                </div>
+            </c:when>
+        </c:choose>
     </div>
 </body>
 </html>

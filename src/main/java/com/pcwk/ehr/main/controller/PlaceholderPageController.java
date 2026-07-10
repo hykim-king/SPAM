@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * 임시 빈 페이지 Controller
  *
- * [추가] 메인 화면의 링크가 404로 끊기지 않도록 임시 화면을 제공한다.
- * [중요] 추후 상품관리/거래내역/신고관리 페이지가 완성되면 중복 매핑을 피하기 위해 이 Controller의 해당 메서드를 삭제한다.
+ * 메인 화면의 링크가 404로 끊기지 않도록 임시 화면을 제공한다.
+ * 추후 상품관리/거래내역/신고관리 페이지가 완성되면 중복 매핑을 피하기 위해 이 Controller의 해당 메서드를 삭제한다.
  */
 @Controller
 public class PlaceholderPageController {

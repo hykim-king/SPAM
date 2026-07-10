@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPAM 관리자 회원상세</title>
+    <title>회원상세 | SPAM 관리자</title>
     <link rel="stylesheet" href="${CP}/resources/css/index.css">
     <link rel="stylesheet" href="${CP}/resources/css/member.css">
     <script defer src="${CP}/resources/js/index.js"></script>
@@ -21,16 +21,11 @@
         <main class="member-page-shell">
         <header class="page-header">
             <div>
-                <a class="brand" href="${CP}/admin/user/list.do" aria-label="SPAM 관리자 회원목록">
-                    <span class="brand-mark">SP</span>
-                    <span>SPAM Admin</span>
-                </a>
                 <h1 class="page-title">관리자 회원상세</h1>
-                <p class="page-desc">회원 기본 정보 확인과 상태/권한 변경을 처리합니다.</p>
             </div>
             <nav class="header-actions">
-                <a class="btn outline" href="${CP}/admin/user/list.do">목록</a>
-                <a class="btn" href="${CP}/user/logout.do">로그아웃</a>
+                <a class="btn outline" href="${CP}/admin/user/list.do">회원 목록</a>
+                <a class="btn" href="${CP}/report/doRetrieve.do">신고 목록</a>
             </nav>
         </header>
 
@@ -110,7 +105,7 @@
             <div class="stack">
                 <section class="panel">
                     <h2 class="panel-title">회원상태 변경</h2>
-                    <form class="form-grid" action="${CP}/admin/user/statusUpdate.do" method="post">
+                    <form class="form-grid admin-change-form" action="${CP}/admin/user/statusUpdate.do" method="post" data-confirm-message="선택한 회원상태로 변경하시겠습니까?">
                         <input type="hidden" name="userNum" value="${user.userNum}">
                         <div class="form-row">
                             <label class="label" for="userStatus">상태</label>
@@ -122,12 +117,13 @@
                             </select>
                         </div>
                         <button class="btn primary" type="submit">상태 변경</button>
+                        <p class="admin-result-message"><c:out value="${statusMsg}" /></p>
                     </form>
                 </section>
 
                 <section class="panel">
                     <h2 class="panel-title">회원권한 변경</h2>
-                    <form class="form-grid" action="${CP}/admin/user/roleUpdate.do" method="post">
+                    <form class="form-grid admin-change-form" action="${CP}/admin/user/roleUpdate.do" method="post" data-confirm-message="선택한 회원권한으로 변경하시겠습니까?">
                         <input type="hidden" name="userNum" value="${user.userNum}">
                         <div class="form-row">
                             <label class="label" for="userRole">권한</label>
@@ -137,6 +133,7 @@
                             </select>
                         </div>
                         <button class="btn primary" type="submit">권한 변경</button>
+                        <p class="admin-result-message"><c:out value="${roleMsg}" /></p>
                     </form>
                 </section>
             </div>

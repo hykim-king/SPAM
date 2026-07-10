@@ -4,12 +4,7 @@
     <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 </c:if>
 
-<!--
-    [변경] PC 전용 플로팅바
-    - 화면을 가리지 않도록 브라우저 우측에 고정
-    - 판매하기 → 판매
-    - 최근 본 상품 항목 삭제
--->
+<!-- PC 전용 플로팅바 -->
 <aside class="floating-bar" aria-label="빠른 실행 메뉴">
     <a href="${CP}/product/reg.do" class="floating-item">
         <img src="${CP}/resources/images/icons/13_floating_sell.png" alt="" aria-hidden="true">

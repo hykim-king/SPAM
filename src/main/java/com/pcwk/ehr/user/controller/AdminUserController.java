@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.pcwk.ehr.user.domain.UserSearchDTO;
 import com.pcwk.ehr.user.domain.UserVO;
@@ -109,7 +110,8 @@ public class AdminUserController {
     @PostMapping("/statusUpdate.do")
     public String statusUpdate(@RequestParam("userNum") Long userNum,
                                @RequestParam("userStatus") String userStatus,
-                               HttpSession session) {
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
         // 관리자 권한이 없으면 변경을 막음
         if (!isAdmin(session)) {
             return "redirect:/user/login.do";
@@ -117,6 +119,7 @@ public class AdminUserController {
 
         userService.changeUserStatus(userNum, userStatus);
 
+        redirectAttributes.addFlashAttribute("statusMsg", "회원상태가 변경되었습니다.");
         return "redirect:/admin/user/detail.do?userNum=" + userNum;
     }
 
@@ -132,7 +135,8 @@ public class AdminUserController {
     @PostMapping("/roleUpdate.do")
     public String roleUpdate(@RequestParam("userNum") Long userNum,
                              @RequestParam("userRole") String userRole,
-                             HttpSession session) {
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
 
         if (!isAdmin(session)) {
             return "redirect:/user/login.do";
@@ -140,6 +144,7 @@ public class AdminUserController {
 
         userService.changeUserRole(userNum, userRole);
 
+        redirectAttributes.addFlashAttribute("roleMsg", "회원권한이 변경되었습니다.");
         return "redirect:/admin/user/detail.do?userNum=" + userNum;
     }
 

@@ -21,15 +21,18 @@ import com.pcwk.ehr.report.mapper.ReportMapper;
 public class ReportServiceImpl implements ReportService {
 
     @Override
-	public List<ReportVO> doRetrieveReceivedReports(int currentMemberNo) {
+	public List<ReportVO> doRetrieveReceivedReports(long currentUserNum) {
 		// TODO Auto-generated method stub
-		return null;
+		return reportMapper.doRetrieveReceivedReports(currentUserNum);
 	}
 
 	@Override
-	public List<ReportVO> doRetrieveMyReports(int currentMemberNo) {
+	public List<ReportVO> doRetrieveMyReports(long currentUserNum) {
 		// TODO Auto-generated method stub
-		return null;
+		System.out.println("서비스 진입 - 파라미터 memberNo: " + currentUserNum);
+		List<ReportVO> list = reportMapper.doRetrieveMyReports(currentUserNum);
+		System.out.println("Mapper 결과 객체: " + list); // 여기서 null이 나오면 Mapper/XML의 문제, 여기서 값이 있는데 Controller에서 null이면 ServiceImpl의 return문 문제!
+		return list;
 	}
 
 	@Autowired

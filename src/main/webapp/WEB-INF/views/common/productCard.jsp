@@ -6,8 +6,7 @@
 </c:if>
 
 <!--
-    [변경] 메인화면 상품 카드 공통 조각
-    [변경] 현재 프로젝트 범위에서 찜 기능은 제외되어 찜 버튼/찜 수 표시는 제거
+    메인화면 상품 카드 공통 조각
     [수정 필요] 상품관리 모듈 연동 후 ProductVO 필드명에 맞춰 조정
 -->
 <a class="product-card" href="${CP}/product/detail.do?productNo=${param.productNo}">

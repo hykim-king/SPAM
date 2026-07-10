@@ -86,6 +86,7 @@
             </if>
         </where>
     </sql>
+    
     <!-- 회원가입 INSERT -->
     <insert id="insertUser" parameterType="com.pcwk.ehr.user.domain.UserVO">
         INSERT INTO USER_INFO (
@@ -151,13 +152,12 @@
 
     <!--
         회원가입 아이디 중복 확인
-        - 02 탈퇴 회원은 중복 검사에서 제외
+        - 탈퇴 회원도 같은 아이디로 재가입할 수 없도록 전체 상태를 검사
     -->
     <select id="countByUserId" parameterType="string" resultType="int">
         SELECT COUNT(*)
         FROM USER_INFO
         WHERE USER_ID = #{userId,jdbcType=VARCHAR}
-          AND USER_STATUS &lt;&gt; '02'
     </select>
 
     <!--

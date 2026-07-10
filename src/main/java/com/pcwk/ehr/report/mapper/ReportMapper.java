@@ -33,4 +33,10 @@ public interface ReportMapper {
     
     // 신고 전체 삭제
     int deleteAll();
+
+    // 내가 한 신고 목록 조회
+	List<ReportVO> doRetrieveMyReports(long currentUserNum);
+
+	// 내가 당한 신고 목록 조회 
+	List<ReportVO> doRetrieveReceivedReports(long currentUserNum);
 }
