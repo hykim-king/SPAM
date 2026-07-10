@@ -33,14 +33,13 @@
                 </div>
             </c:when>
             <c:otherwise>
-                <form class="product-form-card js-product-form" action="${CP}/product/doUpdate.do" method="post">
+                <form class="product-form-card js-product-form" action="${CP}/product/doUpdate.do" method="post" enctype="multipart/form-data">
                     <div class="product-form-card-header">
                         <h2>기존 상품 정보 수정</h2>
                         <p>변경할 항목을 입력한 뒤 수정 저장을 눌러주세요.</p>
                     </div>
 
                     <input type="hidden" name="productNo" value="${product.productNo}">
-                    <input type="hidden" name="sallerNo" value="${product.sallerNo}">
                     <input class="js-category-value" type="hidden" id="categoryNo" name="categoryNo"
                            value="${product.categoryNo}" data-original-value="${product.categoryNo}">
 
@@ -53,7 +52,7 @@
 
                         <div class="product-form-field">
                             <label for="price">가격<span class="product-required-mark">*</span></label>
-                            <input class="product-form-input" id="price" type="number" name="price" min="0" step="1"
+                            <input class="product-form-input" id="price" type="number" name="price" min="0" max="9999999999" step="1"
                                    inputmode="numeric" value="${product.price}" required>
                         </div>
 
@@ -125,21 +124,21 @@
                             <label class="product-upload-box" for="productImages">
                                 <span class="product-upload-icon" aria-hidden="true">＋</span>
                                 <strong>변경할 이미지 미리보기</strong>
-                                <span>현재 단계에서는 선택한 이미지 미리보기만 제공됩니다.</span>
-                                <input class="js-product-file-input" id="productImages" type="file" accept="image/*" multiple>
+                                <span>새 이미지를 선택하면 기존 이미지가 교체됩니다. 최대 5장</span>
+                                <input class="js-product-file-input" id="productImages" type="file" name="files" accept="image/*" multiple>
                             </label>
                             <div class="product-upload-preview js-product-upload-preview" aria-live="polite"></div>
                         </div>
 
                         <div class="product-form-field is-full">
                             <label for="productContent">상품 설명<span class="product-required-mark">*</span></label>
-                            <textarea class="product-form-textarea" id="productContent" name="productContent" maxlength="2000" required><c:out value="${product.productContent}"/></textarea>
+                            <textarea class="product-form-textarea" id="productContent" name="productContent" maxlength="1000" required><c:out value="${product.productContent}"/></textarea>
                         </div>
                     </div>
 
                     <div class="product-form-actions">
                         <button class="product-primary-button" type="submit">수정 저장</button>
-                        <a class="product-secondary-button" href="${CP}/product/view.do?productNo=${product.productNo}&amp;sallerNo=${product.sallerNo}">취소</a>
+                        <a class="product-secondary-button" href="${CP}/product/view.do?productNo=${product.productNo}">취소</a>
                     </div>
                 </form>
             </c:otherwise>

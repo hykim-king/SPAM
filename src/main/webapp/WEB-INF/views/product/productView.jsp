@@ -92,10 +92,8 @@
                                 <dt>상품상태</dt>
                                 <dd>
                                     <c:choose>
-                                        <c:when test="${product.status eq '01'}">판매중</c:when>
-                                        <c:when test="${product.status eq '02'}">예약중</c:when>
-                                        <c:when test="${product.status eq '03'}">판매완료</c:when>
-                                        <c:otherwise>상태 미정</c:otherwise>
+                                        <c:when test="${empty product.productCondition}">미입력</c:when>
+                                        <c:otherwise><c:out value="${product.productCondition}" /></c:otherwise>
                                     </c:choose>
                                 </dd>
                             </div>
@@ -117,18 +115,18 @@
                             <div class="product-seller-main">
                                 <span class="product-seller-avatar" aria-hidden="true">S</span>
                                 <div>
-                                    <strong>판매자 #<c:out value="${product.sallerNo}"/></strong>
+                                    <strong><c:out value="${empty seller.nickname ? '판매자' : seller.nickname}" /></strong>
                                     <span><c:out value="${empty product.location ? '거래지역 미입력' : product.location}"/></span>
                                 </div>
                             </div>
-                            <a class="product-seller-link" href="${CP}/product/seller.do?sallerNo=${product.sallerNo}">판매자 보기</a>
+                            <a class="product-seller-link" href="${CP}/product/seller.do?userNum=${product.userNum}">판매자 보기</a>
                         </div>
 
-                        <c:set var="isOwner" value="${not empty sessionScope.loginUser and sessionScope.loginUser.userNum == product.sallerNo}" />
+                        <c:set var="isOwner" value="${not empty sessionScope.loginUser and sessionScope.loginUser.userNum == product.userNum}" />
                         <div class="product-detail-actions">
                             <c:choose>
                                 <c:when test="${isOwner}">
-                                    <a class="product-primary-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}&amp;sallerNo=${product.sallerNo}">상품 수정</a>
+                                    <a class="product-primary-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}">상품 수정</a>
                                 </c:when>
                                 <c:otherwise>
                                     <button type="button" class="product-primary-button js-product-chat"
@@ -137,12 +135,12 @@
                                             data-chat-url="${CP}/chat/enterRoom.do"
                                             data-chat-view-url="${CP}/chat/view.do"
                                             data-product-no="${product.productNo}"
-                                            data-seller-no="${product.sallerNo}">채팅하기</button>
+                                            data-seller-no="${product.userNum}">채팅하기</button>
                                 </c:otherwise>
                             </c:choose>
                             <a class="product-secondary-button" href="${CP}/product/list.do">목록으로</a>
                             <a class="product-secondary-button product-report-button"
-                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.sallerNo}&amp;reportType=PRODUCT">신고하기</a>
+                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.userNum}&amp;reportType=PRODUCT">신고하기</a>
                         </div>
 
                         <c:if test="${isOwner}">
@@ -153,19 +151,19 @@
                                         <button type="button" class="js-product-status ${product.status eq '01' ? 'is-active' : ''}"
                                                 aria-pressed="${product.status eq '01'}"
                                                 data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
-                                                data-seller-no="${product.sallerNo}" data-status="01" data-status-text="판매중">판매중</button>
+                                                data-status="01" data-status-text="판매중">판매중</button>
                                         <button type="button" class="js-product-status ${product.status eq '02' ? 'is-active' : ''}"
                                                 aria-pressed="${product.status eq '02'}"
                                                 data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
-                                                data-seller-no="${product.sallerNo}" data-status="02" data-status-text="예약중">예약중</button>
+                                                data-status="02" data-status-text="예약중">예약중</button>
                                         <button type="button" class="js-product-status ${product.status eq '03' ? 'is-active' : ''}"
                                                 aria-pressed="${product.status eq '03'}"
                                                 data-status-url="${CP}/product/updateStatus.do" data-product-no="${product.productNo}"
-                                                data-seller-no="${product.sallerNo}" data-status="03" data-status-text="판매완료">판매완료</button>
+                                                data-status="03" data-status-text="판매완료">판매완료</button>
                                     </div>
                                 </div>
                                 <button type="button" class="product-danger-button js-product-delete"
-                                        data-product-no="${product.productNo}" data-seller-no="${product.sallerNo}"
+                                        data-product-no="${product.productNo}"
                                         data-delete-url="${CP}/product/doDelete.do" data-redirect-url="${CP}/product/list.do">상품 삭제</button>
                             </div>
                         </c:if>

@@ -14,7 +14,8 @@
 
             <form class="search-form" action="${CP}/product/list.do" method="get">
                 <label class="sr-only" for="mainSearchWord">검색어</label>
-                <input id="mainSearchWord" type="text" name="searchWord" placeholder="검색어를 입력하세요 (상품명, 카테고리, 지역)">
+                <input id="mainSearchWord" type="text" name="searchWord" value="<c:out value='${param.searchWord}'/>"
+                       placeholder="검색어를 입력하세요 (상품명, 카테고리, 지역)">
                 <button type="submit" aria-label="검색">
                     <span aria-hidden="true">⌕</span>
                 </button>

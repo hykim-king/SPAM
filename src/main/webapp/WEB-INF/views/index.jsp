@@ -131,10 +131,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>
@@ -152,10 +151,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>
@@ -173,10 +171,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>

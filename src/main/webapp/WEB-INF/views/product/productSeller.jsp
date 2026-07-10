@@ -33,7 +33,7 @@
                 <h2>
                     <c:choose>
                         <c:when test="${not empty seller.nickname}"><c:out value="${seller.nickname}"/></c:when>
-                        <c:otherwise>판매자 #<c:out value="${param.sallerNo}"/></c:otherwise>
+                        <c:otherwise>판매자 #<c:out value="${sellerUserNum}"/></c:otherwise>
                     </c:choose>
                 </h2>
                 <div class="product-profile-stats">
@@ -67,11 +67,11 @@
                         <div class="product-card-grid">
                             <c:forEach var="product" items="${list}">
                                 <article class="product-list-card">
-                                    <a class="product-list-card-link" href="${CP}/product/view.do?productNo=${product.productNo}&amp;sallerNo=0">
+                                    <a class="product-list-card-link" href="${CP}/product/view.do?productNo=${product.productNo}">
                                         <div class="product-list-thumb">
                                             <c:choose>
-                                                <c:when test="${not empty product.imageList}">
-                                                    <img src="${CP}${product.imageList[0].filePath}" alt="<c:out value='${product.productTitle}'/>">
+                                                <c:when test="${not empty product.thumbnailPath}">
+                                                    <img src="${CP}${product.thumbnailPath}" alt="<c:out value='${product.productTitle}'/>">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <div class="product-image-placeholder"><span>상품 이미지 준비중</span></div>

@@ -2,50 +2,33 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.product.mapper.ProductImageMapper">
 
-    <!-- 이미지 등록 -->
     <insert id="doInsert" parameterType="ProductImageVO">
         INSERT INTO PRODUCT_IMAGE (
-            IMAGE_NO,
-            PRODUCT_NO,
-            ORIGIN_NAME,
-            CHANGE_NAME,
-            FILE_PATH,
-            IMAGE_ORDER,
-            THUMBNAIL_YN,
-            CRATE_DT
+            IMAGE_NO, PRODUCT_NO, ORIGIN_NAME, CHANGE_NAME, FILE_PATH,
+            IMAGE_ORDER, THUMBNAIL_YN, CREATE_DT
         ) VALUES (
-            SEQ_PRODUCT_IMAGE.NEXTVAL,
-            #{productNo},
-            #{originName},
-            #{changeName},
-            #{filePath},
-            #{imageOrder},
-            #{thumbnailYn},
-            SYSDATE
+            SEQ_PRODUCT_IMAGE.NEXTVAL, #{productNo}, #{originName}, #{changeName}, #{filePath},
+            #{imageOrder}, #{thumbnailYn}, SYSDATE
         )
     </insert>
 
-    <!-- 특정 상품의 이미지 목록 (순서대로) -->
     <select id="doRetrieveByProduct" resultType="ProductImageVO">
-        SELECT IMAGE_NO      AS imageNo,
-               PRODUCT_NO    AS productNo,
-               ORIGIN_NAME   AS originName,
-               CHANGE_NAME   AS changeName,
-               FILE_PATH     AS filePath,
-               IMAGE_ORDER   AS imageOrder,
-               THUMBNAIL_YN   AS thumbnailYn
+        SELECT IMAGE_NO,
+               PRODUCT_NO,
+               ORIGIN_NAME,
+               CHANGE_NAME,
+               FILE_PATH,
+               IMAGE_ORDER,
+               THUMBNAIL_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
           FROM PRODUCT_IMAGE
          WHERE PRODUCT_NO = #{productNo}
-         ORDER BY IMAGE_ORDER
+         ORDER BY IMAGE_ORDER, IMAGE_NO
     </select>
 
-    <!-- 특정 상품의 이미지 전체 삭제 -->
-    <delete id="doDeleteByProduct" parameterType="int">
+    <delete id="doDeleteByProduct">
         DELETE FROM PRODUCT_IMAGE
          WHERE PRODUCT_NO = #{productNo}
     </delete>
-
-	
-
 
 </mapper>

@@ -115,6 +115,11 @@
 
         input.addEventListener('change', function () {
             preview.innerHTML = '';
+            if ((input.files || []).length > 5) {
+                alert('상품 이미지는 최대 5장까지 선택할 수 있습니다.');
+                input.value = '';
+                return;
+            }
             var files = Array.prototype.slice.call(input.files || []).slice(0, 5);
 
             files.forEach(function (file, index) {
@@ -228,12 +233,20 @@
             form.addEventListener('submit', function (event) {
                 var category = qs('.js-category-value', form);
                 var price = qs('input[name="price"]', form);
+                var large = qs('.js-category-large', form);
+                var small = qs('.js-category-small', form);
 
                 if (category && !category.value) {
                     event.preventDefault();
                     alert('카테고리를 선택해주세요.');
-                    var large = qs('.js-category-large', form);
                     if (large) large.focus();
+                    return;
+                }
+
+                if (large && large.value && small && !small.value) {
+                    event.preventDefault();
+                    alert('카테고리를 소분류까지 선택해주세요.');
+                    small.focus();
                     return;
                 }
 
@@ -265,7 +278,6 @@
         qsa('.js-product-delete').forEach(function (button) {
             button.addEventListener('click', function () {
                 var productNo = button.getAttribute('data-product-no');
-                var sellerNo = button.getAttribute('data-seller-no');
                 var deleteUrl = button.getAttribute('data-delete-url');
                 var redirectUrl = button.getAttribute('data-redirect-url');
                 if (!productNo || !deleteUrl) return;
@@ -273,8 +285,7 @@
                 if (!window.confirm('상품을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.')) return;
 
                 postForm(deleteUrl, {
-                    productNo: productNo,
-                    sallerNo: sellerNo || ''
+                    productNo: productNo
                 })
                     .then(function (result) {
                         if (String(result).trim() !== '1') throw new Error('삭제 실패');
@@ -298,7 +309,6 @@
 
                 postForm(button.getAttribute('data-status-url'), {
                     productNo: button.getAttribute('data-product-no'),
-                    sallerNo: button.getAttribute('data-seller-no'),
                     status: button.getAttribute('data-status')
                 })
                     .then(function (result) {

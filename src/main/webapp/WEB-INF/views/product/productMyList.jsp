@@ -63,11 +63,11 @@
                         <c:forEach var="product" items="${list}">
                             <tr>
                                 <td>
-                                    <a class="product-management-item" href="${CP}/product/view.do?productNo=${product.productNo}&amp;sallerNo=${product.sallerNo}">
+                                    <a class="product-management-item" href="${CP}/product/view.do?productNo=${product.productNo}">
                                         <span class="product-management-thumb">
                                             <c:choose>
-                                                <c:when test="${not empty product.imageList}">
-                                                    <img src="${CP}${product.imageList[0].filePath}" alt="<c:out value='${product.productTitle}'/>">
+                                                <c:when test="${not empty product.thumbnailPath}">
+                                                    <img src="${CP}${product.thumbnailPath}" alt="<c:out value='${product.productTitle}'/>">
                                                 </c:when>
                                                 <c:otherwise>
                                                     <span class="product-image-placeholder" aria-label="상품 이미지 없음"></span>
@@ -87,9 +87,9 @@
                                 </td>
                                 <td>
                                     <div class="product-table-actions">
-                                        <a class="product-table-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}&amp;sallerNo=${product.sallerNo}">수정</a>
+                                        <a class="product-table-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}">수정</a>
                                         <button type="button" class="product-table-button is-delete js-product-delete"
-                                                data-product-no="${product.productNo}" data-seller-no="${product.sallerNo}"
+                                                data-product-no="${product.productNo}"
                                                 data-delete-url="${CP}/product/doDelete.do" data-redirect-url="${CP}/product/myList.do">삭제</button>
                                     </div>
                                 </td>

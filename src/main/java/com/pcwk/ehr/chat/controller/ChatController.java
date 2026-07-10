@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pcwk.ehr.chat.domain.ChatMessageVO;
 import com.pcwk.ehr.chat.domain.ChatRoomVO;
 import com.pcwk.ehr.chat.service.ChatService;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 import com.pcwk.ehr.user.domain.UserVO;
 
 @Controller
@@ -27,6 +29,9 @@ public class ChatController {
 	
 	@Autowired
 	ChatService service;
+
+	@Autowired
+	ProductService productService;
 	
 	@GetMapping("/view.do")
 	public String view() {
@@ -38,10 +43,19 @@ public class ChatController {
 	public ChatRoomVO enterRoom(@ModelAttribute ChatRoomVO param, HttpSession session) {
 		
 		// 세션에서 로그인 사용자 꺼내기
-		UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-		
-		// param에 구매자번호를 세션 값으로 덮어쓰기
-		param.setBuyerNo(loginUser.getUserNum());
+			UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+			if (loginUser == null) {
+				throw new IllegalStateException("로그인이 필요합니다.");
+			}
+
+			ProductVO product = productService.getProduct(param.getProductNo());
+			if (product == null) {
+				throw new IllegalStateException("존재하지 않는 상품입니다.");
+			}
+			
+			// 구매자와 판매자 번호 모두 서버에서 확인한 값으로 덮어쓰기
+			param.setBuyerNo(loginUser.getUserNum());
+			param.setSellerNo(product.getUserNum());
 		 
 		// 서비스 호출해서 방 정보 받기
 		ChatRoomVO outVO = service.enterRoom(param);

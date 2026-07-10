@@ -13,6 +13,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.junit.jupiter.api.extension.ExtendWith;
 
 import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.domain.ProductSearchDTO;
 
 @ExtendWith(SpringExtension.class)
 @WebAppConfiguration
@@ -30,8 +31,8 @@ public class ProductServiceTest {
     @Test
     public void doInsert() {
         ProductVO param = new ProductVO();
-        param.setSallerNo(1);
-        param.setCategoryNo(4);   // 소분류(레벨3): 4=아이폰17, 5=갤럭시S26, 6=에어팟프로
+        param.setUserNum(1L);
+        param.setCategoryNo(101); // 소분류: 스마트폰
         param.setProductTitle("아이폰 17 팝니다");
         param.setProductContent("한 달 사용, 상태 좋아요");
         param.setProductCondition("01");
@@ -47,7 +48,7 @@ public class ProductServiceTest {
     @Disabled
     @Test
     public void doRetrieve() {
-        List<ProductVO> list = productService.doRetrieve();
+        List<ProductVO> list = productService.doRetrieve(new ProductSearchDTO());
         System.out.println("총 건수: " + list.size());
         for (ProductVO vo : list) {
             System.out.println(vo);
@@ -59,7 +60,6 @@ public class ProductServiceTest {
     public void doSelectOne() {
         ProductVO param = new ProductVO();
         param.setProductNo(19);   // 실제 등록된 상품번호로 변경
-        param.setSallerNo(0);
 
         ProductVO outVO = productService.doSelectOne(param);
         System.out.println("상세: " + outVO);

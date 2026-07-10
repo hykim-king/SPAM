@@ -31,7 +31,6 @@
                 <p><span class="product-required-mark">*</span> 표시는 필수 입력 항목입니다.</p>
             </div>
 
-            <input type="hidden" name="sallerNo" value="${empty sessionScope.loginUser ? 0 : sessionScope.loginUser.userNum}">
             <input class="js-category-value" type="hidden" id="categoryNo" name="categoryNo" value="">
 
             <div class="product-form-grid">
@@ -43,7 +42,7 @@
 
                 <div class="product-form-field">
                     <label for="price">가격<span class="product-required-mark">*</span></label>
-                    <input class="product-form-input" id="price" type="number" name="price" min="0" step="1"
+                    <input class="product-form-input" id="price" type="number" name="price" min="0" max="9999999999" step="1"
                            inputmode="numeric" placeholder="0" required>
                     <p class="product-field-help">무료나눔은 0원으로 입력합니다.</p>
                 </div>
@@ -104,7 +103,7 @@
 
                 <div class="product-form-field is-full">
                     <label for="productContent">상품 설명<span class="product-required-mark">*</span></label>
-                    <textarea class="product-form-textarea" id="productContent" name="productContent" maxlength="2000"
+                    <textarea class="product-form-textarea" id="productContent" name="productContent" maxlength="1000"
                               placeholder="상품 상태, 사용 기간, 거래 조건 등을 자세히 작성해주세요." required></textarea>
                 </div>
             </div>

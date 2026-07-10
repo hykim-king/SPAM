@@ -5,18 +5,21 @@
     <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 </c:if>
 
-<!--
-    메인화면 상품 카드 공통 조각
-    [수정 필요] 상품관리 모듈 연동 후 ProductVO 필드명에 맞춰 조정
--->
-<a class="product-card" href="${CP}/product/view.do?productNo=${param.productNo}&amp;sallerNo=0">
+<a class="product-card" href="${CP}/product/view.do?productNo=${param.productNo}">
     <div class="product-thumb">
-        <img src="${CP}/resources/images/products/${param.imageFile}" alt="${param.productTitle}">
+        <c:choose>
+            <c:when test="${not empty param.thumbnailPath}">
+                <img src="${CP}${param.thumbnailPath}" alt="<c:out value='${param.productTitle}' />">
+            </c:when>
+            <c:otherwise>
+                <div class="product-image-placeholder"><span>상품 이미지 준비중</span></div>
+            </c:otherwise>
+        </c:choose>
     </div>
 
     <div class="product-info">
-        <strong class="product-title">${param.productTitle}</strong>
+        <strong class="product-title"><c:out value="${param.productTitle}" /></strong>
         <span class="product-price"><fmt:formatNumber value="${param.price}" pattern="#,##0" />원</span>
-        <span class="product-meta">${param.region} · ${param.regTime}</span>
+        <span class="product-meta"><c:out value="${empty param.location ? '지역 미입력' : param.location}" /> · <c:out value="${param.createDt}" /></span>
     </div>
 </a>

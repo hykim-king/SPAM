@@ -474,6 +474,25 @@ img {
     object-fit: cover;
 }
 
+.product-thumb .product-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #929292;
+    font-size: 12px;
+}
+
+.product-thumb .product-image-placeholder::before {
+    content: "SPAM";
+    font-size: 22px;
+    font-weight: 900;
+    color: #c2c2c2;
+}
+
 .product-info {
     padding: 12px;
     display: flex;

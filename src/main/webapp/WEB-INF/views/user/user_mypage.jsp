@@ -23,6 +23,7 @@
                 <h1 class="page-title">마이페이지</h1>
             </div>
             <nav class="header-actions">
+                <a class="btn outline" href="${CP}/product/myList.do">내 상품</a>
                 <a class="btn outline" href="${CP}/user/update.do">회원정보 수정</a>
                 <a class="btn js-confirm-logout" href="${CP}/user/logout.do">로그아웃</a>
             </nav>
