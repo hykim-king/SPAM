@@ -18,7 +18,7 @@
         <jsp:include page="../common/nav.jsp" />
 
         <main class="member-auth-main">
-            <section class="auth-card">
+            <section class="auth-card auth-card-login">
 
         <h1 class="auth-title">로그인</h1>
         <div class="auth-message-slot">

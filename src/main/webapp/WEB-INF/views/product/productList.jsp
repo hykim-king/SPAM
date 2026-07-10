@@ -61,7 +61,7 @@
                         <option value="">전체 상태</option>
                         <option value="01" ${param.status eq '01' ? 'selected' : ''}>판매중</option>
                         <option value="02" ${param.status eq '02' ? 'selected' : ''}>예약중</option>
-                        <option value="03" ${param.status eq '03' ? 'selected' : ''}>거래완료</option>
+                        <option value="03" ${param.status eq '03' ? 'selected' : ''}>판매완료</option>
                     </select>
                 </div>
                 <button class="product-filter-submit" type="submit">검색</button>
@@ -135,7 +135,7 @@
                                             <c:choose>
                                                 <c:when test="${product.status eq '01'}"><span class="product-status-badge product-status-sale">판매중</span></c:when>
                                                 <c:when test="${product.status eq '02'}"><span class="product-status-badge product-status-reserved">예약중</span></c:when>
-                                                <c:when test="${product.status eq '03'}"><span class="product-status-badge product-status-sold">거래완료</span></c:when>
+                                                <c:when test="${product.status eq '03'}"><span class="product-status-badge product-status-sold">판매완료</span></c:when>
                                             </c:choose>
                                         </div>
                                         <div class="product-list-info">

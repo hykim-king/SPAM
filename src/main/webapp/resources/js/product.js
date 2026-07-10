@@ -9,6 +9,64 @@
         return Array.prototype.slice.call((root || document).querySelectorAll(selector));
     }
 
+    function parseProductDate(value) {
+        var match = String(value || '').trim().match(
+            /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+        );
+        if (!match) return null;
+
+        var date = new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3]),
+            Number(match[4] || 0),
+            Number(match[5] || 0),
+            Number(match[6] || 0)
+        );
+
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatProductDate(date, now) {
+        var sameYear = date.getFullYear() === now.getFullYear();
+        var baseText = sameYear
+            ? (date.getMonth() + 1) + '월 ' + date.getDate() + '일'
+            : date.getFullYear() + '년 ' + (date.getMonth() + 1) + '월 ' + date.getDate() + '일';
+
+        var elapsedMs = now.getTime() - date.getTime();
+        var elapsedMinutes = Math.floor(elapsedMs / (60 * 1000));
+        var elapsedHours = Math.floor(elapsedMinutes / 60);
+        var twoHoursInMinutes = 2 * 60;
+        var fortyEightHoursInMinutes = 48 * 60;
+
+        if (elapsedMinutes < 0 || elapsedMinutes > fortyEightHoursInMinutes) {
+            return baseText;
+        }
+
+        if (elapsedMinutes <= twoHoursInMinutes) {
+            if (elapsedHours === 0) {
+                return baseText + ' (' + Math.max(elapsedMinutes, 0) + '분 전)';
+            }
+            return baseText + ' (' + elapsedHours + '시간 ' + (elapsedMinutes % 60) + '분 전)';
+        }
+
+        return baseText + ' (' + elapsedHours + '시간 전)';
+    }
+
+    function renderProductDates() {
+        var now = new Date();
+
+        qsa('.js-product-date').forEach(function (element) {
+            var rawValue = element.getAttribute('data-product-date');
+            var date = parseProductDate(rawValue);
+            if (!date) return;
+
+            element.textContent = formatProductDate(date, now);
+            element.setAttribute('datetime', date.toISOString());
+            element.setAttribute('title', rawValue);
+        });
+    }
+
     function bindFilterToggle() {
         var panel = qs('.product-filter-panel');
         var toggle = qs('.js-product-filter-toggle');
@@ -233,6 +291,8 @@
     function bindStatusButtons() {
         qsa('.js-product-status').forEach(function (button) {
             button.addEventListener('click', function () {
+                if (button.classList.contains('is-active')) return;
+
                 var statusText = button.getAttribute('data-status-text') || '선택한 상태';
                 if (!window.confirm('거래 상태를 ' + statusText + '(으)로 변경하시겠습니까?')) return;
 
@@ -291,5 +351,6 @@
         bindDeleteButtons();
         bindStatusButtons();
         bindChatButton();
+        renderProductDates();
     });
 }());

@@ -898,3 +898,48 @@ button {
 .admin-change-form .btn.primary {
     margin-top: 2px;
 }
+
+/* 2026-07-10 로그인/회원탈퇴 레이아웃 보완 */
+.auth-page .member-auth-main {
+    align-items: flex-start;
+}
+
+.auth-page .auth-card-login {
+    align-self: flex-start;
+    height: auto;
+    min-height: 0;
+}
+
+.withdraw-panel {
+    min-height: 196px;
+    display: flex;
+    flex-direction: column;
+}
+
+.withdraw-start-actions {
+    justify-content: flex-end;
+    margin-top: auto;
+    padding-top: 28px;
+}
+
+.withdraw-panel .withdraw-box {
+    margin-top: 18px;
+}
+
+@media screen and (max-width: 760px) {
+    .auth-page .member-auth-main {
+        align-items: stretch;
+    }
+
+    .auth-page .auth-card-login {
+        width: 100%;
+    }
+
+    .withdraw-start-actions {
+        align-items: flex-end;
+    }
+
+    .withdraw-start-actions .btn {
+        width: auto;
+    }
+}

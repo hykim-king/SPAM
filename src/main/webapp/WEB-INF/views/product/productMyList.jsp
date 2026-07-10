@@ -31,7 +31,7 @@
             <a class="${empty param.status ? 'is-active' : ''}" href="${CP}/product/myList.do">전체</a>
             <a class="${param.status eq '01' ? 'is-active' : ''}" href="${CP}/product/myList.do?status=01">판매중</a>
             <a class="${param.status eq '02' ? 'is-active' : ''}" href="${CP}/product/myList.do?status=02">예약중</a>
-            <a class="${param.status eq '03' ? 'is-active' : ''}" href="${CP}/product/myList.do?status=03">거래완료</a>
+            <a class="${param.status eq '03' ? 'is-active' : ''}" href="${CP}/product/myList.do?status=03">판매완료</a>
         </nav>
 
         <c:choose>
@@ -82,7 +82,7 @@
                                     <c:choose>
                                         <c:when test="${product.status eq '01'}"><span class="product-status-badge product-status-sale">판매중</span></c:when>
                                         <c:when test="${product.status eq '02'}"><span class="product-status-badge product-status-reserved">예약중</span></c:when>
-                                        <c:otherwise><span class="product-status-badge product-status-sold">거래완료</span></c:otherwise>
+                                        <c:otherwise><span class="product-status-badge product-status-sold">판매완료</span></c:otherwise>
                                     </c:choose>
                                 </td>
                                 <td>

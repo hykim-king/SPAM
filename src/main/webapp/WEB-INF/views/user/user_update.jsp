@@ -112,11 +112,11 @@
                     </form>
                 </section>
 
-                <section class="panel">
+                <section class="panel withdraw-panel">
                     <h2 class="panel-title">회원탈퇴</h2>
                     <p class="help-text">회원탈퇴 시 로그인이 제한되며, 같은 아이디로 재 가입이 불가능합니다.</p>
 
-                    <div id="withdrawStartArea" class="card-actions ${withdrawError ? 'hidden' : ''}">
+                    <div id="withdrawStartArea" class="card-actions withdraw-start-actions ${withdrawError ? 'hidden' : ''}">
                         <button id="showWithdrawButton" class="btn ghost-danger" type="button">회원탈퇴</button>
                     </div>
 
