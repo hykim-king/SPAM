@@ -115,7 +115,7 @@
         <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
         <property name="username" value="spampcwk" />
         <property name="password" value="Q2w3e4r" />
-
+	
         <!-- option -->
         <property name="maximumPoolSize" value="10" />
         <property name="minimumIdle" value="5" />
