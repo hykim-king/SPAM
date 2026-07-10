@@ -45,22 +45,40 @@
     </insert>
     
     <update id="updateReportStatus" parameterType="ReportVO">
-        UPDATE REPORT_INFO
-        SET REPORT_STATUS = #{reportStatus},
-            PROCESS_DT = SYSDATE,
-            ADMIN_NO = #{adminNo}
-        WHERE REPORT_NO = #{reportNo}
-    </update>
+		UPDATE REPORT_INFO
+		   SET REPORT_STATUS = #{reportStatus},
+		 	   ADMIN_NO = #{adminNo},
+		 	   PROCESS_DT = SYSDATE 
+		 WHERE REPORT_NO = #{reportNo}
+	</update>
     
    <!-- 단건 삭제 -->
     <delete id="deleteReport" parameterType="ReportVO">
         DELETE FROM REPORT_INFO WHERE REPORT_NO = #{reportNo}
     </delete>
 
-    <!-- 단건 조회 -->
-    <select id="doSelectOne" parameterType="ReportVO" resultMap="reportMap">
-        SELECT * FROM REPORT_INFO WHERE REPORT_NO = #{reportNo}
-    </select>
+	<!-- 단건 조회 -->
+	<select id="doSelectOne"
+		parameterType="com.pcwk.ehr.report.domain.ReportVO"
+		resultType="com.pcwk.ehr.report.domain.ReportVO">
+		SELECT
+		r.REPORT_NO as reportNo,
+		r.REPORT_TYPE as reportType,
+		r.REPORTER_NO as reporterNo,
+		r.REPORTED_USER_NO as reportedUserNo,
+		r.TARGET_ID as targetId,
+		r.CREATE_DT as createDt,
+		r.REASON as reason,
+		r.REPORT_STATUS as reportStatus,
+		r.PROCESS_DT as processDt,
+		r.ADMIN_NO as adminNo,
+		u1.USER_NAME as adminName, u2.NICKNAME as reporterNickname, u3.NICKNAME
+		as reportedNickname FROM REPORT_INFO r
+		LEFT OUTER JOIN USER_INFO u1 ON r.ADMIN_NO = u1.USER_NUM
+		LEFT OUTER JOIN USER_INFO u2 ON r.REPORTER_NO = u2.USER_NUM
+		LEFT OUTER JOIN USER_INFO u3 ON r.REPORTED_USER_NO = u3.USER_NUM
+		WHERE r.REPORT_NO = #{reportNo}
+	</select>
 
     <!-- 목록 조회 (기본) -->
     <select id="doRetrieve" parameterType="ReportSearchDTO" resultMap="reportMap">

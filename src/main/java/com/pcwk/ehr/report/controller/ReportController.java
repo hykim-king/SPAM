@@ -34,17 +34,56 @@ public class ReportController {
     // ================ 관리자 ================
 
     // 1. 신고 목록 조회 (관리자용 전체 조회)
-    @GetMapping("/doRetrieve.do")
+    @GetMapping("/admin_doRetrieve.do")
     public String doRetrieve(ReportSearchDTO search, Model model) {
         model.addAttribute("list", reportService.doRetrieve(search));
         return "report/admin_report_list"; // 관리자 전용 목록 view
     }
     
-    // 2. 관리자용 신고 처리 상태 변경 (접수/완료/반려)
-    @PostMapping("/doUpdateStatus.do")
-    public String doUpdateStatus(ReportVO report) {
+    // 2. 신고 상세 조회 (관리자용)
+    @GetMapping("/admin_report_detail.do")
+    public String adminReportDetail(ReportVO report, Model model, HttpSession session) {
+    	
+    	// 1. 보안 유효성 검사 (관리자 권한 확인)
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
+            // 프로젝트 설계에 맞춘 관리자 권한 체크 조건 (예: ROLE_ADMIN 또는 ADMIN)
+            return "redirect:/login/loginView.do"; 
+        }
+
+        // 2. 파라미터 검증 및 서비스 호출을 통한 단건 상세 데이터 조회
+        // report 객체 내에 reportNo가 자동으로 매핑되어 들어옵니다.
+        ReportVO outVO = reportService.doSelectOne(report);
+        
+        // 3. 조회된 데이터를 Model에 담아 JSP(화면)로 전달
+        model.addAttribute("outVO", outVO);
+        
+        // 4. 관리자용 상세 페이지 JSP 경로 리턴
+        return "report/admin_report_detail"; 
+    }
+    
+    // 3. 관리자용 신고 처리 상태 변경 (접수/완료/반려)
+    @PostMapping(value="/doUpdateStatus.do", produces="text/html; charset=UTF-8")
+    @ResponseBody
+    public String doUpdateStatus(ReportVO report, HttpSession session) {
+    	UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+    	if (loginUser != null) {
+            // 관리자의 고유 번호(UserNum)를 ReportVO의 adminNo에 세팅합니다.
+            report.setAdminNo(loginUser.getUserNum());
+        } else {
+            // 혹시 세션이 만료되었거나 로그인이 안 된 경우를 위한 예외 처리 (선택)
+            return "<script>" +
+                   "alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');" +
+                   "location.href='/ehr/login/loginView.do';" +
+                   "</script>";
+        }
+    	
         reportService.doUpdateStatus(report);
-        return "redirect:/report/doRetrieve.do";
+        
+        return "<script>" + 
+        "alert('수정되었습니다.');" +  
+        "location.href='admin_doRetrieve.do';" + 
+        "</script>";
     }
     
     // ================ 사용자 ================

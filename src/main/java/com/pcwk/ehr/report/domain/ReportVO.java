@@ -22,6 +22,56 @@ public class ReportVO implements Serializable {
     private String reportStatus;   // 처리상태 (대기/완료 등)
     private String createDt;         // 신고일
     private String processDt;        // 처리일
+    
+    private String reporterNickname;  // 신고자 닉네임을 담을 필드 추가
+    private String reportedNickname; // 피신고자 닉네임을 담을 필드 추가
+    
+	public ReportVO() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	/**
+	 * @param reportNo
+	 * @param reporterNo
+	 * @param reportedUserNo
+	 * @param adminNo
+	 * @param reportType
+	 * @param targetId
+	 * @param reason
+	 * @param reportStatus
+	 * @param createDt
+	 * @param processDt
+	 * @param reporterNickname
+	 */
+	public ReportVO(Long reportNo, Long reporterNo, Long reportedUserNo, Long adminNo, String reportType, Long targetId,
+			String reason, String reportStatus, String createDt, String processDt, String reporterNickname) {
+		super();
+		this.reportNo = reportNo;
+		this.reporterNo = reporterNo;
+		this.reportedUserNo = reportedUserNo;
+		this.adminNo = adminNo;
+		this.reportType = reportType;
+		this.targetId = targetId;
+		this.reason = reason;
+		this.reportStatus = reportStatus;
+		this.createDt = createDt;
+		this.processDt = processDt;
+		this.reporterNickname = reporterNickname;
+	}
+
+	/**
+	 * @return the reporterNickname
+	 */
+	public String getReporterNickname() {
+		return reporterNickname;
+	}
+	/**
+	 * @param reporterNickname the reporterNickname to set
+	 */
+	public void setReporterNickname(String reporterNickname) {
+		this.reporterNickname = reporterNickname;
+	}
 	/**
 	 * @return the reportNo
 	 */
@@ -148,6 +198,21 @@ public class ReportVO implements Serializable {
 	public static long getSerialversionuid() {
 		return serialVersionUID;
 	}
+	
+	/**
+	 * @return the reportedNickname
+	 */
+	public String getReportedNickname() {
+		return reportedNickname;
+	}
+
+	/**
+	 * @param reportedNickname the reportedNickname to set
+	 */
+	public void setReportedNickname(String reportedNickname) {
+		this.reportedNickname = reportedNickname;
+	}
+
 	@Override
 	public String toString() {
 		return "ReportVO [reportNo=" + reportNo + ", reporterNo=" + reporterNo + ", reportedUserNo=" + reportedUserNo
