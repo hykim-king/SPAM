@@ -20,8 +20,8 @@ public class ReportVO implements Serializable {
     private Long targetId;         // 신고대상ID
     private String reason;         // 신고사유
     private String reportStatus;   // 처리상태 (대기/완료 등)
-    private Date createDt;         // 신고일
-    private Date processDt;        // 처리일
+    private String createDt;         // 신고일
+    private String processDt;        // 처리일
 	/**
 	 * @return the reportNo
 	 */
@@ -121,25 +121,25 @@ public class ReportVO implements Serializable {
 	/**
 	 * @return the createDt
 	 */
-	public Date getCreateDt() {
+	public String getCreateDt() {
 		return createDt;
 	}
 	/**
 	 * @param createDt the createDt to set
 	 */
-	public void setCreateDt(Date createDt) {
+	public void setCreateDt(String createDt) {
 		this.createDt = createDt;
 	}
 	/**
 	 * @return the processDt
 	 */
-	public Date getProcessDt() {
+	public String getProcessDt() {
 		return processDt;
 	}
 	/**
 	 * @param processDt the processDt to set
 	 */
-	public void setProcessDt(Date processDt) {
+	public void setProcessDt(String processDt) {
 		this.processDt = processDt;
 	}
 	/**

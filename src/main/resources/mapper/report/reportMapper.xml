@@ -14,6 +14,25 @@
         <result property="createDt"       column="CREATE_DT" />
         <result property="processDt"      column="PROCESS_DT" />
     </resultMap>
+    
+    <select id="doRetrieveReceivedReports" parameterType="long" resultMap="reportMap">
+    	SELECT * FROM REPORT_INFO 
+    	 WHERE REPORTED_USER_NO = #{currentUserNum}
+	</select>
+    
+   	<select id="doRetrieveMyReports" resultType="ReportVO">
+    	SELECT 
+	        REPORT_NO,
+        	REPORTER_NO,
+        	REPORTED_USER_NO,
+        	REPORT_TYPE,
+        	REASON,
+        	REPORT_STATUS,
+        	TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI') as createDt, 
+        	PROCESS_DT
+    	  FROM REPORT_INFO
+    	 WHERE REPORTER_NO = #{currentUserNum}
+</select>
 
     <insert id="insertReport" parameterType="ReportVO">
         INSERT INTO REPORT_INFO (
@@ -45,7 +64,19 @@
 
     <!-- 목록 조회 (기본) -->
     <select id="doRetrieve" parameterType="ReportSearchDTO" resultMap="reportMap">
-        SELECT * FROM REPORT_INFO
+        SELECT 
+        		REPORT_NO,
+        		REPORTER_NO,
+        		REPORTED_USER_NO,
+        		ADMIN_NO,
+        		REPORT_TYPE,
+        		TARGET_ID,
+        		REASON,
+        		REPORT_STATUS,
+        		TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI:SS', 'NLS_DATE_LANGUAGE=KOREAN') AS CREATE_DT,
+        		TO_CHAR(PROCESS_DT, 'YYYY-MM-DD (DY) HH24:MI:SS', 'NLS_DATE_LANGUAGE=KOREAN') AS PROCESS_DT
+    	  FROM REPORT_INFO
+    	 WHERE 1=1
     </select>
 
     <!-- 전체 건수 -->
