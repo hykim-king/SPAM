@@ -1,14 +1,24 @@
+/**
+ * 파일명: TransactServiceImpl.java <br>
+ * 작성자: Wholesome-Gee  <br>
+ * 생성일: 2026-07-11 <br>
+ * 설 명: 거래내역 서비스 구현체 <br>
+ */
 package com.pcwk.ehr.transact.service;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.pcwk.ehr.transact.domain.TransactHistVO;
 import com.pcwk.ehr.transact.mapper.TransactHistMapper;
 
 @Service("transactService")
+@Transactional
 public class TransactServiceImpl implements TransactService {
 
     @Autowired
@@ -16,20 +26,12 @@ public class TransactServiceImpl implements TransactService {
 
     @Override
     public int insertTransact(TransactHistVO vo) {
-        if (vo == null) throw new IllegalArgumentException("데이터가 없습니다.");
-        if (vo.getSellerNo() == null || vo.getReceiverNo() == null || vo.getProductNo() == null) {
-            throw new IllegalArgumentException("필수 데이터가 누락되었습니다.");
-        }
+        // 비즈니스 로직: 판매자와 구매자 검증
         if (vo.getSellerNo().equals(vo.getReceiverNo())) {
             throw new IllegalStateException("판매자와 구매자는 같을 수 없습니다.");
         }
-        vo.setTxStatus("01"); 
+        vo.setTxStatus("01"); // 기본값 '거래중' 설정
         return transactMapper.insertTransact(vo);
-    }
-
-    @Override
-    public int updateStatus(TransactHistVO vo) {
-        return transactMapper.updateStatus(vo);
     }
 
     @Override
@@ -41,37 +43,35 @@ public class TransactServiceImpl implements TransactService {
     }
 
     @Override
-    public TransactHistVO selectByTxId(Long txId) { 
-        return transactMapper.selectByTxId(txId); 
+    public int deleteTransact(Long txId) {
+        return transactMapper.deleteTransact(txId);
     }
 
     @Override
-    public List<TransactHistVO> selectListByUser(Map<String, Object> param) { 
-        return transactMapper.selectListByUser(param); 
+    public int deleteAll() {
+        return transactMapper.deleteAll();
+    }
+
+    @Override
+    public int totalCount() {
+        return transactMapper.totalCount();
+    }
+
+    @Override
+    public TransactHistVO selectByTxId(Long txId) {
+        return transactMapper.selectByTxId(txId);
+    }
+
+    @Override
+    public List<TransactHistVO> selectListByUser(Map<String, Object> param) {
+        return transactMapper.selectListByUser(param);
     }
 
     @Override
     public List<TransactHistVO> selectListByProduct(Long productNo, Long loginUserNo) {
-        // [핵심 수정] 매퍼 인터페이스에 정의된 대로 Map을 생성하여 전달합니다.
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("productNo", productNo);
         paramMap.put("loginUserNo", loginUserNo);
-        
         return transactMapper.selectListByProduct(paramMap);
-    }
-
-    @Override
-    public int deleteTransact(Long txId) { 
-        return transactMapper.deleteTransact(txId); 
-    }
-
-    @Override
-    public int deleteAll() { 
-        return transactMapper.deleteAll(); 
-    }
-
-    @Override
-    public int totalCount() { 
-        return transactMapper.totalCount(); 
     }
 }

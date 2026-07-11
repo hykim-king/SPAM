@@ -12,17 +12,17 @@ public class TransactHistVO implements Serializable {
     private static final long serialVersionUID = 1L;
 
     private Long txId;          // 거래내역ID (PK)
-    private Long sellerNo;      // 보내는회원번호
+    private Long sellerNo;      // 판매자회원번호
     private Long productNo;     // 상품번호
-    private Long receiverNo;    // 받는회원번호
-    private String txType;      // 거래유형
+    private Long receiverNo;    // 구매자회원번호
+    private String txType;      // 거래유형 (01:판매, 02:구매)
     private Long amount;        // 거래금액
     private String txStatus;    // 거래상태 (01:거래중, 02:완료, 03:취소)
     private Date createDt;      // 거래생성일
     private Date completeDt;    // 완료일
     private Date cancelDt;      // 취소일
     
-    // 조인용 필드
+    // 조인용 필드 (화면 표시용)
     private String productName; 
     private String partnerName; 
 
@@ -69,8 +69,8 @@ public class TransactHistVO implements Serializable {
 
     @Override
     public String toString() {
-        return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo + 
-               ", receiverNo=" + receiverNo + ", txType=" + txType + ", amount=" + amount + 
-               ", txStatus=" + txStatus + ", createDt=" + createDt + "]";
+        return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo 
+                + ", receiverNo=" + receiverNo + ", txType=" + txType + ", amount=" + amount 
+                + ", txStatus=" + txStatus + ", createDt=" + createDt + "]";
     }
 }

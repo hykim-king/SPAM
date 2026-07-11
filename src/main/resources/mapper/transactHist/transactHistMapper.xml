@@ -16,20 +16,24 @@
     </resultMap>
 
     <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
+        <selectKey keyProperty="txId" resultType="long" order="BEFORE">
+            SELECT TRANSACTIN_HIST_SEQ.NEXTVAL FROM DUAL
+        </selectKey>
         INSERT INTO TRANSACTIN_HIST (
             TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT
         ) VALUES (
-            TRANSACTIN_HIST_SEQ.NEXTVAL, 
-            #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, #{txStatus}, SYSDATE
+            #{txId}, #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, #{txStatus}, SYSDATE
         )
     </insert>
 
-    <delete id="deleteAll">
-        DELETE FROM TRANSACTIN_HIST
-    </delete>
+    <update id="updateTxStatus" parameterType="map">
+        UPDATE TRANSACTIN_HIST
+        SET TX_STATUS = #{status}
+        WHERE TX_ID = #{txId}
+    </update>
 
-    <select id="totalCount" resultType="int">
-        SELECT COUNT(*) FROM TRANSACTIN_HIST
+    <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
+        SELECT * FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
     </select>
 
     <select id="selectListByUser" parameterType="map" resultMap="transactHistMap">
@@ -49,13 +53,20 @@
         ORDER BY T.CREATE_DT DESC
     </select>
 
-  <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
-    SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME, U.USER_NAME as PARTNER_NAME
-    FROM TRANSACTIN_HIST T
-    JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
-    JOIN USER_INFO U ON (CASE WHEN T.SELLER_NO = #{loginUserNo} THEN T.RECEIVER_NO ELSE T.SELLER_NO END) = U.USER_NUM
-    WHERE T.PRODUCT_NO = #{productNo}
-    ORDER BY T.CREATE_DT DESC
-</select>
+    <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
+        SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME
+        FROM TRANSACTIN_HIST T
+        JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+        WHERE T.PRODUCT_NO = #{productNo}
+        ORDER BY T.CREATE_DT DESC
+    </select>
+
+    <delete id="deleteAll">
+        DELETE FROM TRANSACTIN_HIST
+    </delete>
+
+    <select id="totalCount" resultType="int">
+        SELECT COUNT(*) FROM TRANSACTIN_HIST
+    </select>
 
 </mapper>
