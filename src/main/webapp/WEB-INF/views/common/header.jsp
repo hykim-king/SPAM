@@ -4,12 +4,7 @@
     <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 </c:if>
 
-<!--
-    [변경] 공통 Header
-    - 상단 이벤트/고객센터/공지사항 바 삭제
-    - 로고 + 검색창 + 회원 메뉴 구조로 단순화
-    - 회원 메뉴는 우측 정렬, 검색 버튼 아이콘은 CSS로 중앙 정렬
--->
+<!-- 공통 Header -->
 <header class="site-header">
     <div class="header-main">
         <div class="header-inner">
@@ -19,7 +14,8 @@
 
             <form class="search-form" action="${CP}/product/list.do" method="get">
                 <label class="sr-only" for="mainSearchWord">검색어</label>
-                <input id="mainSearchWord" type="text" name="searchWord" placeholder="검색어를 입력하세요 (상품명, 카테고리, 지역)">
+                <input id="mainSearchWord" type="text" name="searchWord" value="<c:out value='${param.searchWord}'/>"
+                       placeholder="검색어를 입력하세요 (상품명, 카테고리, 지역)">
                 <button type="submit" aria-label="검색">
                     <span aria-hidden="true">⌕</span>
                 </button>
@@ -30,7 +26,7 @@
                     <c:when test="${not empty sessionScope.loginUser}">
                         <a href="${CP}/user/mypage.do">마이페이지</a>
                         <a href="${CP}/chat/view.do">채팅</a>
-                        <a href="${CP}/user/logout.do">로그아웃</a>
+                        <a class="js-confirm-logout" href="${CP}/user/logout.do">로그아웃</a>
                     </c:when>
                     <c:otherwise>
                         <a href="${CP}/user/login.do">로그인</a>
@@ -38,7 +34,7 @@
                         <a href="${CP}/user/mypage.do">마이페이지</a>
                     </c:otherwise>
                 </c:choose>
-                <a class="sell-link" href="${CP}/product/reg.do">판매하기</a>
+                <a class="sell-link" href="${CP}/product/saveForm.do">판매하기</a>
             </nav>
 
             <div class="mobile-header-actions">

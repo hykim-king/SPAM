@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 /**
  * 서비스 안내 Controller
  *
- * [추가] 공지사항, 이용약관, FAQ, 안전거래 가이드를 하나의 탭 화면으로 제공한다.
+ * 공지사항, 이용약관, FAQ, 안전거래 가이드를 하나의 탭 화면으로 제공한다.
  */
 @Controller
 public class ServiceGuideController {

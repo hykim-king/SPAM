@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPAM 관리자 회원목록</title>
+    <title>회원목록 | SPAM 관리자</title>
     <link rel="stylesheet" href="${CP}/resources/css/index.css">
     <link rel="stylesheet" href="${CP}/resources/css/member.css">
     <script defer src="${CP}/resources/js/index.js"></script>
@@ -21,21 +21,16 @@
         <main class="member-page-shell">
         <header class="page-header">
             <div>
-                <a class="brand" href="${CP}/admin/user/list.do" aria-label="SPAM 관리자 회원목록">
-                    <span class="brand-mark">SP</span>
-                    <span>SPAM Admin</span>
-                </a>
                 <h1 class="page-title">관리자 회원목록</h1>
-                <p class="page-desc">회원 검색, 페이징 조회, 상세 화면 이동을 처리합니다.</p>
             </div>
             <nav class="header-actions">
                 <a class="btn outline" href="${CP}/admin/user/list.do">전체 목록</a>
-                <a class="btn" href="${CP}/user/logout.do">로그아웃</a>
+                <a class="btn" href="${CP}/report/doRetrieve.do">신고 목록</a>
             </nav>
         </header>
 
         <section class="panel stack">
-            <form class="search-box" action="${CP}/admin/user/list.do" method="get">
+            <form class="search-box admin-filter-box" action="${CP}/admin/user/list.do" method="get">
                 <input type="hidden" name="pageNo" value="1">
 
                 <select class="select" id="searchDiv" name="searchDiv" aria-label="검색 조건">

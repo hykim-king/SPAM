@@ -46,4 +46,10 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryMapper.doRetrieveAll();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public CategoryVO doSelectOne(int categoryNo) {
+        return categoryMapper.doSelectOne(categoryNo);
+    }
+
 }

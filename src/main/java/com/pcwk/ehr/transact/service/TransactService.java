@@ -1,31 +1,22 @@
-/**
- * 파일명: TransactService.java <br>
- * 작성자: Wholesome-Gee  <br>
- * 생성일: 2026-07-07 <br>
- * 설　명: <br>
- */
 package com.pcwk.ehr.transact.service;
 
 import java.util.List;
+import java.util.Map;
 import com.pcwk.ehr.transact.domain.TransactHistVO;
 
 public interface TransactService {
-    
-    // 거래 등록
     int insertTransact(TransactHistVO vo);
-    
-    // 거래 상세 조회
     TransactHistVO selectByTxId(Long txId);
-    
-    // 거래 상태 변경
     int updateStatus(TransactHistVO vo);
     
-    // 거래 삭제
+    // 추가된 상태 업데이트 메서드
+    int updateTxStatus(long txId, String status);
+    
     int deleteTransact(Long txId);
-    
-    // 상품별 거래 목록 조회
-    List<TransactHistVO> selectListByProduct(Long productNo);
-    
-    // 거래 총 건수
+    int deleteAll();
     int totalCount();
+    
+    List<TransactHistVO> selectListByUser(Map<String, Object> param);
+ // TransactService.java 인터페이스 내부
+    List<TransactHistVO> selectListByProduct(Long productNo, Long loginUserNo);
 }

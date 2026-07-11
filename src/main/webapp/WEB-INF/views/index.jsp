@@ -12,10 +12,10 @@
     <meta name="description" content="SPAM 중고거래 플랫폼 메인화면">
     <title>SPAM | 중고거래 플랫폼</title>
 
-    <!-- [추가] 메인화면 전용 CSS -->
+    <!-- 메인화면 전용 CSS -->
     <link rel="stylesheet" href="${CP}/resources/css/index.css">
 
-    <!-- [추가] 메인화면 전용 JS -->
+    <!-- 메인화면 전용 JS -->
     <script defer src="${CP}/resources/js/index.js"></script>
 </head>
 <body>
@@ -38,23 +38,47 @@
             <section class="hero-section" aria-label="SPAM 메인 배너">
                 <button type="button" class="hero-arrow hero-arrow-left" aria-label="이전 배너">‹</button>
 
-                <div class="hero-banner">
-                    <div class="hero-copy">
-                        <p class="hero-kicker">안전하고 편리한 중고거래, SPAM</p>
-                        <h1>필요한 사람에게,<br>당신의 물건을 연결하세요</h1>
-                        <p class="hero-desc">쓰지 않는 물건은 새 주인에게, 필요한 물건은 합리적인 가격으로 만나보세요.</p>
+                <div class="hero-stage">
+                    <!--
+                        [수정] 메인 배너 1
+                        - 기존 단일 배너를 슬라이드 구조로 변경
+                        - 상품관리 모듈 연결 전까지 정적 배너로 사용
+                    -->
+                    <article class="hero-banner hero-banner-main is-active" data-hero-index="0">
+                        <div class="hero-copy">
+                            <p class="hero-kicker">중고거래 플랫폼 SPAM</p>
+                            <h1>필요한 사람에게,<br>당신의 물건을 연결하세요</h1>
+                            <p class="hero-desc">쓰지 않는 물건은 새 주인에게, 필요한 물건은 합리적인 가격으로 만나보세요.</p>
 
-                        <div class="hero-actions">
-                            <a href="${CP}/product/list.do" class="btn btn-dark">상품 둘러보기</a>
-                            <a href="${CP}/product/reg.do" class="btn btn-light">판매하기</a>
+                            <div class="hero-actions">
+                                <a href="${CP}/product/list.do" class="btn btn-dark">상품 둘러보기</a>
+                                <a href="${CP}/product/saveForm.do" class="btn btn-light">판매하기</a>
+                            </div>
                         </div>
-                    </div>
+                    </article>
+
+                    <!--
+                        [추가] 안전거래 가이드 배너
+                        - 클릭 시 서비스 안내의 안전거래 가이드 탭으로 이동
+                    -->
+                    <article class="hero-banner hero-banner-safe" data-hero-index="1">
+                        <a class="hero-safe-link" href="${CP}/service/info.do?tab=safe" aria-label="안전거래 가이드로 이동">
+                            <div class="hero-copy">
+                                <p class="hero-kicker">SPAM SAFE GUIDE</p>
+                                <h1>처음 거래해도<br>안전하게 확인하세요</h1>
+                                <p class="hero-desc">판매자와 구매자가 거래 전에 꼭 확인해야 할 안전거래 가이드를 정리했습니다.</p>
+
+                                <div class="hero-actions">
+                                    <span class="btn btn-dark">안전거래 가이드</span>
+                                    <span class="btn btn-light">신고센터</span>
+                                </div>
+                            </div>
+                        </a>
+                    </article>
 
                     <div class="hero-dots" aria-label="배너 페이지 표시">
-                        <span class="active"></span>
-                        <span></span>
-                        <span></span>
-                        <span></span>
+                        <button type="button" class="active" aria-label="1번 배너"></button>
+                        <button type="button" aria-label="2번 배너"></button>
                     </div>
                 </div>
 
@@ -83,9 +107,9 @@
                     <img src="${CP}/resources/images/icons/05_chat.png" alt="" aria-hidden="true">
                     <span>채팅하기</span>
                 </a>
-                <a href="${CP}/service/info.do?tab=notice" class="quick-card">
+                <a href="${CP}/transact/list.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/06_transaction_history.png" alt="" aria-hidden="true">
-                    <span>공지사항</span>
+                    <span>거래내역</span>
                 </a>
                 <a href="${CP}/report/doRetrieve.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/07_report_center.png" alt="" aria-hidden="true">
@@ -107,10 +131,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>
@@ -128,10 +151,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>
@@ -149,10 +171,9 @@
                                 <jsp:param name="productNo" value="${product.productNo}" />
                                 <jsp:param name="productTitle" value="${product.productTitle}" />
                                 <jsp:param name="price" value="${product.price}" />
-                                <jsp:param name="region" value="${product.region}" />
-                                <jsp:param name="regTime" value="${product.regTime}" />
-                                <jsp:param name="imageFile" value="${product.imageFile}" />
-                                <jsp:param name="wishCount" value="${product.wishCount}" />
+                                <jsp:param name="location" value="${product.location}" />
+                                <jsp:param name="createDt" value="${product.createDt}" />
+                                <jsp:param name="thumbnailPath" value="${product.thumbnailPath}" />
                             </jsp:include>
                         </c:forEach>
                     </div>

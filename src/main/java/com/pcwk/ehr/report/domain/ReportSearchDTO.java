@@ -65,7 +65,15 @@ public class ReportSearchDTO implements Serializable {
         this.searchWord = searchWord;
     }
 
-    public int getPageNo() {
+    public void setStartRow(int startRow) {
+		this.startRow = startRow;
+	}
+
+	public void setEndRow(int endRow) {
+		this.endRow = endRow;
+	}
+
+	public int getPageNo() {
         return pageNo;
     }
 

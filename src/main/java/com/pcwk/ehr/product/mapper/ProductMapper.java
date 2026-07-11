@@ -2,6 +2,7 @@ package com.pcwk.ehr.product.mapper;
 
 import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
+import com.pcwk.ehr.product.domain.ProductSearchDTO;
 import com.pcwk.ehr.product.domain.ProductVO;
 
 @Mapper
@@ -39,7 +40,10 @@ public interface ProductMapper {
      * 상품 전체 목록/검색 조회 (부모 DTO의 페이징/검색 조건을 활용하기 위해 파라미터로 ProductVO를 받습니다)
      * @return List<ProductVO>
      */
-    public List<ProductVO> doRetrieve();
+    public List<ProductVO> doRetrieve(ProductSearchDTO search);
+
+    /** 검색 조건에 맞는 상품 총 건수 */
+    public int totalCnt(ProductSearchDTO search);
     
     /**
      * 조회수 증가

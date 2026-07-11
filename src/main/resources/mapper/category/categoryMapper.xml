@@ -1,44 +1,59 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.pcwk.ehr.mapper.CategoryMapper">
+<mapper namespace="com.pcwk.ehr.category.mapper.CategoryMapper">
 
-
-    <!-- 대분류(레벨 1) 목록 -->
     <select id="doRetrieveParent" resultType="CategoryVO">
-        SELECT category_no,
-               parent_category_no,
-               category_name,
-               category_level,
-               sort_order
-          FROM category
-         WHERE category_level = 1
-         ORDER BY sort_order, category_no
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE CATEGORY_LEVEL = 1
+           AND USE_YN = 'Y'
+         ORDER BY SORT_ORDER, CATEGORY_NO
     </select>
 
-    <!-- 자식 조회: 부모번호로 자식들 조회 (중분류/소분류 공용) -->
     <select id="doRetrieveChild" resultType="CategoryVO">
-        SELECT category_no,
-         	   parent_category_no,
-         	   category_name,
-               category_level,
-               sort_order
-          FROM category
-         WHERE parent_category_no = #{parentCategoryNo}
-         ORDER BY sort_order, category_no
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE PARENT_CATEGORY_NO = #{parentCategoryNo}
+           AND USE_YN = 'Y'
+         ORDER BY SORT_ORDER, CATEGORY_NO
     </select>
-    
-	<!-- 전체 카테고리 (대+중+소) -->
-	<select id="doRetrieveAll" resultType="CategoryVO">
-	    SELECT category_no,
-	    	   parent_category_no,
-	    	   category_name,
-	           category_level,
-	           sort_order
-	      FROM category
-	     ORDER BY category_level, sort_order, category_no
-	</select>    
 
+    <select id="doRetrieveAll" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE USE_YN = 'Y'
+         ORDER BY CATEGORY_LEVEL, SORT_ORDER, CATEGORY_NO
+    </select>
 
+    <select id="doSelectOne" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE CATEGORY_NO = #{categoryNo}
+           AND USE_YN = 'Y'
+    </select>
 
 </mapper>
-

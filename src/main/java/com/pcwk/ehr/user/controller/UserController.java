@@ -67,7 +67,7 @@ public class UserController {
             userService.join(user);
 
             // redirect 후 로그인 화면에서 보여줄 메시지
-            redirectAttributes.addFlashAttribute("msg", "회원가입이 완료되었습니다. 로그인하세요.");
+            redirectAttributes.addFlashAttribute("joinSuccessMsg", "회원가입이 완료되었습니다. 로그인하세요.");
 
             return "redirect:/user/login.do";
 
@@ -137,7 +137,7 @@ public class UserController {
         // 세션 전체 제거
         session.invalidate();
 
-        return "redirect:/user/login.do";
+        return "redirect:/main.do";
     }
 
     /**
@@ -272,7 +272,7 @@ public class UserController {
             session.invalidate();
 
             redirectAttributes.addFlashAttribute("msg", "회원탈퇴가 완료되었습니다.");
-            return "redirect:/user/login.do";
+            return "redirect:/main.do";
 
         } catch (RuntimeException e) {
             // 비밀번호가 틀렸거나 탈퇴 처리에 실패하면 회원정보 수정 화면으로 돌아감

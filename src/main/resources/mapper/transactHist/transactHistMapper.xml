@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.transact.mapper.TransactHistMapper">
-<!-- namespace는 Mapper.xml이 참조할 Mapper인터페이스의 패키지경로 -->
 
     <resultMap id="transactHistMap" type="com.pcwk.ehr.transact.domain.TransactHistVO">
-    <!-- 오라클은 PASCAL CASE문법 사용, 자바는 camelCase문법 사용 -->
         <id     property="txId"        column="TX_ID" />
         <result property="sellerNo"    column="SELLER_NO" />
         <result property="productNo"   column="PRODUCT_NO" />
@@ -13,72 +11,51 @@
         <result property="amount"      column="AMOUNT" />
         <result property="txStatus"    column="TX_STATUS" />
         <result property="createDt"    column="CREATE_DT" />
-        <result property="completeDt"  column="COMPLETE_DT" />
-        <result property="cancelDt"    column="CANCEL_DT" />
+        <result property="productName" column="PRODUCT_NAME" />
+        <result property="partnerName" column="PARTNER_NAME" />
     </resultMap>
 
     <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
         INSERT INTO TRANSACTIN_HIST (
-            TX_ID, 
-            SELLER_NO, 
-            PRODUCT_NO, 
-            RECEIVER_NO, 
-            TX_TYPE, 
-            AMOUNT, 
-            TX_STATUS, 
-            CREATE_DT
+            TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT
         ) VALUES (
-            SEQ_TRANSACTIN_HIST.NEXTVAL,
-            #{sellerNo}, 
-            #{productNo}, 
-            #{receiverNo}, 
-            #{txType}, 
-            #{amount}, 
-            '01', 
-            SYSDATE
+            TRANSACTIN_HIST_SEQ.NEXTVAL, 
+            #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, #{txStatus}, SYSDATE
         )
     </insert>
 
-	<!-- 특정 거래내역 조회 -->
-    <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
-    </select>
-
-	<!-- 거래 상태 업데이트 -->
-    <update id="updateStatus" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
-        UPDATE TRANSACTIN_HIST
-        SET TX_STATUS = #{txStatus},
-            <if test="txStatus == '02'">COMPLETE_DT = SYSDATE</if>
-            <if test="txStatus == '03'">CANCEL_DT = SYSDATE</if>
-        WHERE TX_ID = #{txId}
-    </update>
-
-	<!-- 특정 거래내역 삭제 -->
-    <delete id="deleteTransact" parameterType="long">
-        DELETE FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
-    </delete>
-
-	<!-- 전체 거래내역 삭제 -->
     <delete id="deleteAll">
         DELETE FROM TRANSACTIN_HIST
     </delete>
 
-	<!-- 특정회원의 거래내역 조회 -->
-    <select id="selectListByUser" parameterType="long" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST 
-        WHERE SELLER_NO = #{userNum} OR RECEIVER_NO = #{userNum}
-        ORDER BY CREATE_DT DESC
-    </select>
-	
-	<!-- 특정상품으로 거래내역 조회 -->
-    <select id="selectListByProduct" parameterType="long" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST 
-        WHERE PRODUCT_NO = #{productNo}
-    </select>
-	
-	<!-- 데이터의 총 개수  -->
     <select id="totalCount" resultType="int">
         SELECT COUNT(*) FROM TRANSACTIN_HIST
     </select>
+
+    <select id="selectListByUser" parameterType="map" resultMap="transactHistMap">
+        SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME, U.USER_NAME as PARTNER_NAME
+        FROM TRANSACTIN_HIST T
+        JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+        JOIN USER_INFO U ON (CASE WHEN T.SELLER_NO = #{userNum} THEN T.RECEIVER_NO ELSE T.SELLER_NO END) = U.USER_NUM
+        WHERE 1=1
+        <choose>
+            <when test="type == 'purchase'">
+                AND T.RECEIVER_NO = #{userNum}
+            </when>
+            <when test="type == 'sale'">
+                AND T.SELLER_NO = #{userNum}
+            </when>
+        </choose>
+        ORDER BY T.CREATE_DT DESC
+    </select>
+
+  <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
+    SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME, U.USER_NAME as PARTNER_NAME
+    FROM TRANSACTIN_HIST T
+    JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+    JOIN USER_INFO U ON (CASE WHEN T.SELLER_NO = #{loginUserNo} THEN T.RECEIVER_NO ELSE T.SELLER_NO END) = U.USER_NUM
+    WHERE T.PRODUCT_NO = #{productNo}
+    ORDER BY T.CREATE_DT DESC
+</select>
 
 </mapper>

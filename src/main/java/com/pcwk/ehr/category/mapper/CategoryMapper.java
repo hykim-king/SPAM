@@ -17,4 +17,7 @@ public interface CategoryMapper {
     
     /** 전체 카테고리 조회 (대+중+소 한번에) */
     List<CategoryVO> doRetrieveAll();
+
+    /** 사용 중인 카테고리 단건 조회 */
+    CategoryVO doSelectOne(@Param("categoryNo") int categoryNo);
 }
