@@ -46,7 +46,7 @@
     		width: 100%;
     		position: relative;
         }
-        textarea.input {	
+        textarea.textarea {	
     		width: 100%;
             height: 140px;
             padding: 12px 12px 30px 12px; /* 카운터 글씨와 입력 텍스트가 겹치지 않도록 아래쪽 여백 확보 */
@@ -102,7 +102,6 @@
 				<label class="label" for="reportReasonSelect">신고 사유 선택<span class="required-star">*</span></label> 
 				<select class="select" id="reportReasonSelect" name="reason" onchange="handleReasonChange(this)" required>
 					<option value="">-- 유저 신고 사유를 선택하세요 --</option>
-                    <option value="상품 미배송">상품 미배송</option>
 					<option value="외부 결제 유도">외부 결제 유도</option>
 					<option value="노쇼">노쇼</option>
 					<option value="거래파기">거래파기</option>
@@ -116,7 +115,7 @@
 			<div class="form-row">
                 <label class="label" for="reason">상세 내용 입력<span class="required-star">*</span></label>
                 <div class="textarea-wrapper">
-                    <textarea class="input" id="reason" name="reason" placeholder="신고 사유를 명확하게 작성해주시면 운영진 확인 후 빠르게 조치하겠습니다." maxlength="1000" required></textarea>
+                    <textarea class="textarea" id="reason" name="reason" placeholder="신고 사유를 명확하게 작성해주시면 운영진 확인 후 빠르게 조치하겠습니다." maxlength="1000" required></textarea>
                	</div>
                	<div class="counter-container">
             		<span id="charCount">0</span>/1000

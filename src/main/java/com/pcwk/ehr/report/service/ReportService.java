@@ -45,15 +45,15 @@ public interface ReportService {
 
     /**
      * 이거 어카지?
-     * @param currentMemberNo
+     * @param currentUserNum
      * @return
      */
-	List<ReportVO> doRetrieveReceivedReports(int currentMemberNo);
+	List<ReportVO> doRetrieveReceivedReports(long currentUserNum);
 	
     /**
      * 이거 어카지?
-     * @param currentMemberNo
+     * @param currentUserNum
      * @return
      */
-	List<ReportVO> doRetrieveMyReports(int currentMemberNo);
+	List<ReportVO> doRetrieveMyReports(long currentUserNum);
 }
