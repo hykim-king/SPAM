@@ -11,58 +11,51 @@
         <result property="amount"      column="AMOUNT" />
         <result property="txStatus"    column="TX_STATUS" />
         <result property="createDt"    column="CREATE_DT" />
-        <result property="completeDt"  column="COMPLETE_DT" />
-        <result property="cancelDt"    column="CANCEL_DT" />
+        <result property="productName" column="PRODUCT_NAME" />
+        <result property="partnerName" column="PARTNER_NAME" />
     </resultMap>
 
     <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
-        INSERT INTO TRANSACTIN_HIST (TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT)
-        VALUES (SEQ_TRANSACT_ID.NEXTVAL, #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, '01', SYSDATE)
+        INSERT INTO TRANSACTIN_HIST (
+            TX_ID, SELLER_NO, PRODUCT_NO, RECEIVER_NO, TX_TYPE, AMOUNT, TX_STATUS, CREATE_DT
+        ) VALUES (
+            TRANSACTIN_HIST_SEQ.NEXTVAL, 
+            #{sellerNo}, #{productNo}, #{receiverNo}, #{txType}, #{amount}, #{txStatus}, SYSDATE
+        )
     </insert>
-
-    <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
-    </select>
-
-    <update id="updateStatus" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
-        UPDATE TRANSACTIN_HIST
-        SET TX_STATUS = #{txStatus},
-            <if test="txStatus == '02'">COMPLETE_DT = SYSDATE</if>
-            <if test="txStatus == '03'">CANCEL_DT = SYSDATE</if>
-        WHERE TX_ID = #{txId}
-    </update>
-
-    <delete id="deleteTransact" parameterType="long">
-        DELETE FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
-    </delete>
 
     <delete id="deleteAll">
         DELETE FROM TRANSACTIN_HIST
     </delete>
 
-    <select id="selectListByUser" parameterType="long" resultMap="transactHistMap">
-        SELECT * FROM TRANSACTIN_HIST 
-        WHERE SELLER_NO = #{userNum} OR RECEIVER_NO = #{userNum}
-        ORDER BY CREATE_DT DESC
-    </select>
-
-    <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
-    SELECT * FROM TRANSACTIN_HIST 
-    WHERE SELLER_NO = #{loginUserNo}  <choose>
-        <when test="sort == 'lowPrice'">
-            ORDER BY AMOUNT ASC
-        </when>
-        <when test="sort == 'highPrice'">
-            ORDER BY AMOUNT DESC
-        </when>
-        <otherwise>
-            ORDER BY CREATE_DT DESC
-        </otherwise>
-    </choose>
-</select>
-
     <select id="totalCount" resultType="int">
         SELECT COUNT(*) FROM TRANSACTIN_HIST
     </select>
+
+    <select id="selectListByUser" parameterType="map" resultMap="transactHistMap">
+        SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME, U.USER_NAME as PARTNER_NAME
+        FROM TRANSACTIN_HIST T
+        JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+        JOIN USER_INFO U ON (CASE WHEN T.SELLER_NO = #{userNum} THEN T.RECEIVER_NO ELSE T.SELLER_NO END) = U.USER_NUM
+        WHERE 1=1
+        <choose>
+            <when test="type == 'purchase'">
+                AND T.RECEIVER_NO = #{userNum}
+            </when>
+            <when test="type == 'sale'">
+                AND T.SELLER_NO = #{userNum}
+            </when>
+        </choose>
+        ORDER BY T.CREATE_DT DESC
+    </select>
+
+  <select id="selectListByProduct" parameterType="map" resultMap="transactHistMap">
+    SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME, U.USER_NAME as PARTNER_NAME
+    FROM TRANSACTIN_HIST T
+    JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+    JOIN USER_INFO U ON (CASE WHEN T.SELLER_NO = #{loginUserNo} THEN T.RECEIVER_NO ELSE T.SELLER_NO END) = U.USER_NUM
+    WHERE T.PRODUCT_NO = #{productNo}
+    ORDER BY T.CREATE_DT DESC
+</select>
 
 </mapper>

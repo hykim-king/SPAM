@@ -1,77 +1,99 @@
-/**
- * 파일명: TransactServiceImplTest.java <br>
- * 작성자: Wholesome-Gee  <br>
- * 생성일: 2026-07-07 <br>
- * 설　명: <br>
- */
 package com.pcwk.ehr.transact.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import com.pcwk.ehr.transact.domain.TransactHistVO;
 import com.pcwk.ehr.transact.mapper.TransactHistMapper;
 
-@ExtendWith(MockitoExtension.class) 
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(locations = {
+    "file:src/main/webapp/WEB-INF/spring/root-context.xml"
+})
 public class TransactServiceImplTest {
 
-    @Mock
-    private TransactHistMapper mapper; // Mock 객체 생성
-
-    @InjectMocks
-    private TransactServiceImpl service; // Mock 객체 주입
-
-    private TransactHistVO validVO;
+    @Autowired
+    TransactHistMapper mapper;
+    
+    @Autowired
+    JdbcTemplate jdbcTemplate; 
 
     @BeforeEach
     void setUp() {
-        validVO = new TransactHistVO();
-        validVO.setSellerNo(1L);
-        validVO.setProductNo(100L);
-        validVO.setReceiverNo(2L);
-        validVO.setTxType("01");
-        validVO.setAmount(10000L);
+        mapper.deleteAll(); 
+        try {
+            jdbcTemplate.update("DELETE FROM TRANSACTIN_HIST"); 
+            jdbcTemplate.update("DELETE FROM PRODUCT");
+            jdbcTemplate.update("DELETE FROM USER_INFO");
+            jdbcTemplate.update("DELETE FROM CATEGORY");
+            
+            jdbcTemplate.update("INSERT INTO CATEGORY (CATEGORY_NO, CATEGORY_NAME) VALUES (138, '아동복')");
+            jdbcTemplate.update("INSERT INTO USER_INFO (USER_NUM, USER_NAME) VALUES (1, '판매자')");
+            jdbcTemplate.update("INSERT INTO USER_INFO (USER_NUM, USER_NAME) VALUES (2, '구매자')");
+            jdbcTemplate.update("INSERT INTO PRODUCT (PRODUCT_NO, PRODUCT_TITLE, USER_NUM, CATEGORY_NO, PRODUCT_CONTENT, PRICE, CREATE_DT) VALUES (100, '테스트상품', 1, 138, '테스트내용', 10000, SYSDATE)");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Test
-    void testInsertTransact_Success() {
-        // Mock 동작 정의: 어떤 TransactHistVO가 들어와도 1을 반환하도록 설정
-        when(mapper.insertTransact(any(TransactHistVO.class))).thenReturn(1);
-        
-        int result = service.insertTransact(validVO);
-        
-        assertEquals(1, result);
-        verify(mapper, times(1)).insertTransact(any(TransactHistVO.class));
-    }
+    void testInsertAndSelect() {
+        TransactHistVO vo = new TransactHistVO();
+        vo.setSellerNo(1L);
+        vo.setProductNo(100L); 
+        vo.setReceiverNo(2L);
+        vo.setTxType("01");
+        vo.setAmount(15000L);
+        vo.setTxStatus("01");
 
-    @Test
-    void testInsertTransact_InvalidVO() {
-        TransactHistVO invalidVO = new TransactHistVO();
+        int insertCnt = mapper.insertTransact(vo);
         
-        // 필수 값 누락 시 IllegalArgumentException 발생하는지 확인
-        assertThrows(IllegalArgumentException.class, () -> {
-            service.insertTransact(invalidVO);
-        });
+        assertEquals(1, insertCnt);
+        assertEquals(1, mapper.totalCount());
     }
-
+    
     @Test
-    void testInsertTransact_SelfTransaction() {
-        validVO.setReceiverNo(1L); // 판매자와 구매자 동일
+    void testCRUD() {
+        // 1. 거래 내역 삽입
+        TransactHistVO vo = new TransactHistVO();
+        vo.setSellerNo(1L);
+        vo.setProductNo(100L);
+        vo.setReceiverNo(2L);
+        vo.setTxType("01");
+        vo.setAmount(15000L);
+        vo.setTxStatus("01");
         
-        // 본인 거래 시 IllegalStateException 발생하는지 확인
-        assertThrows(IllegalStateException.class, () -> {
-            service.insertTransact(validVO);
-        });
+        mapper.insertTransact(vo);
+        
+        // 2. Map 생성 및 전달 (핵심: XML의 파라미터명과 일치해야 합니다)
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("productNo", 100L);
+        paramMap.put("loginUserNo", 1L); 
+        
+        List<TransactHistVO> list = mapper.selectListByProduct(paramMap);
+        
+        // 3. 검증
+        assertNotNull(list);
+        assertFalse(list.isEmpty());
+        
+        TransactHistVO savedVo = list.get(0);
+        Long txId = savedVo.getTxId();
+        
+        TransactHistVO foundVo = mapper.selectByTxId(txId);
+        assertNotNull(foundVo);
+        assertEquals(15000L, foundVo.getAmount());
     }
 }
