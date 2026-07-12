@@ -28,23 +28,24 @@ public class ChatServiceImpl implements ChatService {
 	private ChatMessageMapper chatMessageMapper;
 
 	@Override
+	@Transactional
 	public ChatRoomVO enterRoom(ChatRoomVO param) {
 		
-		// 방번호로 기존 방 있나 조회
-		Integer roomNo = chatRoomMapper.selectRoomByUser(param);
-		
-		if(null == roomNo)
-		{
-			// 방 없음 -> 새로 생성
-			chatRoomMapper.insertRoom(param);
-		} else
-		{
-			// 방 있음 -> 그 방번호를 param에 세팅 (재사용)
-			param.setChatRoomNo(roomNo);
-		}
-		
-		
-		return param;
+	    // 상품 + 구매자로 기존 방 조회 (나간 방도 찾음)
+	    Integer roomNo = chatRoomMapper.selectRoomByUser(param);
+
+	    if(null == roomNo) {
+	        // 방 없음 -> 새로 생성
+	        chatRoomMapper.insertRoom(param);
+	    } else {
+	        // 방 있음 -> 재사용
+	        param.setChatRoomNo(roomNo);
+
+	        // 구매자가 나갔던 방이면 재입장 처리 (EXIT 해제)
+	        chatRoomMapper.updateBuyerReenter(roomNo);
+	    }
+
+	    return param;
 	}
 
 	@Override
@@ -58,18 +59,42 @@ public class ChatServiceImpl implements ChatService {
 	@Transactional
 	public ChatMessageVO sendMessage(ChatMessageVO param) {
 		
-		// 메시지 저장
-		chatMessageMapper.insertMessage(param);
-		
-		// 방 마지막 시각 갱신
-		chatRoomMapper.updateLastMsgDt(param.getChatRoomNo());
-		
-		// 저장된 메시지 반환
-		return param;
+	    // 메시지 저장 (성공 시 1)
+	    int flag = chatMessageMapper.insertMessage(param);
+	    log.debug("insertMessage flag: " + flag);
+
+	    // 저장 실패 시 예외 → @Transactional이 롤백 처리
+	    if (flag != 1) {
+	        throw new RuntimeException("메시지 저장에 실패했습니다.");
+	    }
+	    
+	    // 실시간(웹소켓) 전송 시 시간 표시를 위해 현재 시각을 세팅
+	    // (DB는 SYSDATE로 저장되지만 param에는 없으므로 같은 포맷으로 채워줌)	    
+	    param.setSendDt(java.time.LocalDateTime.now()
+	            .format(java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+
+	    // 방 마지막 시각 갱신 (부가 작업이라 실패해도 로그만)
+	    int updateFlag = chatRoomMapper.updateLastMsgDt(param.getChatRoomNo());
+	    log.debug("updateLastMsgDt flag: " + updateFlag);
+	    
+	    // 웹소켓으로 뿌릴 때 보낸사람 닉네임 표시를 위해 조회해서 채움
+	    String senderNick = chatMessageMapper.selectNicknameByUserNum(param.getSenderNo());
+	    param.setSenderNick(senderNick);
+
+	    // 저장된 메시지 반환
+	    return param;
 	}
 
 	@Override
 	public List<ChatMessageVO> getMessageList(int chatRoomNo, Long readerNo) {
+		
+		// 이 방의 참여자(판매자/구매자)가 맞는지 먼저 확인
+		ChatRoomVO searchRoom = chatRoomMapper.selectRoomByNo(chatRoomNo);
+		if(searchRoom == null
+				|| !(readerNo.equals(searchRoom.getSellerNo()) || readerNo.equals(searchRoom.getBuyerNo()))) {
+			// 참여자가 아니면 메시지를 주지 않음
+			return java.util.Collections.emptyList();
+		}
 		
 		int flag = chatMessageMapper.updateReadYn(chatRoomNo, readerNo);
 		
@@ -87,13 +112,18 @@ public class ChatServiceImpl implements ChatService {
 		// 방 조회
 		ChatRoomVO searchRoom = chatRoomMapper.selectRoomByNo(chatRoomNo);
 		
+		// 이미 없는 방이면 조용히 종료
+		if (searchRoom == null) {
+		    return;
+		}		
+		
 		// 판매자냐 구매자냐 -> 해당 나가기 처리
-		if(userNo == searchRoom.getSellerNo())
+		if(userNo.equals(searchRoom.getSellerNo()))
 		{
-			chatRoomMapper.updateSellerExit(chatRoomNo);
-		} else if(userNo == searchRoom.getBuyerNo())
+		    chatRoomMapper.updateSellerExit(chatRoomNo);
+		} else if(userNo.equals(searchRoom.getBuyerNo()))
 		{
-			chatRoomMapper.updateBuyerExit(chatRoomNo);
+		    chatRoomMapper.updateBuyerExit(chatRoomNo);
 		}
 		
 		// 나가기 후 최신 상태 다시 조회

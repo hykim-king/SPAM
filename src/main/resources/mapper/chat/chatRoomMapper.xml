@@ -28,23 +28,31 @@
     </select>
     
     <!-- 내 채팅방 목록 (내가 판매자거나 구매자인 방, 최근 순) -->
-    <select id="selectRoomListByMember" parameterType="Long" resultType="ChatRoomVO">
-    SELECT R.CHAT_ROOM_NO,
-    	   R.PRODUCT_NO,
-    	   R.SELLER_NO,
-    	   R.BUYER_NO,
-    	   R.ROOM_STATUS,
-           R.SELLER_EXIT_YN,
-           R.BUYER_EXIT_YN,
-           TO_CHAR(R.CREATE_DT,   'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT,
-           TO_CHAR(R.LAST_MSG_DT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MSG_DT,
-           P.STATUS AS PRODUCT_STATUS
-      FROM CHAT_ROOM R
-      JOIN PRODUCT P ON R.PRODUCT_NO = P.PRODUCT_NO
-     WHERE (R.SELLER_NO = #{userNo} AND R.SELLER_EXIT_YN = 'N')
-        OR (R.BUYER_NO  = #{userNo} AND R.BUYER_EXIT_YN  = 'N')
-     ORDER BY R.LAST_MSG_DT DESC
-    </select>
+	<select id="selectRoomListByMember" parameterType="Long" resultType="ChatRoomVO">
+	SELECT R.CHAT_ROOM_NO,
+	       R.PRODUCT_NO,
+	       R.SELLER_NO,
+	       R.BUYER_NO,
+	       R.ROOM_STATUS,
+	       R.SELLER_EXIT_YN,
+	       R.BUYER_EXIT_YN,
+	       TO_CHAR(R.CREATE_DT,   'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT,
+	       TO_CHAR(R.LAST_MSG_DT, 'YYYY-MM-DD HH24:MI:SS') AS LAST_MSG_DT,
+	       P.STATUS        AS PRODUCT_STATUS,
+	       P.PRODUCT_TITLE AS PRODUCT_TITLE,
+	       P.LOCATION      AS LOCATION,
+	       CASE
+	           WHEN R.SELLER_NO = #{userNo} THEN BU.NICKNAME
+	           ELSE SU.NICKNAME
+	       END AS OPPONENT_NICK
+	  FROM CHAT_ROOM R
+	  JOIN PRODUCT   P  ON R.PRODUCT_NO = P.PRODUCT_NO
+	  JOIN USER_INFO SU ON R.SELLER_NO  = SU.USER_NUM
+	  JOIN USER_INFO BU ON R.BUYER_NO   = BU.USER_NUM
+	 WHERE (R.SELLER_NO = #{userNo} AND R.SELLER_EXIT_YN = 'N')
+	    OR (R.BUYER_NO  = #{userNo} AND R.BUYER_EXIT_YN  = 'N')
+	 ORDER BY R.LAST_MSG_DT DESC
+	</select>
     
     <!-- 새 채팅방 저장 -->
     <insert id="insertRoom" parameterType="ChatRoomVO">
@@ -83,16 +91,18 @@
     
     <!-- 6. 판매자 나가기 처리 -->
     <update id="updateSellerExit" parameterType="int">
-        UPDATE CHAT_ROOM
-           SET SELLER_EXIT_YN = 'Y'
-         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    UPDATE CHAT_ROOM
+       SET SELLER_EXIT_YN = 'Y',
+           SELLER_EXIT_DT = SYSDATE
+     WHERE CHAT_ROOM_NO = #{chatRoomNo}
     </update>   
 
     <!-- 7. 구매자 나가기 처리 -->
     <update id="updateBuyerExit" parameterType="int">
-        UPDATE CHAT_ROOM
-           SET BUYER_EXIT_YN = 'Y'
-         WHERE CHAT_ROOM_NO = #{chatRoomNo}
+    UPDATE CHAT_ROOM
+       SET BUYER_EXIT_YN = 'Y',
+           BUYER_EXIT_DT = SYSDATE
+     WHERE CHAT_ROOM_NO = #{chatRoomNo}
     </update>
 
     <!-- 8. 방 삭제 -->
@@ -100,5 +110,13 @@
         DELETE FROM CHAT_ROOM
          WHERE CHAT_ROOM_NO = #{chatRoomNo}
     </delete>
+    
+	<!-- 구매자 재입장: 나가기 상태 해제 + 재입장 시각으로 기준선 갱신 -->
+	<update id="updateBuyerReenter" parameterType="int">
+	    UPDATE CHAT_ROOM
+	       SET BUYER_EXIT_YN = 'N'
+	     WHERE CHAT_ROOM_NO = #{chatRoomNo}
+	       AND BUYER_EXIT_YN = 'Y'
+	</update>    
 
 </mapper>

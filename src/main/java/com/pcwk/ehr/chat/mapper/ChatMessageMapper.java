@@ -38,4 +38,12 @@ public interface ChatMessageMapper {
 	 * @return
 	 */
 	int deleteMessageByRoom(int chatRoomNo);
+	
+	
+	/**
+	 * 회원번호로 닉네임 조회
+	 * @param userNum
+	 * @return
+	 */
+	String selectNicknameByUserNum(Long userNum);
 }

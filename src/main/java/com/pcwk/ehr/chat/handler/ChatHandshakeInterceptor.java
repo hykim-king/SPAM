@@ -38,15 +38,22 @@ public class ChatHandshakeInterceptor extends HttpSessionHandshakeInterceptor {
 				{
 					// 소켓에 담아둠
 					attributes.put("senderNo", loginUser.getUserNum());
+				}else {
+					return false; // 비 로그인이면 웹소켓 연결 거부
 				}
-			}
-			
-			// url에서 방번호 꺼내기
-			String roomNoParam = servletRequest.getParameter("roomNo");
-			if(roomNoParam != null)
-			{
+				
+				// url에서 방번호 꺼내기
+				String roomNoParam = servletRequest.getParameter("roomNo");
+				if(roomNoParam == null)
+				{
+					return false;
+				}
+				
 				// 소켓에 담아둠
 				attributes.put("roomNo", Integer.parseInt(roomNoParam));
+				
+			}else {
+				return false; // 세션 없으면 거부
 			}
 			
 		}

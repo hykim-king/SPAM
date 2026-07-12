@@ -65,6 +65,13 @@ public interface ChatRoomMapper {
 	 */
 	int deleteRoom(int chatRoomNo);
 	
+	/**
+	 * 구매자 재입장
+	 * @param chatRoomNo
+	 * @return
+	 */
+	int updateBuyerReenter(int chatRoomNo);
+	
 	
 	
 }

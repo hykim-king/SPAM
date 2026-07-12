@@ -92,11 +92,10 @@ public class ChatHandler extends TextWebSocketHandler {
 		
 	}
 	
-	// 임시 : 나중에 세션/파라미터에서 진짜 방번호를 꺼내도록 바꿀 것
+	// 핸드셰이크 때 인터셉터가 attributes에 넣어둔 방번호를 꺼낸다
 	private int getRoomNo(WebSocketSession session) {
 		
-		Object roomNo = session.getAttributes().get("roomNo");
-		return roomNo == null ? 0 : (int) roomNo;
+		return (int) session.getAttributes().get("roomNo");
 	}
 
 	
