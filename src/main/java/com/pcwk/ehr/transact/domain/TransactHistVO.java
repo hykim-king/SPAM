@@ -4,14 +4,16 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 거래내역 VO
- * 테이블: TRANSACTIN_HIST
+ * 거래내역 VO (Value Object)
+ * TRANSACTIN_HIST 테이블의 컬럼과 1:1로 대응되는 데이터 모델입니다.
  */
 public class TransactHistVO implements Serializable {
     
+    // 객체 직렬화 시 버전을 확인하기 위한 고유 ID
     private static final long serialVersionUID = 1L;
 
-    private Long txId;          // 거래내역ID (PK)
+    // 테이블 컬럼과 매핑되는 필드들
+    private Long txId;          // 거래내역ID (Primary Key)
     private Long sellerNo;      // 판매자회원번호
     private Long productNo;     // 상품번호
     private Long receiverNo;    // 구매자회원번호
@@ -21,16 +23,18 @@ public class TransactHistVO implements Serializable {
     private Date createDt;      // 거래생성일
     private Date completeDt;    // 완료일
     private Date cancelDt;      // 취소일
-    private String userId;
-    // 조인용 필드 (화면 표시용)
-    private String productName; 
-    private String partnerName; 
+    
+    // 조인 등으로 가져온 추가 데이터 필드
+    private String userId;      // 판매자/구매자 아이디
+    private String productName; // 상품명 (조인용 필드)
+    private String partnerName; // 상대방 이름 (조인용 필드)
 
+    // 기본 생성자
     public TransactHistVO() {
         super();
     }
 
-    // --- Getter / Setter ---
+    // --- Getter / Setter (데이터를 가져오거나 설정하는 메서드) ---
     public Long getTxId() { return txId; }
     public void setTxId(Long txId) { this.txId = txId; }
 
@@ -70,6 +74,7 @@ public class TransactHistVO implements Serializable {
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 
+    // 객체의 상태를 문자열로 쉽게 확인하기 위한 toString 메서드
 	@Override
 	public String toString() {
 		return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo + ", receiverNo="
@@ -77,5 +82,4 @@ public class TransactHistVO implements Serializable {
 				+ createDt + ", completeDt=" + completeDt + ", cancelDt=" + cancelDt + ", userId=" + userId
 				+ ", productName=" + productName + ", partnerName=" + partnerName + "]";
 	}
-    
 }
