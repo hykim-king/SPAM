@@ -147,7 +147,9 @@
                             </c:choose>
                             <a class="product-secondary-button" href="${CP}/product/list.do">목록으로</a>
                             <a class="product-secondary-button product-report-button"
-                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.userNum}&amp;reportType=PRODUCT">신고하기</a>
+                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.userNum}&amp;reportType=PRODUCT"
+                               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                               data-login-url="${CP}/user/login.do">신고하기</a>
                         </div>
 
                         <c:if test="${isOwner}">

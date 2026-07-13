@@ -3,9 +3,11 @@ package com.pcwk.ehr.main.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** 아직 별도 화면이 없는 공통 링크를 실제 구현 URL로 연결한다. */
+/**
+ * 공통 메뉴에서 사용하는 기존 호환 URL을 실제 구현 화면으로 연결한다.
+ */
 @Controller
-public class PlaceholderPageController {
+public class CommonRouteController {
 
     @GetMapping("/trade/history.do")
     public String tradeHistory() {

@@ -161,9 +161,9 @@ public class UserController {
         // 세션에서 로그인 회원을 꺼냄
         UserVO loginUser = getLoginUser(session);
 
-        // 로그인하지 않은 사용자는 로그인 화면으로 이동
+        // 2026-07-13 [수정] 비로그인 사용자는 공통 로그인 안내 모달으로 이동
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         // DB에서 최신 정보 재조회
@@ -198,7 +198,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         UserVO user = userService.getUser(loginUser.getUserNum());
@@ -221,7 +221,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -258,7 +258,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -286,7 +286,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {

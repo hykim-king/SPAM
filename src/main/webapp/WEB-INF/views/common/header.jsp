@@ -31,14 +31,18 @@
                     <c:otherwise>
                         <a href="${CP}/user/login.do">로그인</a>
                         <a href="${CP}/user/join.do">회원가입</a>
-                        <a href="${CP}/user/mypage.do">마이페이지</a>
+                        <a href="${CP}/user/mypage.do" data-spam-modal="login" data-login-url="${CP}/user/login.do">마이페이지</a>
                     </c:otherwise>
                 </c:choose>
-                <a class="sell-link" href="${CP}/product/saveForm.do">판매하기</a>
+                <a class="sell-link" href="${CP}/product/saveForm.do"
+                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                   data-login-url="${CP}/user/login.do">판매하기</a>
             </nav>
 
             <div class="mobile-header-actions">
-                <a href="${CP}/user/mypage.do" aria-label="마이페이지">♡</a>
+                <a href="${CP}/user/mypage.do" aria-label="마이페이지"
+                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                   data-login-url="${CP}/user/login.do">♡</a>
                 <button type="button" class="mobile-menu-button" aria-label="카테고리 메뉴 열기">☰</button>
             </div>
         </div>

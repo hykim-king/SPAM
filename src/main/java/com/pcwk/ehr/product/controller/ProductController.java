@@ -73,11 +73,11 @@ public class ProductController {
         return "product/productView";
     }
 
-    /** 로그인 회원의 상품 등록 화면. */
+    /** 2026-07-13 [수정] 비로그인 시 공통 로그인 안내 모달으로 이동하는 상품 등록 화면. */
     @GetMapping("/saveForm.do")
     public String saveForm(HttpSession session, Model model) {
         if (getLoginUser(session) == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
         model.addAttribute("categoryList", categoryService.doRetrieveParent());
         return "product/productSave";
@@ -88,7 +88,7 @@ public class ProductController {
     public String updateForm(@RequestParam("productNo") int productNo, HttpSession session, Model model) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         ProductVO param = new ProductVO();
@@ -112,7 +112,7 @@ public class ProductController {
     @GetMapping("/myList.do")
     public String myList(@RequestParam(value = "status", required = false) String status, HttpSession session) {
         if (getLoginUser(session) == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         if ("01".equals(status) || "02".equals(status) || "03".equals(status)) {
@@ -150,7 +150,7 @@ public class ProductController {
                          HttpSession session) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         product.setUserNum(loginUser.getUserNum());
@@ -165,7 +165,7 @@ public class ProductController {
                            HttpSession session) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         product.setUserNum(loginUser.getUserNum());

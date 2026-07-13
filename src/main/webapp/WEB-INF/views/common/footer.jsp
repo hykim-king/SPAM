@@ -27,9 +27,13 @@
 
         <div class="footer-column">
             <strong>고객센터</strong>
-            <a href="${CP}/report/doRetrieve.do">신고 문의</a>
+            <a href="${CP}/report/doRetrieve.do"
+               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+               data-login-url="${CP}/user/login.do">신고 문의</a>
             <a href="${CP}/service/info.do?tab=safe">이용 정책 안내</a>
-            <a href="${CP}/user/update.do#withdrawStartArea">회원 탈퇴</a>
+            <a href="${CP}/user/update.do#withdrawStartArea"
+               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+               data-login-url="${CP}/user/login.do">회원 탈퇴</a>
             <span class="footer-tel">문의: spam.team@example.com</span>
         </div>
 
@@ -47,7 +51,18 @@
         <div>
             <a href="${CP}/service/info.do?tab=terms">이용약관</a>
             <button type="button" class="footer-policy-button js-privacy-open">개인정보처리방침</button>
-            <a class="admin-link ${sessionScope.loginUser.userRole == '02' ? 'is-admin-login' : ''}" href="${CP}/admin/user/list.do">관리자</a>
+            <c:choose>
+                <c:when test="${empty sessionScope.loginUser}">
+                    <a class="admin-link" href="${CP}/admin/user/list.do"
+                       data-spam-modal="login" data-login-url="${CP}/user/login.do">관리자</a>
+                </c:when>
+                <c:when test="${sessionScope.loginUser.userRole == '02'}">
+                    <a class="admin-link is-admin-login" href="${CP}/admin/user/list.do">관리자</a>
+                </c:when>
+                <c:otherwise>
+                    <a class="admin-link" href="${CP}/admin/user/list.do" data-spam-modal="forbidden">관리자</a>
+                </c:otherwise>
+            </c:choose>
         </div>
     </div>
 
@@ -85,4 +100,7 @@
             </div>
         </section>
     </div>
+
 </footer>
+
+<jsp:include page="commonModal.jsp" />

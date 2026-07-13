@@ -41,9 +41,9 @@ public class ChatController {
 
 	@GetMapping("/view.do")
 	public String view(HttpSession session) {
-		// 비로그인 상태면 채팅 화면 대신 로그인 페이지로 이동
+		// 2026-07-13 [수정] 비로그인 상태면 공통 로그인 안내 모달으로 이동
 		if (getLoginUser(session) == null) {
-			return "redirect:/user/login.do";
+			return "redirect:/main.do?modal=login";
 		}
 		return "chat/chat_view";
 	}
