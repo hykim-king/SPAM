@@ -19,6 +19,13 @@
         JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO 
         ORDER BY T.CREATE_DT DESC
     </select>
+    
+    <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
+    SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME 
+    FROM TRANSACTIN_HIST T 
+    JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO 
+    WHERE T.PRODUCT_NO = #{productNo}
+</select>
 
     <update id="updateTxStatus" parameterType="map">
         UPDATE TRANSACTIN_HIST 
