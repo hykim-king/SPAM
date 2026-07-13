@@ -1,52 +1,62 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jstl/fmt_rt" %>
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>거래 내역</title>
-   <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/transact.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <title>관리자 전체 조회</title>
+    <style>
+        * { box-sizing: border-box; }
+        body, html { margin: 0; padding: 0; height: 100%; font-family: 'Noto Sans KR', sans-serif; background-color: #f4f5f7; }
+        ul { list-style: none; margin: 0; padding: 0; }
+        .admin-wrap { display: flex; min-height: 100vh; }
+        .sidebar { width: 220px; background-color: #ffffff; border-right: 1px solid #e2e8f0; flex-shrink: 0; }
+        .sidebar h2 { padding: 30px 20px; font-size: 18px; text-align: center; margin: 0; color: #1e293b; font-weight: 800; }
+        .main-content { flex-grow: 1; padding: 40px; }
+        .styled-table { width: 100%; border-collapse: collapse; background: white; }
+        .styled-table th, .styled-table td { padding: 12px 15px; border-bottom: 1px solid #e2e8f0; text-align: center; }
+        .styled-table th { background-color: #f8fafc; }
+    </style>
 </head>
 <body>
-<div class="container">
-    <div class="tabs">
-        <a href="list.do?tab=product" class="${currentTab == 'product' ? 'active' : ''}">구매 내역</a>
-        <a href="list.do?tab=sale" class="${currentTab == 'sale' ? 'active' : ''}">판매 내역</a>
-    </div>
 
-    <table class="styled-table">
-        <thead>
-            <tr>
-                <th>상품</th>
-                <th>${currentTab == 'product' ? '판매자' : '구매자'}</th>
-                <th>금액</th>
-                <th>상태</th>
-                <th>상세</th>
-            </tr>
-        </thead>
-        <tbody>
-            <c:forEach var="vo" items="${list}">
-                <tr id="row_${vo.txId}">
-                    <td>${vo.productName}</td>
-                    <td>${vo.partnerName}</td>
-                    <td><fmt:formatNumber value="${vo.amount}" pattern="#,###" />원</td>
-                    <td id="status_${vo.txId}">
-                        ${vo.txStatus == '01' ? '판매중' : (vo.txStatus == '02' ? '예약중' : '판매완료')}
-                    </td>
-                    <td>
-                        <button type="button" class="detailBtn" 
-                                data-id="${vo.txId}" 
-                                data-product="${vo.productName}" 
-                                data-amount="${vo.amount}" 
-                                data-status="${vo.txStatus}"
-                                data-seller="${vo.sellerNo}">상세</button>
-                    </td>
-                </tr>
-            </c:forEach>
-        </tbody>
-    </table>
+<div class="admin-wrap">
+    <div class="sidebar">
+        <h2>관리자 페이지</h2>
+    </div>
+    <div class="main-content">
+        <h2 class="title">전체 상품 현황</h2>
+        <div class="table-container">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40%;">상품명</th>
+                        <th style="width: 20%;">판매자 번호</th>
+                        <th style="width: 20%;">가격</th>
+                        <th style="width: 10%;">상태</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <c:forEach var="vo" items="${list}">
+                        <tr>
+                            <td style="text-align: left; padding-left: 20px;">${vo.productTitle}</td>
+                            <td>${vo.userNum}</td>
+                            <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
+                            <td>
+                                <c:choose>
+                                    <c:when test="${vo.status == '01'}">판매중</c:when>
+                                    <c:when test="${vo.status == '02'}">거래완료</c:when>
+                                    <c:otherwise>기타</c:otherwise>
+                                </c:choose>
+                            </td>
+                        </tr>
+                    </c:forEach>
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+
 </body>
 </html>

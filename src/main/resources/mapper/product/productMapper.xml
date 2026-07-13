@@ -4,234 +4,252 @@
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.pcwk.ehr.product.mapper.ProductMapper">
 
-    <resultMap id="productResultMap" type="ProductVO">
-        <id property="productNo" column="PRODUCT_NO" />
-        <result property="userNum" column="USER_NUM" />
-        <result property="categoryNo" column="CATEGORY_NO" />
-        <result property="productTitle" column="PRODUCT_TITLE" />
-        <result property="productContent" column="PRODUCT_CONTENT" />
-        <result property="productCondition" column="PRODUCT_CONDITION" />
-        <result property="price" column="PRICE" />
-        <result property="location" column="LOCATION" />
-        <result property="status" column="STATUS" />
-        <result property="adminHideYn" column="ADMIN_HIDE_YN" />
-        <result property="hideReason" column="HIDE_REASON" />
-        <result property="viewCount" column="VIEW_COUNT" />
-        <result property="createDt" column="CREATE_DT_TEXT" />
-        <result property="modifyDt" column="MODIFY_DT_TEXT" />
-        <result property="likeCnt" column="LIKE_CNT" />
-        <result property="chatCnt" column="CHAT_CNT" />
-        <result property="thumbnailPath" column="THUMBNAIL_PATH" />
-        <result property="largeName" column="LARGE_NAME" />
-        <result property="middleName" column="MIDDLE_NAME" />
-        <result property="smallName" column="SMALL_NAME" />
-    </resultMap>
+	<resultMap id="productResultMap" type="ProductVO">
+		<id property="productNo" column="PRODUCT_NO" />
+		<result property="userNum" column="USER_NUM" />
+		<result property="categoryNo" column="CATEGORY_NO" />
+		<result property="productTitle" column="PRODUCT_TITLE" />
+		<result property="productContent" column="PRODUCT_CONTENT" />
+		<result property="productCondition" column="PRODUCT_CONDITION" />
+		<result property="price" column="PRICE" />
+		<result property="location" column="LOCATION" />
+		<result property="status" column="STATUS" />
+		<result property="adminHideYn" column="ADMIN_HIDE_YN" />
+		<result property="hideReason" column="HIDE_REASON" />
+		<result property="viewCount" column="VIEW_COUNT" />
+		<result property="createDt" column="CREATE_DT_TEXT" />
+		<result property="modifyDt" column="MODIFY_DT_TEXT" />
+		<result property="likeCnt" column="LIKE_CNT" />
+		<result property="chatCnt" column="CHAT_CNT" />
+		<result property="thumbnailPath" column="THUMBNAIL_PATH" />
+		<result property="largeName" column="LARGE_NAME" />
+		<result property="middleName" column="MIDDLE_NAME" />
+		<result property="smallName" column="SMALL_NAME" />
+	</resultMap>
 
-    <sql id="categoryJoins">
-        LEFT JOIN CATEGORY c3 ON p.CATEGORY_NO = c3.CATEGORY_NO
-        LEFT JOIN CATEGORY c2 ON c3.PARENT_CATEGORY_NO = c2.CATEGORY_NO
-        LEFT JOIN CATEGORY c1 ON c2.PARENT_CATEGORY_NO = c1.CATEGORY_NO
-    </sql>
+	<sql id="categoryJoins">
+		LEFT JOIN CATEGORY c3 ON p.CATEGORY_NO = c3.CATEGORY_NO
+		LEFT JOIN CATEGORY c2 ON c3.PARENT_CATEGORY_NO = c2.CATEGORY_NO
+		LEFT JOIN CATEGORY c1 ON c2.PARENT_CATEGORY_NO = c1.CATEGORY_NO
+	</sql>
 
-    <sql id="searchWhere">
-        WHERE p.ADMIN_HIDE_YN = 'N'
-        <if test="userNum != null">
-            AND p.USER_NUM = #{userNum}
-        </if>
-        <if test="categoryNo != null and categoryNo &gt; 0">
-            AND p.CATEGORY_NO IN (
-                SELECT CATEGORY_NO
-                  FROM CATEGORY
-                 START WITH CATEGORY_NO = #{categoryNo}
-                        AND USE_YN = 'Y'
-               CONNECT BY PRIOR CATEGORY_NO = PARENT_CATEGORY_NO
-                        AND USE_YN = 'Y'
-            )
-        </if>
-        <if test="searchWord != null and searchWord != ''">
-            AND (
-                   p.PRODUCT_TITLE LIKE '%' || #{searchWord} || '%'
-                OR p.PRODUCT_CONTENT LIKE '%' || #{searchWord} || '%'
-                OR p.LOCATION LIKE '%' || #{searchWord} || '%'
-                OR c1.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
-                OR c2.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
-                OR c3.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
-            )
-        </if>
-        <if test="location != null and location != ''">
-            AND p.LOCATION LIKE '%' || #{location} || '%'
-        </if>
-        <if test="status != null and status != ''">
-            AND p.STATUS = #{status}
-        </if>
-        <choose>
-            <when test="priceRange == 'under30000'">
-                AND p.PRICE &lt;= 30000
-            </when>
-            <when test="priceRange == '30000to100000'">
-                AND p.PRICE &gt; 30000 AND p.PRICE &lt;= 100000
-            </when>
-            <when test="priceRange == '100000to300000'">
-                AND p.PRICE &gt; 100000 AND p.PRICE &lt;= 300000
-            </when>
-            <when test="priceRange == 'over300000'">
-                AND p.PRICE &gt; 300000
-            </when>
-        </choose>
-    </sql>
+	<sql id="searchWhere">
+		WHERE p.ADMIN_HIDE_YN = 'N'
+		<if test="userNum != null">
+			AND p.USER_NUM = #{userNum}
+		</if>
+		<if test="categoryNo != null and categoryNo &gt; 0">
+			AND p.CATEGORY_NO IN (
+			SELECT CATEGORY_NO
+			FROM CATEGORY
+			START WITH CATEGORY_NO = #{categoryNo}
+			AND USE_YN = 'Y'
+			CONNECT BY PRIOR CATEGORY_NO = PARENT_CATEGORY_NO
+			AND USE_YN = 'Y'
+			)
+		</if>
+		<if test="searchWord != null and searchWord != ''">
+			AND (
+			p.PRODUCT_TITLE LIKE '%' || #{searchWord} || '%'
+			OR p.PRODUCT_CONTENT LIKE '%' || #{searchWord} || '%'
+			OR p.LOCATION LIKE '%' || #{searchWord} || '%'
+			OR c1.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
+			OR c2.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
+			OR c3.CATEGORY_NAME LIKE '%' || #{searchWord} || '%'
+			)
+		</if>
+		<if test="location != null and location != ''">
+			AND p.LOCATION LIKE '%' || #{location} || '%'
+		</if>
+		<if test="status != null and status != ''">
+			AND p.STATUS = #{status}
+		</if>
+		<choose>
+			<when test="priceRange == 'under30000'">
+				AND p.PRICE &lt;= 30000
+			</when>
+			<when test="priceRange == '30000to100000'">
+				AND p.PRICE &gt; 30000 AND p.PRICE &lt;= 100000
+			</when>
+			<when test="priceRange == '100000to300000'">
+				AND p.PRICE &gt; 100000 AND p.PRICE &lt;= 300000
+			</when>
+			<when test="priceRange == 'over300000'">
+				AND p.PRICE &gt; 300000
+			</when>
+		</choose>
+	</sql>
 
-    <sql id="sortOrder">
-        <choose>
-            <when test="sort == 'priceLow'">ORDER BY p.PRICE ASC, p.CREATE_DT DESC</when>
-            <when test="sort == 'priceHigh'">ORDER BY p.PRICE DESC, p.CREATE_DT DESC</when>
-            <when test="sort == 'view'">ORDER BY p.VIEW_COUNT DESC, p.CREATE_DT DESC</when>
-            <when test="sort == 'popular'">ORDER BY p.VIEW_COUNT DESC, p.LIKE_CNT DESC, p.CHAT_CNT DESC, p.CREATE_DT DESC</when>
-            <when test="sort == 'recommend'">ORDER BY (p.LIKE_CNT * 3 + p.CHAT_CNT * 2 + p.VIEW_COUNT) DESC, p.CREATE_DT DESC</when>
-            <otherwise>ORDER BY p.CREATE_DT DESC, p.PRODUCT_NO DESC</otherwise>
-        </choose>
-    </sql>
+	<sql id="sortOrder">
+		<choose>
+			<when test="sort == 'priceLow'">ORDER BY p.PRICE ASC, p.CREATE_DT DESC</when>
+			<when test="sort == 'priceHigh'">ORDER BY p.PRICE DESC, p.CREATE_DT DESC</when>
+			<when test="sort == 'view'">ORDER BY p.VIEW_COUNT DESC, p.CREATE_DT DESC</when>
+			<when test="sort == 'popular'">ORDER BY p.VIEW_COUNT DESC, p.LIKE_CNT DESC,
+				p.CHAT_CNT DESC, p.CREATE_DT DESC</when>
+			<when test="sort == 'recommend'">ORDER BY (p.LIKE_CNT * 3 + p.CHAT_CNT * 2 +
+				p.VIEW_COUNT) DESC, p.CREATE_DT DESC</when>
+			<otherwise>ORDER BY p.CREATE_DT DESC, p.PRODUCT_NO DESC</otherwise>
+		</choose>
+	</sql>
 
-    <insert id="doInsert" parameterType="ProductVO">
-        <selectKey keyProperty="productNo" resultType="int" order="BEFORE">
-            SELECT SEQ_PRODUCT.NEXTVAL FROM DUAL
-        </selectKey>
-        INSERT INTO PRODUCT (
-            PRODUCT_NO, USER_NUM, CATEGORY_NO, PRODUCT_TITLE, PRODUCT_CONTENT,
-            PRODUCT_CONDITION, PRICE, LOCATION, STATUS, ADMIN_HIDE_YN
-        ) VALUES (
-            #{productNo}, #{userNum}, #{categoryNo}, #{productTitle}, #{productContent},
-            #{productCondition}, #{price}, #{location}, #{status}, 'N'
-        )
-    </insert>
+	<insert id="doInsert" parameterType="ProductVO">
+		<selectKey keyProperty="productNo" resultType="int"
+			order="BEFORE">
+			SELECT SEQ_PRODUCT.NEXTVAL FROM DUAL
+		</selectKey>
+		INSERT INTO PRODUCT (
+		PRODUCT_NO, USER_NUM, CATEGORY_NO, PRODUCT_TITLE, PRODUCT_CONTENT,
+		PRODUCT_CONDITION, PRICE, LOCATION, STATUS, ADMIN_HIDE_YN
+		) VALUES (
+		#{productNo}, #{userNum}, #{categoryNo}, #{productTitle}, #{productContent},
+		#{productCondition}, #{price}, #{location}, #{status}, 'N'
+		)
+	</insert>
 
-    <update id="doUpdate" parameterType="ProductVO">
-        UPDATE PRODUCT
-           SET CATEGORY_NO       = #{categoryNo},
-               PRODUCT_TITLE    = #{productTitle},
-               PRODUCT_CONTENT  = #{productContent},
-               PRODUCT_CONDITION = #{productCondition},
-               PRICE            = #{price},
-               LOCATION         = #{location},
-               STATUS           = #{status},
-               MODIFY_DT        = SYSDATE
-         WHERE PRODUCT_NO = #{productNo}
-           AND USER_NUM = #{userNum}
-    </update>
+	<update id="doUpdate" parameterType="ProductVO">
+		UPDATE PRODUCT
+		SET CATEGORY_NO = #{categoryNo},
+		PRODUCT_TITLE = #{productTitle},
+		PRODUCT_CONTENT = #{productContent},
+		PRODUCT_CONDITION = #{productCondition},
+		PRICE = #{price},
+		LOCATION = #{location},
+		STATUS = #{status},
+		MODIFY_DT = SYSDATE
+		WHERE PRODUCT_NO = #{productNo}
+		AND USER_NUM = #{userNum}
+	</update>
 
-    <delete id="doDelete" parameterType="ProductVO">
-        DELETE FROM PRODUCT
-         WHERE PRODUCT_NO = #{productNo}
-           AND USER_NUM = #{userNum}
-    </delete>
+	<delete id="doDelete" parameterType="ProductVO">
+		DELETE FROM PRODUCT
+		WHERE PRODUCT_NO = #{productNo}
+		AND USER_NUM = #{userNum}
+	</delete>
 
-    <select id="doSelectOne" parameterType="ProductVO" resultMap="productResultMap">
-        SELECT p.PRODUCT_NO,
-               p.USER_NUM,
-               p.CATEGORY_NO,
-               p.PRODUCT_TITLE,
-               p.PRODUCT_CONTENT,
-               p.PRODUCT_CONDITION,
-               p.PRICE,
-               p.LOCATION,
-               p.STATUS,
-               p.ADMIN_HIDE_YN,
-               p.HIDE_REASON,
-               p.VIEW_COUNT,
-               TO_CHAR(p.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT_TEXT,
-               TO_CHAR(p.MODIFY_DT, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DT_TEXT,
-               p.LIKE_CNT,
-               p.CHAT_CNT,
-               c1.CATEGORY_NAME AS LARGE_NAME,
-               c2.CATEGORY_NAME AS MIDDLE_NAME,
-               c3.CATEGORY_NAME AS SMALL_NAME
-          FROM PRODUCT p
-          <include refid="categoryJoins" />
-         WHERE p.PRODUCT_NO = #{productNo}
-           AND p.ADMIN_HIDE_YN = 'N'
-    </select>
+	<select id="doSelectOne" parameterType="ProductVO"
+		resultMap="productResultMap">
+		SELECT p.PRODUCT_NO,
+		p.USER_NUM,
+		p.CATEGORY_NO,
+		p.PRODUCT_TITLE,
+		p.PRODUCT_CONTENT,
+		p.PRODUCT_CONDITION,
+		p.PRICE,
+		p.LOCATION,
+		p.STATUS,
+		p.ADMIN_HIDE_YN,
+		p.HIDE_REASON,
+		p.VIEW_COUNT,
+		TO_CHAR(p.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT_TEXT,
+		TO_CHAR(p.MODIFY_DT, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DT_TEXT,
+		p.LIKE_CNT,
+		p.CHAT_CNT,
+		c1.CATEGORY_NAME AS LARGE_NAME,
+		c2.CATEGORY_NAME AS MIDDLE_NAME,
+		c3.CATEGORY_NAME AS SMALL_NAME
+		FROM PRODUCT p
+		<include refid="categoryJoins" />
+		WHERE p.PRODUCT_NO = #{productNo}
+		AND p.ADMIN_HIDE_YN = 'N'
+	</select>
 
-    <select id="doRetrieve" parameterType="ProductSearchDTO" resultMap="productResultMap">
-        SELECT *
-          FROM (
-                SELECT PRODUCT_ROWS.*, ROWNUM AS RN
-                  FROM (
-                        SELECT p.PRODUCT_NO,
-                               p.USER_NUM,
-                               p.CATEGORY_NO,
-                               p.PRODUCT_TITLE,
-                               p.PRODUCT_CONTENT,
-                               p.PRODUCT_CONDITION,
-                               p.PRICE,
-                               p.LOCATION,
-                               p.STATUS,
-                               p.ADMIN_HIDE_YN,
-                               p.HIDE_REASON,
-                               p.VIEW_COUNT,
-                               TO_CHAR(p.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT_TEXT,
-                               TO_CHAR(p.MODIFY_DT, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DT_TEXT,
-                               p.LIKE_CNT,
-                               p.CHAT_CNT,
-                               img.FILE_PATH AS THUMBNAIL_PATH,
-                               c1.CATEGORY_NAME AS LARGE_NAME,
-                               c2.CATEGORY_NAME AS MIDDLE_NAME,
-                               c3.CATEGORY_NAME AS SMALL_NAME
-                          FROM PRODUCT p
-                          <include refid="categoryJoins" />
-                          LEFT JOIN (
-                              SELECT PRODUCT_NO, FILE_PATH
-                                FROM (
-                                      SELECT pi.PRODUCT_NO,
-                                             pi.FILE_PATH,
-                                             ROW_NUMBER() OVER (
-                                                 PARTITION BY pi.PRODUCT_NO
-                                                 ORDER BY CASE WHEN pi.THUMBNAIL_YN = 'Y' THEN 0 ELSE 1 END,
-                                                          pi.IMAGE_ORDER,
-                                                          pi.IMAGE_NO
-                                             ) AS IMAGE_RN
-                                        FROM PRODUCT_IMAGE pi
-                                     )
-                               WHERE IMAGE_RN = 1
-                          ) img ON p.PRODUCT_NO = img.PRODUCT_NO
-                          <include refid="searchWhere" />
-                          <include refid="sortOrder" />
-                       ) PRODUCT_ROWS
-                 WHERE ROWNUM &lt;= #{endRow}
-               )
-         WHERE RN &gt;= #{startRow}
-    </select>
+	<select id="doRetrieve" parameterType="ProductSearchDTO"
+		resultMap="productResultMap">
+		SELECT *
+		FROM (
+		SELECT PRODUCT_ROWS.*, ROWNUM AS RN
+		FROM (
+		SELECT p.PRODUCT_NO,
+		p.USER_NUM,
+		p.CATEGORY_NO,
+		p.PRODUCT_TITLE,
+		p.PRODUCT_CONTENT,
+		p.PRODUCT_CONDITION,
+		p.PRICE,
+		p.LOCATION,
+		p.STATUS,
+		p.ADMIN_HIDE_YN,
+		p.HIDE_REASON,
+		p.VIEW_COUNT,
+		TO_CHAR(p.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT_TEXT,
+		TO_CHAR(p.MODIFY_DT, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DT_TEXT,
+		p.LIKE_CNT,
+		p.CHAT_CNT,
+		img.FILE_PATH AS THUMBNAIL_PATH,
+		c1.CATEGORY_NAME AS LARGE_NAME,
+		c2.CATEGORY_NAME AS MIDDLE_NAME,
+		c3.CATEGORY_NAME AS SMALL_NAME
+		FROM PRODUCT p
+		<include refid="categoryJoins" />
+		LEFT JOIN (
+		SELECT PRODUCT_NO, FILE_PATH
+		FROM (
+		SELECT pi.PRODUCT_NO,
+		pi.FILE_PATH,
+		ROW_NUMBER() OVER (
+		PARTITION BY pi.PRODUCT_NO
+		ORDER BY CASE WHEN pi.THUMBNAIL_YN = 'Y' THEN 0 ELSE 1 END,
+		pi.IMAGE_ORDER,
+		pi.IMAGE_NO
+		) AS IMAGE_RN
+		FROM PRODUCT_IMAGE pi
+		)
+		WHERE IMAGE_RN = 1
+		) img ON p.PRODUCT_NO = img.PRODUCT_NO
+		<include refid="searchWhere" />
+		<include refid="sortOrder" />
+		) PRODUCT_ROWS
+		WHERE ROWNUM &lt;= #{endRow}
+		)
+		WHERE RN &gt;= #{startRow}
+	</select>
 
-    <select id="totalCnt" parameterType="ProductSearchDTO" resultType="int">
-        SELECT COUNT(*)
-          FROM PRODUCT p
-          <include refid="categoryJoins" />
-          <include refid="searchWhere" />
-    </select>
+	<select id="totalCnt" parameterType="ProductSearchDTO"
+		resultType="int">
+		SELECT COUNT(*)
+		FROM PRODUCT p
+		<include refid="categoryJoins" />
+		<include refid="searchWhere" />
+	</select>
 
-    <update id="updateViewCount" parameterType="ProductVO">
-        UPDATE PRODUCT
-           SET VIEW_COUNT = VIEW_COUNT + 1
-         WHERE PRODUCT_NO = #{productNo}
-    </update>
+	<select id="doRetrieveAll"
+		resultType="com.pcwk.ehr.product.domain.ProductVO">
+		SELECT PRODUCT_NO,
+		PRODUCT_TITLE,
+		PRICE,
+		STATUS,
+		TO_CHAR(CREATE_DT, 'YYYY-MM-DD') AS CREATE_DT_TEXT
+		FROM PRODUCT
+		ORDER BY CREATE_DT DESC
+	</select>
 
-    <update id="updateStatus" parameterType="ProductVO">
-        UPDATE PRODUCT
-           SET STATUS = #{status},
-               MODIFY_DT = SYSDATE
-         WHERE PRODUCT_NO = #{productNo}
-           AND USER_NUM = #{userNum}
-    </update>
 
-    <update id="plusChatCnt" parameterType="ProductVO">
-        UPDATE PRODUCT
-           SET CHAT_CNT = CHAT_CNT + 1
-         WHERE PRODUCT_NO = #{productNo}
-    </update>
+	<update id="updateViewCount" parameterType="ProductVO">
+		UPDATE PRODUCT
+		SET VIEW_COUNT = VIEW_COUNT + 1
+		WHERE PRODUCT_NO = #{productNo}
+	</update>
 
-    <update id="minusChatCnt" parameterType="ProductVO">
-        UPDATE PRODUCT
-           SET CHAT_CNT = CHAT_CNT - 1
-         WHERE PRODUCT_NO = #{productNo}
-           AND CHAT_CNT &gt; 0
-    </update>
+	<update id="updateStatus" parameterType="ProductVO">
+		UPDATE PRODUCT
+		SET STATUS = #{status},
+		MODIFY_DT = SYSDATE
+		WHERE PRODUCT_NO = #{productNo}
+		AND USER_NUM = #{userNum}
+	</update>
+
+	<update id="plusChatCnt" parameterType="ProductVO">
+		UPDATE PRODUCT
+		SET CHAT_CNT = CHAT_CNT + 1
+		WHERE PRODUCT_NO = #{productNo}
+	</update>
+
+	<update id="minusChatCnt" parameterType="ProductVO">
+		UPDATE PRODUCT
+		SET CHAT_CNT = CHAT_CNT - 1
+		WHERE PRODUCT_NO = #{productNo}
+		AND CHAT_CNT &gt; 0
+	</update>
 
 </mapper>

@@ -1,60 +1,34 @@
 package com.pcwk.ehr.transact.controller;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import javax.servlet.http.HttpSession;
-import org.springframework.beans.factory.annotation.Autowired; // 추가
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import com.pcwk.ehr.transact.domain.TransactHistVO;
-import com.pcwk.ehr.transact.mapper.TransactHistMapper; // 추가
+
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.transact.service.TransactService;
 
 @Controller
 @RequestMapping("/transact")
 public class TransactController {
 
-    @Autowired // 이 부분이 없으면 transactMapper가 null이라서 에러가 납니다.
-    private TransactHistMapper transactMapper;
+    @Autowired
+    private TransactService transactService;
 
+    // 상품 전체 목록을 조회하여 화면에 전달
     @GetMapping("/list.do")
-    public String list(@RequestParam(value = "type", defaultValue = "purchase") String type,
-                       HttpSession session, Model model) {
+    public String list(Model model) {
         
-        Long userNum = (Long) session.getAttribute("loginUserNo");
+        // 서비스의 getAllProducts() 메서드를 호출하여 상품 리스트를 가져옴
+        List<ProductVO> list = transactService.getAllProducts();
         
-        if (userNum == null) {
-            return "redirect:/user/login.do";
-        }
-        
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("userNum", userNum);
-        paramMap.put("type", type);
-        
-        List<TransactHistVO> list = transactMapper.selectListByUser(paramMap);
-        
+        // 모델에 담아서 JSP 페이지로 전달
         model.addAttribute("list", list);
-        model.addAttribute("type", type);
         
+        // 이동할 JSP 페이지 경로 (프로젝트 설정에 맞게 수정 필요)
         return "transact/transact_list";
-    }
-
-    @RequestMapping(value = "/updateTxStatus.do", method = RequestMethod.POST)
-    @ResponseBody
-    public String updateTxStatus(@RequestParam("txId") long txId, 
-                                 @RequestParam("status") String status) {
-        
-        Map<String, Object> paramMap = new HashMap<>();
-        paramMap.put("txId", txId);
-        paramMap.put("status", status);
-        
-        int result = transactMapper.updateTxStatus(paramMap);
-        
-        return (result > 0) ? "success" : "fail";
     }
 }
