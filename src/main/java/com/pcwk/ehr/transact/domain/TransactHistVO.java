@@ -71,6 +71,6 @@ public class TransactHistVO implements Serializable {
     public String toString() {
         return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo 
                 + ", receiverNo=" + receiverNo + ", txType=" + txType + ", amount=" + amount 
-                + ", txStatus=" + txStatus + ", createDt=" + createDt + "]";
+                + ", txStatus=" + txStatus + "]";
     }
 }

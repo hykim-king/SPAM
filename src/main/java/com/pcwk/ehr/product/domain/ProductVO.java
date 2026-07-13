@@ -19,6 +19,7 @@ public class ProductVO implements Serializable {
     private String status;
     private String adminHideYn;
     private String hideReason;
+    private String sellerId; //추가
     private int viewCount;
     private String createDt;
     private String modifyDt;
@@ -121,7 +122,11 @@ public class ProductVO implements Serializable {
     public String getHideReason() {
         return hideReason;
     }
-
+    
+    public String getSellerId() { 
+    	return sellerId; 
+    }//추가
+   
     public void setHideReason(String hideReason) {
         this.hideReason = hideReason;
     }
@@ -141,7 +146,11 @@ public class ProductVO implements Serializable {
     public void setCreateDt(String createDt) {
         this.createDt = createDt;
     }
-
+    
+    public void setSellerId(String sellerId) { 
+    	this.sellerId = sellerId; 
+    }//추가
+    
     public String getModifyDt() {
         return modifyDt;
     }
@@ -210,6 +219,7 @@ public class ProductVO implements Serializable {
     public String toString() {
         return "ProductVO [productNo=" + productNo + ", userNum=" + userNum + ", categoryNo=" + categoryNo
                 + ", productTitle=" + productTitle + ", price=" + price + ", location=" + location
-                + ", status=" + status + ", viewCount=" + viewCount + ", createDt=" + createDt + "]";
+                + ", status=" + status + ", viewCount=" + viewCount + ", createDt=" + createDt 
+                + ", sellerId=" + sellerId + "]"; // sellerId 추가됨
     }
 }

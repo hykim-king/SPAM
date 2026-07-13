@@ -32,8 +32,7 @@
                 <thead>
                     <tr>
                         <th style="width: 40%;">상품명</th>
-                        <th style="width: 20%;">판매자 번호</th>
-                        <th style="width: 20%;">가격</th>
+                        <th style="width: 20%;">판매자 아이디</th> <th style="width: 20%;">가격</th>
                         <th style="width: 10%;">상태</th>
                     </tr>
                 </thead>
@@ -41,8 +40,7 @@
                     <c:forEach var="vo" items="${list}">
                         <tr>
                             <td style="text-align: left; padding-left: 20px;">${vo.productTitle}</td>
-                            <td>${vo.userNum}</td>
-                            <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
+                            <td>${vo.sellerId}</td> <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
                             <td>
                                 <c:choose>
                                     <c:when test="${vo.status == '01'}">판매중</c:when>
