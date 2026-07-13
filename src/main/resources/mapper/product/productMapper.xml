@@ -61,9 +61,15 @@
         <if test="location != null and location != ''">
             AND p.LOCATION LIKE '%' || #{location} || '%'
         </if>
-        <if test="status != null and status != ''">
-            AND p.STATUS = #{status}
-        </if>
+        <!-- 2026-07-13 [수정] 마이페이지 기본 전체는 판매중(01)과 예약중(02)만 조회한다. -->
+        <choose>
+            <when test="status == 'ACTIVE'">
+                AND p.STATUS IN ('01', '02')
+            </when>
+            <when test="status != null and status != ''">
+                AND p.STATUS = #{status}
+            </when>
+        </choose>
         <choose>
             <when test="priceRange == 'under30000'">
                 AND p.PRICE &lt;= 30000

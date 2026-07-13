@@ -47,4 +47,9 @@
 		<filter-name>encodingFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
+
+	<!-- 2026-07-13 [추가] 컨텍스트 루트 접속 시 index.jsp를 시작 페이지로 사용한다. -->
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
 </web-app>

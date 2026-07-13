@@ -1,5 +1,7 @@
 package com.pcwk.ehr.user.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.pcwk.ehr.product.domain.ProductSearchDTO;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 import com.pcwk.ehr.user.domain.UserVO;
 import com.pcwk.ehr.user.service.UserService;
 
@@ -33,6 +38,10 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+
+    // 2026-07-13 [추가] 마이페이지에서 로그인 회원의 상품을 함께 조회한다.
+    @Autowired
+    private ProductService productService;
 
     /**
      * 회원가입 화면 이동
@@ -146,7 +155,9 @@ public class UserController {
      * 요청 URL: GET /user/mypage.do
      */
     @GetMapping("/mypage.do")
-    public String mypage(HttpSession session, Model model) {
+    public String mypage(@ModelAttribute("search") ProductSearchDTO search,
+                         HttpSession session,
+                         Model model) {
         // 세션에서 로그인 회원을 꺼냄
         UserVO loginUser = getLoginUser(session);
 
@@ -158,7 +169,21 @@ public class UserController {
         // DB에서 최신 정보 재조회
         UserVO user = userService.getUser(loginUser.getUserNum());
 
+        // 2026-07-13 [추가] 왼쪽 내 정보와 오른쪽 내 상품을 한 화면에서 제공한다.
+        search.setUserNum(loginUser.getUserNum());
+        search.setPageNo(1);
+        search.setPageSize(100);
+
+        String status = search.getStatus();
+        if (!("01".equals(status) || "02".equals(status) || "03".equals(status))) {
+            // 기본 전체는 판매중과 예약중만 포함한다.
+            search.setStatus("ACTIVE");
+        }
+
+        List<ProductVO> myProductList = productService.doRetrieve(search);
+
         model.addAttribute("user", user);
+        model.addAttribute("list", myProductList);
 
         return "user/user_mypage";
     }

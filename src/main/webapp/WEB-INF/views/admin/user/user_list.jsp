@@ -30,6 +30,7 @@
         </header>
 
         <section class="panel stack">
+            <%-- 2026-07-13 [수정] 검색 조건과 목록 개수 select를 회원 상세와 같은 커스텀 UI로 표시한다. --%>
             <form class="search-box admin-filter-box" action="${CP}/admin/user/list.do" method="get">
                 <input type="hidden" name="pageNo" value="1">
 
@@ -120,27 +121,34 @@
                 </table>
             </div>
 
-            <div class="pagination">
-                <c:if test="${searchDTO.pageNo > 1}">
-                    <c:url var="prevUrl" value="/admin/user/list.do">
-                        <c:param name="pageNo" value="${searchDTO.pageNo - 1}" />
-                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
-                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
-                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
-                    </c:url>
-                    <a class="btn outline" href="${prevUrl}">이전</a>
-                </c:if>
+            <%-- 2026-07-13 [수정] 이전/현재/다음을 좌측·중앙·우측에 고정한다. --%>
+            <nav class="pagination admin-pagination" aria-label="회원 목록 페이지 이동">
+                <div class="admin-pagination-side admin-pagination-prev">
+                    <c:if test="${searchDTO.pageNo > 1}">
+                        <c:url var="prevUrl" value="/admin/user/list.do">
+                            <c:param name="pageNo" value="${searchDTO.pageNo - 1}" />
+                            <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                            <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                            <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                        </c:url>
+                        <a class="btn outline" href="${prevUrl}">이전</a>
+                    </c:if>
+                </div>
 
-                <c:if test="${searchDTO.pageNo * searchDTO.pageSize < totalCount}">
-                    <c:url var="nextUrl" value="/admin/user/list.do">
-                        <c:param name="pageNo" value="${searchDTO.pageNo + 1}" />
-                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
-                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
-                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
-                    </c:url>
-                    <a class="btn outline" href="${nextUrl}">다음</a>
-                </c:if>
-            </div>
+                <strong class="admin-pagination-current">${searchDTO.pageNo} / ${totalPage}</strong>
+
+                <div class="admin-pagination-side admin-pagination-next">
+                    <c:if test="${searchDTO.pageNo < totalPage}">
+                        <c:url var="nextUrl" value="/admin/user/list.do">
+                            <c:param name="pageNo" value="${searchDTO.pageNo + 1}" />
+                            <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                            <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                            <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                        </c:url>
+                        <a class="btn outline" href="${nextUrl}">다음</a>
+                    </c:if>
+                </div>
+            </nav>
         </section>
         </main>
 

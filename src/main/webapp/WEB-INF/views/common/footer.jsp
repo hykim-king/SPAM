@@ -36,7 +36,8 @@
         <div class="footer-column">
             <strong>회사 정보</strong>
             <span>TEAM SPAM</span>
-            <span>SELF PRODUCT AS MEETING</span>
+            <%-- 2026-07-13 [수정] 회사 영문 표기를 서비스 슬로건과 통일한다. --%>
+            <span>SELL PRODUCT AND MEETING</span>
             <span>중고거래 플랫폼 팀 프로젝트</span>
         </div>
     </div>

@@ -261,9 +261,22 @@ img {
 
 .hero-kicker {
     margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
     font-size: 16px;
     font-weight: 700;
     color: #333333;
+}
+
+/* 2026-07-13 [추가] 메인 배너 영문 슬로건을 두 번째 줄에 표시한다. */
+.hero-kicker-sub {
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #666666;
 }
 
 .hero-copy h1 {

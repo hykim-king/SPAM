@@ -105,19 +105,21 @@ public class ProductController {
         return "product/productUpdate";
     }
 
-    /** 로그인 회원이 등록한 상품 관리 목록. */
+    /**
+     * 2026-07-13 [수정] 내 상품 화면을 통합 마이페이지로 이동한다.
+     * 기존 URL을 사용하는 링크나 즐겨찾기가 깨지지 않도록 redirect는 유지한다.
+     */
     @GetMapping("/myList.do")
-    public String myList(@ModelAttribute("search") ProductSearchDTO search, HttpSession session, Model model) {
-        UserVO loginUser = getLoginUser(session);
-        if (loginUser == null) {
+    public String myList(@RequestParam(value = "status", required = false) String status, HttpSession session) {
+        if (getLoginUser(session) == null) {
             return "redirect:/user/login.do";
         }
 
-        search.setUserNum(loginUser.getUserNum());
-        search.setPageNo(1);
-        search.setPageSize(100);
-        model.addAttribute("list", productService.doRetrieve(search));
-        return "product/productMyList";
+        if ("01".equals(status) || "02".equals(status) || "03".equals(status)) {
+            return "redirect:/user/mypage.do?status=" + status;
+        }
+
+        return "redirect:/user/mypage.do";
     }
 
     /** 판매자 프로필과 판매 중인 상품 목록. */

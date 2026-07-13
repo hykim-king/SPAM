@@ -424,8 +424,9 @@
         });
     }
 
+    // 2026-07-13 [수정] 관리자 상세뿐 아니라 회원목록 검색 select에도 동일한 UI를 적용한다.
     function bindCustomSelects() {
-        document.querySelectorAll('.admin-change-form select.select').forEach(function (select) {
+        document.querySelectorAll('.admin-change-form select.select, .admin-filter-box select.select').forEach(function (select) {
             if (select.dataset.customized === 'true') return;
             select.dataset.customized = 'true';
             select.classList.add('is-custom-hidden');

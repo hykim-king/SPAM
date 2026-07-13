@@ -60,15 +60,23 @@ public class AdminUserController {
             return "redirect:/user/login.do";
         }
 
-        // 회원 목록 조회
-        List<UserVO> userList = userService.getUserList(searchDTO);
-
-        // 전체 회원 수 조회
+        // 2026-07-13 [수정] 전체 건수를 먼저 계산해 존재하지 않는 페이지 번호를 보정한다.
         int totalCount = userService.getUserTotalCount(searchDTO);
+        int totalPage = totalCount == 0
+                ? 1
+                : (int) Math.ceil(totalCount / (double) searchDTO.getPageSize());
+
+        if (searchDTO.getPageNo() > totalPage) {
+            searchDTO.setPageNo(totalPage);
+        }
+
+        // 페이지 번호 보정 후 회원 목록을 조회한다.
+        List<UserVO> userList = userService.getUserList(searchDTO);
 
         // 조회 결과 JSP로 전달
         model.addAttribute("userList", userList);
         model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPage", totalPage);
         model.addAttribute("searchDTO", searchDTO);
 
         return "admin/user/user_list";

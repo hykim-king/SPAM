@@ -1,6 +1,10 @@
 (function () {
     'use strict';
 
+    // 2026-07-13 [추가] 로그아웃 확인창과 같은 형태의 상품 공통 확인 팝업 상태.
+    var productConfirmModal = null;
+    var productConfirmState = null;
+
     function qs(selector, root) {
         return (root || document).querySelector(selector);
     }
@@ -259,6 +263,155 @@
         });
     }
 
+    function buildProductConfirmModal() {
+        if (productConfirmModal) return productConfirmModal;
+
+        productConfirmModal = document.createElement('div');
+        productConfirmModal.className = 'product-confirm-modal';
+        productConfirmModal.setAttribute('aria-hidden', 'true');
+        productConfirmModal.innerHTML = '' +
+            '<div class="product-confirm-backdrop" data-product-confirm-cancel="true"></div>' +
+            '<section class="product-confirm-card" role="dialog" aria-modal="true" aria-labelledby="productConfirmTitle">' +
+            '  <div class="product-confirm-icon">!</div>' +
+            '  <h2 id="productConfirmTitle">확인</h2>' +
+            '  <p class="product-confirm-message">진행하시겠습니까?</p>' +
+            '  <div class="product-confirm-actions">' +
+            '    <button type="button" class="product-confirm-cancel" data-product-confirm-cancel="true">취소</button>' +
+            '    <button type="button" class="product-confirm-ok">확인</button>' +
+            '  </div>' +
+            '</section>';
+
+        document.body.appendChild(productConfirmModal);
+
+        productConfirmModal.addEventListener('click', function (event) {
+            if (event.target.matches('[data-product-confirm-cancel]')) resolveProductConfirm(false);
+            if (event.target.classList.contains('product-confirm-ok')) resolveProductConfirm(true);
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && productConfirmModal.classList.contains('is-open')) {
+                resolveProductConfirm(false);
+            }
+        });
+
+        return productConfirmModal;
+    }
+
+    function resolveProductConfirm(result) {
+        if (!productConfirmState) return;
+
+        var resolver = productConfirmState.resolve;
+        productConfirmState = null;
+        productConfirmModal.classList.remove('is-open');
+        productConfirmModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('no-scroll');
+        resolver(result);
+    }
+
+    function productConfirm(options) {
+        var modal = buildProductConfirmModal();
+        options = options || {};
+        modal.querySelector('#productConfirmTitle').textContent = options.title || '확인';
+        modal.querySelector('.product-confirm-message').textContent = options.message || '진행하시겠습니까?';
+        modal.querySelector('.product-confirm-ok').textContent = options.okText || '확인';
+        modal.querySelector('.product-confirm-cancel').textContent = options.cancelText || '취소';
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('no-scroll');
+        modal.querySelector('.product-confirm-cancel').focus();
+
+        return new Promise(function (resolve) {
+            productConfirmState = { resolve: resolve };
+        });
+    }
+
+    // 2026-07-13 [추가] 상품 등록의 상태/카테고리 select를 커스텀 토글 UI로 변환한다.
+    function bindProductCustomSelects() {
+        qsa('.product-form-card select.product-form-select').forEach(function (select) {
+            if (select.dataset.customized === 'true') return;
+            select.dataset.customized = 'true';
+            select.classList.add('is-product-custom-hidden');
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'product-custom-select';
+
+            var current = document.createElement('button');
+            current.className = 'product-custom-select-current';
+            current.type = 'button';
+
+            var list = document.createElement('div');
+            list.className = 'product-custom-select-options';
+
+            function selectedText() {
+                return select.options[select.selectedIndex]
+                    ? select.options[select.selectedIndex].textContent
+                    : '선택';
+            }
+
+            function render() {
+                current.textContent = selectedText();
+                list.innerHTML = '';
+
+                Array.prototype.forEach.call(select.options, function (option) {
+                    var item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'product-custom-select-option';
+                    item.textContent = option.textContent;
+                    item.disabled = option.disabled;
+                    item.classList.toggle('is-selected', option.selected);
+                    item.addEventListener('click', function () {
+                        select.value = option.value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        wrapper.classList.remove('is-open');
+                        render();
+                    });
+                    list.appendChild(item);
+                });
+
+                wrapper.classList.toggle('is-disabled', select.disabled);
+                current.disabled = select.disabled;
+            }
+
+            current.addEventListener('click', function () {
+                if (select.disabled) return;
+                qsa('.product-custom-select.is-open').forEach(function (other) {
+                    if (other !== wrapper) other.classList.remove('is-open');
+                });
+                wrapper.classList.toggle('is-open');
+            });
+
+            select.addEventListener('change', render);
+
+            var observer = new MutationObserver(render);
+            observer.observe(select, { childList: true, subtree: true, attributes: true });
+
+            document.addEventListener('click', function (event) {
+                if (!wrapper.contains(event.target)) wrapper.classList.remove('is-open');
+            });
+
+            wrapper.appendChild(current);
+            wrapper.appendChild(list);
+            select.insertAdjacentElement('afterend', wrapper);
+            render();
+        });
+    }
+
+    function bindEditButton() {
+        var button = qs('.js-product-edit');
+        if (!button) return;
+
+        button.addEventListener('click', function () {
+            productConfirm({
+                title: '상품 수정',
+                message: '상품 설명을 수정하시겠습니까?',
+                okText: '수정하기'
+            }).then(function (ok) {
+                if (ok) window.location.href = button.getAttribute('data-update-url');
+            });
+        });
+    }
+
     function postForm(url, data) {
         var body = new FormData();
         Object.keys(data).forEach(function (key) {
@@ -305,19 +458,27 @@
                 if (button.classList.contains('is-active')) return;
 
                 var statusText = button.getAttribute('data-status-text') || '선택한 상태';
-                if (!window.confirm('거래 상태를 ' + statusText + '(으)로 변경하시겠습니까?')) return;
 
-                postForm(button.getAttribute('data-status-url'), {
-                    productNo: button.getAttribute('data-product-no'),
-                    status: button.getAttribute('data-status')
-                })
-                    .then(function (result) {
-                        if (String(result).trim() !== '1') throw new Error('상태 변경 실패');
-                        window.location.reload();
+                // 2026-07-13 [수정] 브라우저 기본 confirm 대신 공통 디자인 팝업을 사용한다.
+                productConfirm({
+                    title: '거래 상태 변경',
+                    message: '거래 상태를 ' + statusText + '(으)로 변경하시겠습니까?',
+                    okText: '변경하기'
+                }).then(function (ok) {
+                    if (!ok) return;
+
+                    postForm(button.getAttribute('data-status-url'), {
+                        productNo: button.getAttribute('data-product-no'),
+                        status: button.getAttribute('data-status')
                     })
-                    .catch(function () {
-                        alert('거래 상태 변경 중 오류가 발생했습니다.');
-                    });
+                        .then(function (result) {
+                            if (String(result).trim() !== '1') throw new Error('상태 변경 실패');
+                            window.location.reload();
+                        })
+                        .catch(function () {
+                            alert('거래 상태 변경 중 오류가 발생했습니다.');
+                        });
+                });
             });
         });
     }
@@ -357,9 +518,11 @@
         bindGallery();
         bindImagePreview();
         bindCategorySelects();
+        bindProductCustomSelects();
         bindProductFormValidation();
         bindDeleteButtons();
         bindStatusButtons();
+        bindEditButton();
         bindChatButton();
         renderProductDates();
     });
