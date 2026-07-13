@@ -19,7 +19,7 @@ public class ProductVO implements Serializable {
     private String status;
     private String adminHideYn;
     private String hideReason;
-    private String sellerId; //추가
+    private String userId; //추가
     private int viewCount;
     private String createDt;
     private String modifyDt;
@@ -123,8 +123,8 @@ public class ProductVO implements Serializable {
         return hideReason;
     }
     
-    public String getSellerId() { 
-    	return sellerId; 
+    public String getuserId() { 
+    	return userId; 
     }//추가
    
     public void setHideReason(String hideReason) {
@@ -147,8 +147,8 @@ public class ProductVO implements Serializable {
         this.createDt = createDt;
     }
     
-    public void setSellerId(String sellerId) { 
-    	this.sellerId = sellerId; 
+    public void setuserId(String userId) { 
+    	this.userId = userId; 
     }//추가
     
     public String getModifyDt() {
@@ -215,11 +215,16 @@ public class ProductVO implements Serializable {
         this.smallName = smallName;
     }
 
-    @Override
-    public String toString() {
-        return "ProductVO [productNo=" + productNo + ", userNum=" + userNum + ", categoryNo=" + categoryNo
-                + ", productTitle=" + productTitle + ", price=" + price + ", location=" + location
-                + ", status=" + status + ", viewCount=" + viewCount + ", createDt=" + createDt 
-                + ", sellerId=" + sellerId + "]"; // sellerId 추가됨
-    }
+	@Override
+	public String toString() {
+		return "ProductVO [productNo=" + productNo + ", userNum=" + userNum + ", categoryNo=" + categoryNo
+				+ ", productTitle=" + productTitle + ", productContent=" + productContent + ", productCondition="
+				+ productCondition + ", price=" + price + ", location=" + location + ", status=" + status
+				+ ", adminHideYn=" + adminHideYn + ", hideReason=" + hideReason + ", userId=" + userId + ", viewCount="
+				+ viewCount + ", createDt=" + createDt + ", modifyDt=" + modifyDt + ", likeCnt=" + likeCnt
+				+ ", chatCnt=" + chatCnt + ", thumbnailPath=" + thumbnailPath + ", imageList=" + imageList
+				+ ", largeName=" + largeName + ", middleName=" + middleName + ", smallName=" + smallName + "]";
+	}
+
+    
 }

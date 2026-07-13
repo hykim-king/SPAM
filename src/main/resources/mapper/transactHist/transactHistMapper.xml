@@ -20,20 +20,57 @@
         ORDER BY T.CREATE_DT DESC
     </select>
 
-   <select id="selectProductDetail" parameterType="long" resultType="com.pcwk.ehr.transact.domain.TransactHistVO">
-    SELECT 
-        PRODUCT_TITLE as PRODUCT_NAME,
-        STATUS as TX_STATUS,
-        PRICE as AMOUNT,
-        CREATE_DT as CREATE_DT
-    FROM PRODUCT
-    WHERE PRODUCT_NO = #{productNo}
-</select>
+    <select id="selectProductDetail" parameterType="long" resultType="com.pcwk.ehr.transact.domain.TransactHistVO">
+        SELECT 
+            PRODUCT_TITLE as PRODUCT_NAME,
+            STATUS as TX_STATUS,
+            PRICE as AMOUNT,
+            CREATE_DT as CREATE_DT
+        FROM PRODUCT
+        WHERE PRODUCT_NO = #{productNo}
+    </select>
 
     <update id="updateTxStatus" parameterType="map">
         UPDATE TRANSACTIN_HIST 
         SET TX_STATUS = #{status} 
         WHERE TX_ID = #{txId}
     </update>
+    
+    <select id="selectProductListPaged" parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO" resultType="com.pcwk.ehr.product.domain.ProductVO">
+    SELECT T1.* FROM (
+        SELECT ROWNUM AS RNUM, T2.* FROM (
+            SELECT P.PRODUCT_NO, P.PRODUCT_TITLE, U.USER_ID, P.PRICE, P.STATUS, P.CREATE_DT 
+            FROM PRODUCT P
+            LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
+            <where>
+                <if test="status != null and status != ''">
+                    AND P.STATUS = #{status}
+                </if>
+            </where>
+            ORDER BY P.CREATE_DT DESC
+        ) T2
+        WHERE ROWNUM &lt;= #{endRow}
+    ) T1
+    WHERE T1.RNUM >= #{startRow}
+</select>
 
+    <select id="totalCount" parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO" resultType="int">
+    SELECT COUNT(*) FROM PRODUCT
+    <where>
+        <if test="status != null and status != ''">
+            AND STATUS = #{status}
+        </if>
+    </where>
+</select>
+
+    <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
+    </insert>
+
+    <delete id="deleteTransact" parameterType="long">
+        DELETE FROM TRANSACTIN_HIST WHERE TX_ID = #{txId}
+    </delete>
+
+    <delete id="deleteAll">
+        DELETE FROM TRANSACTIN_HIST
+    </delete>
 </mapper>

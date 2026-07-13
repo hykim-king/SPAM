@@ -21,7 +21,7 @@ public class TransactHistVO implements Serializable {
     private Date createDt;      // 거래생성일
     private Date completeDt;    // 완료일
     private Date cancelDt;      // 취소일
-    
+    private String userId;
     // 조인용 필드 (화면 표시용)
     private String productName; 
     private String partnerName; 
@@ -66,11 +66,16 @@ public class TransactHistVO implements Serializable {
 
     public String getPartnerName() { return partnerName; }
     public void setPartnerName(String partnerName) { this.partnerName = partnerName; }
+    
+    public String getUserId() { return userId; }
+    public void setUserId(String userId) { this.userId = userId; }
 
-    @Override
-    public String toString() {
-        return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo 
-                + ", receiverNo=" + receiverNo + ", txType=" + txType + ", amount=" + amount 
-                + ", txStatus=" + txStatus + "]";
-    }
+	@Override
+	public String toString() {
+		return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo + ", receiverNo="
+				+ receiverNo + ", txType=" + txType + ", amount=" + amount + ", txStatus=" + txStatus + ", createDt="
+				+ createDt + ", completeDt=" + completeDt + ", cancelDt=" + cancelDt + ", userId=" + userId
+				+ ", productName=" + productName + ", partnerName=" + partnerName + "]";
+	}
+    
 }

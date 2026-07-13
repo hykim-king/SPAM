@@ -2,6 +2,7 @@ package com.pcwk.ehr.transact.service;
 
 import java.util.List;
 import com.pcwk.ehr.transact.domain.TransactHistVO;
+import com.pcwk.ehr.transact.domain.TransacHistSearchDTO;
 import com.pcwk.ehr.product.domain.ProductVO;
 
 public interface TransactService {
@@ -13,6 +14,9 @@ public interface TransactService {
     TransactHistVO selectByTxId(Long txId);
     TransactHistVO selectProductDetail(Long productNo);
     List<TransactHistVO> selectAllTransactList();
-    List<ProductVO> getAllProducts();
-    List<ProductVO> getAllProducts(String status);
+    
+    // [추가] 컨트롤러와 일치하는 메서드
+    List<ProductVO> selectProductListPaged(TransacHistSearchDTO dto);
+    int getTotalCount(TransacHistSearchDTO dto);
+	//int getTototalCnt(TransacHistSearchDTO dto);
 }
