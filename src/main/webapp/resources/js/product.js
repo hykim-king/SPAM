@@ -117,18 +117,38 @@
         var preview = qs('.js-product-upload-preview');
         if (!input || !preview) return;
 
+        // 선택한 파일들을 누적해서 저장할 배열
+        var selectedFiles = [];
+
         input.addEventListener('change', function () {
-            preview.innerHTML = '';
-            if ((input.files || []).length > 5) {
-                alert('상품 이미지는 최대 5장까지 선택할 수 있습니다.');
-                input.value = '';
-                return;
-            }
-            var files = Array.prototype.slice.call(input.files || []).slice(0, 5);
-
-            files.forEach(function (file, index) {
+            // 이번에 새로 고른 파일들을 누적 배열에 추가
+            Array.prototype.slice.call(input.files || []).forEach(function (file) {
+                // 이미지 아닌 건 제외
                 if (!file.type || file.type.indexOf('image/') !== 0) return;
+                selectedFiles.push(file);
+            });
 
+            // 5장 초과 검사
+            if (selectedFiles.length > 5) {
+                alert('상품 이미지는 최대 5장까지 선택할 수 있습니다.');
+                selectedFiles = selectedFiles.slice(0, 5);
+            }
+
+            // 누적 배열을 실제 input.files에 다시 세팅 (서버 전송용)
+            var dt = new DataTransfer();
+            selectedFiles.forEach(function (file) {
+                dt.items.add(file);
+            });
+            input.files = dt.files;
+
+            // 미리보기 다시 그리기
+            renderPreview();
+        });
+
+        // 미리보기 그리는 함수 (누적 배열 전체를 그림)
+        function renderPreview() {
+            preview.innerHTML = '';
+            selectedFiles.forEach(function (file, index) {
                 var reader = new FileReader();
                 reader.onload = function (event) {
                     var figure = document.createElement('figure');
@@ -145,7 +165,7 @@
                 };
                 reader.readAsDataURL(file);
             });
-        });
+        }
     }
 
     function option(label, value) {

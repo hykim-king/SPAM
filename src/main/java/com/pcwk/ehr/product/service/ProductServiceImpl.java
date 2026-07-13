@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
     private static final String STATUS_RESERVED = "02";
     private static final String STATUS_SOLD = "03";
     private static final int MAX_IMAGE_COUNT = 5;
-    private static final String UPLOAD_PATH = "D:\\SPAM\\Upload";
+    private static final String UPLOAD_PATH = "C:\\SPAM\\Upload";
 
     @Autowired
     private ProductMapper productMapper;
@@ -190,7 +190,7 @@ public class ProductServiceImpl implements ProductService {
             image.setProductNo(productNo);
             image.setOriginName(originName);
             image.setChangeName(changeName);
-            image.setFilePath("/upload/" + changeName);
+            image.setFilePath("/image/view.do?name=" + changeName);
             image.setImageOrder(order);
             image.setThumbnailYn(order == 1 ? "Y" : "N");
             productImageMapper.doInsert(image);

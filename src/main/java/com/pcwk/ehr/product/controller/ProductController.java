@@ -197,18 +197,6 @@ public class ProductController {
         return productService.updateStatus(product);
     }
 
-    @PostMapping("/plusChatCnt.do")
-    @ResponseBody
-    public int plusChatCnt(ProductVO product) {
-        return productService.plusChatCnt(product);
-    }
-
-    @PostMapping("/minusChatCnt.do")
-    @ResponseBody
-    public int minusChatCnt(ProductVO product) {
-        return productService.minusChatCnt(product);
-    }
-
     /** 기존 임시 URL과의 호환용 redirect. */
     @GetMapping("/reg.do")
     public String legacyReg() {

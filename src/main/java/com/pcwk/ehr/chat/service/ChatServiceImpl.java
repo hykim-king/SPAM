@@ -43,6 +43,7 @@ public class ChatServiceImpl implements ChatService {
 	    if(null == roomNo) {
 	        // 방 없음 -> 새로 생성
 	        int insertFlag = chatRoomMapper.insertRoom(param);
+	        
 	        if (insertFlag != 1) {
 	            throw new IllegalStateException("채팅방 생성에 실패했습니다.");
 	        }
@@ -159,6 +160,7 @@ public class ChatServiceImpl implements ChatService {
 			log.debug("deleteMessageByRoom flag: " + flag);
 			
 			flag = chatRoomMapper.deleteRoom(chatRoomNo);
+<<<<<<< HEAD
 			log.debug("deleteRoom flag: " + flag);
 			if (flag != 1) {
 				throw new IllegalStateException("채팅방 삭제에 실패했습니다.");
@@ -171,6 +173,13 @@ public class ChatServiceImpl implements ChatService {
 			if (chatCntFlag != 1) {
 				throw new IllegalStateException("상품 채팅 수 감소에 실패했습니다.");
 			}
+=======
+			log.debug("flag: "+ flag);
+			
+			ProductVO productParam = new ProductVO();
+			productParam.setProductNo(updated.getProductNo());
+			productService.minusChatCnt(productParam);
+>>>>>>> origin/feature/chat
 		}
 	}
 }
