@@ -8,13 +8,11 @@ import com.pcwk.ehr.transact.domain.TransactHistVO;
 @Mapper
 public interface TransactHistMapper {
     int insertTransact(TransactHistVO vo);
-    
-    // @Param 추가하여 파라미터 매핑 에러 해결
     int updateTxStatus(@Param("txId") long txId, @Param("status") String status);
-    
     int deleteTransact(Long txId);
     int deleteAll();
     int totalCount();
     TransactHistVO selectByTxId(Long txId);
+    TransactHistVO selectProductDetail(Long productNo);
     List<TransactHistVO> selectAllTransactList();
 }

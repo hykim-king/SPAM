@@ -20,9 +20,9 @@
         .styled-table th, .styled-table td { padding: 15px; border-bottom: 1px solid #e2e8f0; text-align: center; }
         .styled-table th { background-color: #f8fafc; color: #334155; }
         
-        /* 모달 스타일 */
-        .modal-bg { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; }
-        .modal-content { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:300px; background:white; padding:20px; border-radius:10px; box-shadow:0 4px 6px rgba(0,0,0,0.1); }
+        .modal-bg { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999; overflow-y: auto; }
+        .modal-content { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:350px; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 6px rgba(0,0,0,0.1); height:auto; max-height:90vh; }
+        .close-btn { display:block !important; width:100%; padding:12px; margin-top:20px; cursor:pointer; background:#e2e8f0; border:none; border-radius:5px; font-weight:bold; text-align:center; color:#000; }
     </style>
 </head>
 <body>
@@ -31,11 +31,12 @@
     <div class="sidebar"><h2>관리자 페이지</h2></div>
     <div class="main-content">
         <h2 class="title">전체 상품 현황</h2>
+        
         <div style="margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
             <a href="${pageContext.request.contextPath}/transact/list.do" class="filter-btn">전체</a>
             <a href="${pageContext.request.contextPath}/transact/list.do?status=01" class="filter-btn">판매중</a>
-            <a href="${pageContext.request.contextPath}/transact/list.do?status=02" class="filter-btn">거래완료</a>
-            <a href="${pageContext.request.contextPath}/transact/list.do?status=03" class="filter-btn">기타</a>
+            <a href="${pageContext.request.contextPath}/transact/list.do?status=02" class="filter-btn">판매완료</a>
+            <a href="${pageContext.request.contextPath}/transact/list.do?status=03" class="filter-btn">예약중</a>
         </div>
 
         <table class="styled-table">
@@ -46,17 +47,11 @@
                 <c:forEach var="vo" items="${list}">
                     <tr>
                         <td style="text-align: left; padding-left: 20px;">
-                            <a href="javascript:showDetail('${vo.productNo}')" style="text-decoration:none; color:#334155;">${vo.productTitle}</a>
+                            <a href="javascript:showDetail('${vo.productNo}')" style="text-decoration:none; color:#334155; cursor:pointer;">${vo.productTitle}</a>
                         </td>
                         <td>${vo.sellerId}</td>
                         <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
-                        <td>
-                            <c:choose>
-                                <c:when test="${vo.status == '01'}">판매중</c:when>
-                                <c:when test="${vo.status == '02'}">거래완료</c:when>
-                                <c:otherwise>기타</c:otherwise>
-                            </c:choose>
-                        </td>
+                        <td>${vo.status == '01' ? '판매중' : '판매완료'}</td>
                     </tr>
                 </c:forEach>
             </tbody>
@@ -69,7 +64,9 @@
         <h3>거래 상세</h3>
         <p>상품명: <span id="mProductTitle"></span></p>
         <p>상태: <span id="mStatus"></span></p>
-        <button onclick="closeModal()">닫기</button>
+        <p>금액: <span id="mAmount"></span></p>
+        <p>등록일: <span id="mDate"></span></p>
+        <button type="button" class="close-btn" onclick="closeModal()">닫기</button>
     </div>
 </div>
 
@@ -79,15 +76,13 @@ function showDetail(productNo) {
         url: "${pageContext.request.contextPath}/transact/getDetail.do",
         data: { productNo: productNo },
         success: function(data) {
-            // 서버에서 넘어오는 VO의 필드명(productName, txStatus)에 맞게 텍스트 설정
             $("#mProductTitle").text(data.productName);
-            $("#mStatus").text(data.txStatus);
+            $("#mStatus").text(data.txStatus == '01' ? '판매중' : '판매완료');
+            $("#mAmount").text((data.amount ? data.amount.toLocaleString() : "0") + "원");
+            $("#mDate").text(data.createDt ? data.createDt : "정보 없음");
             $("#detailModal").show();
         },
-        error: function(xhr, status, error) {
-            alert("상세 정보 조회 실패! F12 콘솔을 확인하세요.");
-            console.log(error);
-        }
+        error: function() { alert("정보를 불러오지 못했습니다."); }
     });
 }
 function closeModal() { $("#detailModal").hide(); }

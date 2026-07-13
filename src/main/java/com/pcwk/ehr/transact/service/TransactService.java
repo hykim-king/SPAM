@@ -11,11 +11,8 @@ public interface TransactService {
     int deleteAll();
     int totalCount();
     TransactHistVO selectByTxId(Long txId);
+    TransactHistVO selectProductDetail(Long productNo);
     List<TransactHistVO> selectAllTransactList();
-    
-    // 기존 기능 유지
     List<ProductVO> getAllProducts();
-    
-    // [추가] 상태 필터링을 위한 메서드 선언
     List<ProductVO> getAllProducts(String status);
 }
