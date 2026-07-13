@@ -18,7 +18,7 @@ import com.pcwk.ehr.user.util.PasswordUtil;
  *    - USER_ROLE   : 01 일반회원, 02 관리자
  *    - USER_STATUS : 01 정상, 02 탈퇴, 03 휴면, 04 정지
  * 3. 01/03/04 상태 회원 기준으로 아이디/전화번호/이메일 중복을 막습니다.
- * 4. 탈퇴 회원의 아이디는 재가입에 사용할 수 없고, 전화번호/이메일은 재사용 가능하도록 처리합니다.
+ * 4. 02 탈퇴 회원의 아이디/전화번호/이메일은 재가입 시 다시 사용할 수 있도록 처리합니다.
  * 5. 비밀번호는 평문으로 저장하지 않고 SHA-256 해시값으로 저장합니다.
  * 6. 회원탈퇴는 DELETE가 아니라 USER_STATUS='02' 상태 변경으로 처리합니다.
  */
@@ -52,8 +52,8 @@ public class UserServiceImpl implements UserService {
      * 8. USER_INFO INSERT
      *
      * 재가입 정책:
-     * - 아이디는 탈퇴 회원까지 포함해서 중복을 막습니다.
-     * - 전화번호와 이메일은 02 탈퇴 회원을 제외하고 중복을 검사합니다.
+     * - 2026-07-13 [수정] 아이디/전화번호/이메일 모두 02 탈퇴 회원을 제외하고 중복을 검사합니다.
+     * - DB의 조건부 UNIQUE 인덱스 정책과 동일하게 01/03/04 상태 회원만 중복 검사 대상입니다.
      */
     @Override
     @Transactional
@@ -266,8 +266,8 @@ public class UserServiceImpl implements UserService {
      *   USER_STATUS='02', WITHDRAW_DT=SYSDATE로 변경
      *
      * 재가입 정책:
-     * - 탈퇴 회원의 USER_ID는 재사용 불가
-     * - 탈퇴 회원의 PHONE_NUM/EMAIL은 중복 검사에서 제외
+     * - 2026-07-13 [수정] 탈퇴 회원의 USER_ID/PHONE_NUM/EMAIL은 중복 검사에서 제외
+     * - 재가입 시 새로운 USER_NUM을 발급하여 별도 회원 데이터로 저장
      */
     @Override
     @Transactional

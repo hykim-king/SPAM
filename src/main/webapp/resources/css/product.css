@@ -564,6 +564,11 @@
     padding: 12px 4px;
 }
 
+/* 2026-07-13 [추가] 등록일 행을 전체 너비로 사용해 조회수와 채팅수를 같은 줄에 배치한다. */
+.product-detail-meta .product-detail-meta-wide {
+    grid-column: 1 / -1;
+}
+
 .product-detail-meta dt {
     color: #929292;
     font-size: 12px;

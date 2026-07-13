@@ -97,7 +97,8 @@
                                     </c:choose>
                                 </dd>
                             </div>
-                            <div>
+                            <%-- 2026-07-13 [수정] 등록일은 한 줄 전체를 사용하고 조회수와 채팅수를 나란히 배치한다. --%>
+                            <div class="product-detail-meta-wide">
                                 <dt>등록일</dt>
                                 <dd>
                                     <time class="js-product-date" data-product-date="${product.createDt}">
@@ -108,6 +109,10 @@
                             <div>
                                 <dt>조회수</dt>
                                 <dd><fmt:formatNumber value="${product.viewCount}" pattern="#,##0"/>회</dd>
+                            </div>
+                            <div>
+                                <dt>채팅수</dt>
+                                <dd><fmt:formatNumber value="${product.chatCnt}" pattern="#,##0"/>건</dd>
                             </div>
                         </dl>
 

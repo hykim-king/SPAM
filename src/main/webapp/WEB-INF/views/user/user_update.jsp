@@ -114,7 +114,8 @@
 
                 <section class="panel withdraw-panel">
                     <h2 class="panel-title">회원탈퇴</h2>
-                    <p class="help-text">회원탈퇴 시 로그인이 제한되며, 같은 아이디로 재 가입이 불가능합니다.</p>
+                    <%-- 2026-07-13 [수정] 탈퇴 회원의 아이디/전화번호/이메일 재사용 정책 반영 --%>
+                    <p class="help-text">회원탈퇴 시 기존 계정으로 로그인할 수 없으며, 재가입하면 새로운 회원번호가 발급됩니다.</p>
 
                     <div id="withdrawStartArea" class="card-actions withdraw-start-actions ${withdrawError ? 'hidden' : ''}">
                         <button id="showWithdrawButton" class="btn ghost-danger" type="button">회원탈퇴</button>
