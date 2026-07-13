@@ -12,6 +12,8 @@ import com.pcwk.ehr.chat.domain.ChatMessageVO;
 import com.pcwk.ehr.chat.domain.ChatRoomVO;
 import com.pcwk.ehr.chat.mapper.ChatMessageMapper;
 import com.pcwk.ehr.chat.mapper.ChatRoomMapper;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 
 @Service
 // 스프링이 이 클래스를 Service 빈으로 등록
@@ -26,6 +28,10 @@ public class ChatServiceImpl implements ChatService {
 	@Autowired
 	// 메시지 매퍼 주입
 	private ChatMessageMapper chatMessageMapper;
+	
+	// 상품 서비스 주입
+	@Autowired
+	private ProductService productService;
 
 	@Override
 	@Transactional
@@ -37,6 +43,12 @@ public class ChatServiceImpl implements ChatService {
 	    if(null == roomNo) {
 	        // 방 없음 -> 새로 생성
 	        chatRoomMapper.insertRoom(param);
+	        
+	        // ↓ 추가: 새 방이 실제로 생겼을 때만 채팅 수 +1
+	        ProductVO productParam = new ProductVO();
+	        productParam.setProductNo(param.getProductNo());
+	        productService.plusChatCnt(productParam);	        
+	        
 	    } else {
 	        // 방 있음 -> 재사용
 	        param.setChatRoomNo(roomNo);
@@ -138,6 +150,10 @@ public class ChatServiceImpl implements ChatService {
 			
 			flag = chatRoomMapper.deleteRoom(chatRoomNo);
 			log.debug("flag: "+ flag);
+			
+			ProductVO productParam = new ProductVO();
+			productParam.setProductNo(updated.getProductNo());
+			productService.minusChatCnt(productParam);
 		}
 	}
 }

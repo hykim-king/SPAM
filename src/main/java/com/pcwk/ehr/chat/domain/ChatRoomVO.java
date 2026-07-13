@@ -5,13 +5,13 @@ public class ChatRoomVO {
 	    /** 채팅방 번호(PK) */
 	    private int chatRoomNo;
 
-	    /** 상품 번호(FK) */
+	    /** 상품 번호 */
 	    private int productNo;
 
-	    /** 판매자 번호(FK) */
+	    /** 판매자 번호 */
 	    private Long sellerNo;
 
-	    /** 구매자 번호(FK) */
+	    /** 구매자 번호 */
 	    private Long buyerNo;
 
 	    /** 채팅방 상태 */
