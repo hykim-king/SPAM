@@ -46,9 +46,13 @@
                     -->
                     <article class="hero-banner hero-banner-main is-active" data-hero-index="0">
                         <div class="hero-copy">
-                            <p class="hero-kicker">중고거래 플랫폼 SPAM</p>
+                            <%-- 2026-07-13 [수정] 메인 배너 1 문구를 2열 구조로 정리한다. --%>
+                            <p class="hero-kicker">
+                                <span>중고거래 플랫폼 SPAM</span>
+                                <span class="hero-kicker-sub">Sell Product And Meeting</span>
+                            </p>
                             <h1>필요한 사람에게,<br>당신의 물건을 연결하세요</h1>
-                            <p class="hero-desc">쓰지 않는 물건은 새 주인에게, 필요한 물건은 합리적인 가격으로 만나보세요.</p>
+                            <p class="hero-desc">쓰지 않는 물건은 새 주인에게,<br>필요한 물건은 합리적인 가격으로 만나보세요.</p>
 
                             <div class="hero-actions">
                                 <a href="${CP}/product/list.do" class="btn btn-dark">상품 둘러보기</a>
@@ -107,9 +111,10 @@
                     <img src="${CP}/resources/images/icons/05_chat.png" alt="" aria-hidden="true">
                     <span>채팅하기</span>
                 </a>
-                <a href="${CP}/transact/list.do" class="quick-card">
+                <%-- 2026-07-13 [수정] 거래내역 바로가기를 마이페이지로 변경, 아이콘은 그대로 사용. --%>
+                <a href="${CP}/user/mypage.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/06_transaction_history.png" alt="" aria-hidden="true">
-                    <span>거래내역</span>
+                    <span>마이페이지</span>
                 </a>
                 <a href="${CP}/report/doRetrieve.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/07_report_center.png" alt="" aria-hidden="true">

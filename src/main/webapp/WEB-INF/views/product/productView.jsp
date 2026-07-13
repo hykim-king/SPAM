@@ -97,7 +97,8 @@
                                     </c:choose>
                                 </dd>
                             </div>
-                            <div>
+                            <%-- 2026-07-13 [수정] 등록일은 한 줄 전체를 사용하고 조회수와 채팅수를 나란히 배치한다. --%>
+                            <div class="product-detail-meta-wide">
                                 <dt>등록일</dt>
                                 <dd>
                                     <time class="js-product-date" data-product-date="${product.createDt}">
@@ -108,6 +109,10 @@
                             <div>
                                 <dt>조회수</dt>
                                 <dd><fmt:formatNumber value="${product.viewCount}" pattern="#,##0"/>회</dd>
+                            </div>
+                            <div>
+                                <dt>채팅수</dt>
+                                <dd><fmt:formatNumber value="${product.chatCnt}" pattern="#,##0"/>건</dd>
                             </div>
                         </dl>
 
@@ -126,7 +131,9 @@
                         <div class="product-detail-actions">
                             <c:choose>
                                 <c:when test="${isOwner}">
-                                    <a class="product-primary-button" href="${CP}/product/updateForm.do?productNo=${product.productNo}">상품 수정</a>
+                                    <%-- 2026-07-13 [수정] 상품 수정 이동 전에 공통 디자인 확인 팝업을 표시한다. --%>
+                                    <button type="button" class="product-primary-button js-product-edit"
+                                            data-update-url="${CP}/product/updateForm.do?productNo=${product.productNo}">상품 수정</button>
                                 </c:when>
                                 <c:otherwise>
                                     <button type="button" class="product-primary-button js-product-chat"
@@ -146,6 +153,7 @@
                         <c:if test="${isOwner}">
                             <div class="product-owner-actions" aria-label="판매자 상품 관리">
                                 <div class="product-owner-status-box">
+                                    <%-- 2026-07-13 [수정] 거래 상태 변경도 공통 디자인 확인 팝업으로 처리한다. --%>
                                     <span class="product-owner-status-label">거래 상태 변경</span>
                                     <div class="product-status-toggle" role="group" aria-label="거래 상태 선택">
                                         <button type="button" class="js-product-status ${product.status eq '01' ? 'is-active' : ''}"

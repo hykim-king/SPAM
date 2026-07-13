@@ -53,6 +53,7 @@
                            placeholder="예: 서울 강남구" required>
                 </div>
 
+                <%-- 2026-07-13 [수정] 상품 상태 select를 커스텀 토글 박스 UI로 표시한다. --%>
                 <div class="product-form-field">
                     <label for="productCondition">상품 상태</label>
                     <select class="product-form-select" id="productCondition" name="productCondition">
@@ -70,6 +71,7 @@
                     <input type="hidden" name="status" value="01">
                 </div>
 
+                <%-- 2026-07-13 [수정] 대/중/소 카테고리 select를 커스텀 토글 박스 UI로 표시한다. --%>
                 <div class="product-form-field is-full">
                     <span class="product-form-label">카테고리<span class="product-required-mark">*</span></span>
                     <div class="product-category-selects">

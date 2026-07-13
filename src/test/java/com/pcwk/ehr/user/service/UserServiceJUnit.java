@@ -85,6 +85,35 @@ class UserServiceJUnit {
     }
 
     @Test
+    @DisplayName("닉네임 미입력 시 이름 자동 저장 및 가입 직후 변경일자 NULL")
+    void joinWithoutNicknameUsesUserNameTest() {
+        UserVO joinUser = createJoinUser(
+                "noNick" + uniqueValue,
+                "1234",
+                makePhone("2151"),
+                "noNick" + uniqueValue + "@test.com"
+        );
+
+        // 2026-07-13 [추가] 빈 닉네임은 Service에서 USER_NAME으로 대체되어야 함
+        joinUser.setNickname("   ");
+
+        logStep("GIVEN", "닉네임 없이 회원가입 입력값 준비");
+        int joinCount = userService.join(joinUser);
+        assertEquals(1, joinCount, "회원가입 INSERT는 1건이어야 합니다.");
+
+        UserVO loginUser = userService.login(joinUser.getUserId(), "1234");
+
+        assertEquals(loginUser.getUserName(), loginUser.getNickname(),
+                "닉네임 미입력 시 회원 이름과 동일한 값으로 저장되어야 합니다.");
+        assertNull(loginUser.getUpdateDt(),
+                "신규 가입 직후 UPDATE_DT는 NULL이어야 합니다.");
+        assertNull(loginUser.getWithdrawDt(),
+                "정상 회원의 WITHDRAW_DT는 NULL이어야 합니다.");
+
+        logPass("닉네임 기본값 및 가입 직후 일자 정책 확인 완료");
+    }
+
+    @Test
     @DisplayName("01 정상 회원 아이디 중복 가입 방지")
     void duplicateUserIdJoinFailTest() {
         String sameUserId = "dupId" + uniqueValue;

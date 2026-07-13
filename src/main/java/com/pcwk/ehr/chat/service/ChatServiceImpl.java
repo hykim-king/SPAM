@@ -12,6 +12,8 @@ import com.pcwk.ehr.chat.domain.ChatMessageVO;
 import com.pcwk.ehr.chat.domain.ChatRoomVO;
 import com.pcwk.ehr.chat.mapper.ChatMessageMapper;
 import com.pcwk.ehr.chat.mapper.ChatRoomMapper;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 
 @Service
 // 스프링이 이 클래스를 Service 빈으로 등록
@@ -27,6 +29,10 @@ public class ChatServiceImpl implements ChatService {
 	// 메시지 매퍼 주입
 	private ChatMessageMapper chatMessageMapper;
 
+	@Autowired
+	// 2026-07-13 [추가] 상품별 채팅방 수를 PRODUCT.CHAT_CNT와 동기화한다.
+	private ProductService productService;
+
 	@Override
 	@Transactional
 	public ChatRoomVO enterRoom(ChatRoomVO param) {
@@ -36,7 +42,18 @@ public class ChatServiceImpl implements ChatService {
 
 	    if(null == roomNo) {
 	        // 방 없음 -> 새로 생성
-	        chatRoomMapper.insertRoom(param);
+	        int insertFlag = chatRoomMapper.insertRoom(param);
+	        if (insertFlag != 1) {
+	            throw new IllegalStateException("채팅방 생성에 실패했습니다.");
+	        }
+
+	        // 2026-07-13 [추가] 신규 채팅방이 실제 생성된 경우에만 상품 채팅 수를 증가시킨다.
+	        ProductVO product = new ProductVO();
+	        product.setProductNo(param.getProductNo());
+	        int chatCntFlag = productService.plusChatCnt(product);
+	        if (chatCntFlag != 1) {
+	            throw new IllegalStateException("상품 채팅 수 증가에 실패했습니다.");
+	        }
 	    } else {
 	        // 방 있음 -> 재사용
 	        param.setChatRoomNo(roomNo);
@@ -129,15 +146,31 @@ public class ChatServiceImpl implements ChatService {
 		// 나가기 후 최신 상태 다시 조회
 		ChatRoomVO updated = chatRoomMapper.selectRoomByNo(chatRoomNo);
 		
+		// 나가기 처리 중 방이 이미 삭제된 경우에는 종료한다.
+		if (updated == null) {
+			return;
+		}
+
 		// 둘 다 나갔으면 삭제 (메시지 먼저 삭제 -> 방 삭제)
 		if("Y".equals(updated.getSellerExitYn()) && 
 				"Y".equals(updated.getBuyerExitYn()))
 		{
 			int flag = chatMessageMapper.deleteMessageByRoom(chatRoomNo);
-			log.debug("flag: "+ flag);
+			log.debug("deleteMessageByRoom flag: " + flag);
 			
 			flag = chatRoomMapper.deleteRoom(chatRoomNo);
-			log.debug("flag: "+ flag);
+			log.debug("deleteRoom flag: " + flag);
+			if (flag != 1) {
+				throw new IllegalStateException("채팅방 삭제에 실패했습니다.");
+			}
+
+			// 2026-07-13 [추가] 채팅방이 실제 삭제된 경우 상품 채팅 수를 감소시킨다.
+			ProductVO product = new ProductVO();
+			product.setProductNo(searchRoom.getProductNo());
+			int chatCntFlag = productService.minusChatCnt(product);
+			if (chatCntFlag != 1) {
+				throw new IllegalStateException("상품 채팅 수 감소에 실패했습니다.");
+			}
 		}
 	}
 }

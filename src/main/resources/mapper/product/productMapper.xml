@@ -61,9 +61,15 @@
         <if test="location != null and location != ''">
             AND p.LOCATION LIKE '%' || #{location} || '%'
         </if>
-        <if test="status != null and status != ''">
-            AND p.STATUS = #{status}
-        </if>
+        <!-- 2026-07-13 [수정] 마이페이지 기본 전체는 판매중(01)과 예약중(02)만 조회한다. -->
+        <choose>
+            <when test="status == 'ACTIVE'">
+                AND p.STATUS IN ('01', '02')
+            </when>
+            <when test="status != null and status != ''">
+                AND p.STATUS = #{status}
+            </when>
+        </choose>
         <choose>
             <when test="priceRange == 'under30000'">
                 AND p.PRICE &lt;= 30000
@@ -140,7 +146,10 @@
                TO_CHAR(p.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT_TEXT,
                TO_CHAR(p.MODIFY_DT, 'YYYY-MM-DD HH24:MI:SS') AS MODIFY_DT_TEXT,
                p.LIKE_CNT,
-               p.CHAT_CNT,
+               <!-- 2026-07-13 [수정] 상세 화면은 실제 생성된 채팅방 수를 즉시 조회한다. -->
+               (SELECT COUNT(*)
+                  FROM CHAT_ROOM cr
+                 WHERE cr.PRODUCT_NO = p.PRODUCT_NO) AS CHAT_CNT,
                c1.CATEGORY_NAME AS LARGE_NAME,
                c2.CATEGORY_NAME AS MIDDLE_NAME,
                c3.CATEGORY_NAME AS SMALL_NAME
@@ -221,17 +230,21 @@
            AND USER_NUM = #{userNum}
     </update>
 
+    <!-- 2026-07-13 [수정] NULL 값이 있더라도 신규 채팅방 생성 시 정상 증가한다. -->
     <update id="plusChatCnt" parameterType="ProductVO">
         UPDATE PRODUCT
-           SET CHAT_CNT = CHAT_CNT + 1
+           SET CHAT_CNT = NVL(CHAT_CNT, 0) + 1
          WHERE PRODUCT_NO = #{productNo}
     </update>
 
+    <!-- 2026-07-13 [수정] 채팅 수가 0보다 작아지지 않도록 보정한다. -->
     <update id="minusChatCnt" parameterType="ProductVO">
         UPDATE PRODUCT
-           SET CHAT_CNT = CHAT_CNT - 1
+           SET CHAT_CNT = CASE
+                              WHEN NVL(CHAT_CNT, 0) &gt; 0 THEN NVL(CHAT_CNT, 0) - 1
+                              ELSE 0
+                          END
          WHERE PRODUCT_NO = #{productNo}
-           AND CHAT_CNT &gt; 0
     </update>
 
 </mapper>
