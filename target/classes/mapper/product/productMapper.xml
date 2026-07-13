@@ -11,7 +11,7 @@
     	</selectKey>
         INSERT INTO PRODUCT (
             PRODUCT_NO,
-            SALLER_NO,
+            User_Num,
             CATEGORY_NO,
             PRODUCT_TITLE,
             PRODUCT_CONTENT,
@@ -45,7 +45,7 @@
             STATUS            = #{status},
             MODIFY_DT         = SYSDATE
         WHERE PRODUCT_NO = #{productNo} 
-          AND SALLER_NO   = #{sallerNo}
+          AND User_Num   = #{sallerNo}
     </update>
 
     <!-- 상품 삭제 -->
@@ -58,7 +58,7 @@
 <select id="doSelectOne" parameterType="int" resultType="ProductVO">
     SELECT
         p.PRODUCT_NO,
-        p.SALLER_NO,
+        p.User_Num,
         p.CATEGORY_NO,
         p.PRODUCT_TITLE,
         p.PRODUCT_CONTENT,
@@ -75,7 +75,7 @@
         p.CHAT_CNT,
         c1.CATEGORY_NAME AS largeName,
         c2.CATEGORY_NAME AS middleName,
-        c3.CATEGORY_NAME AS smallName
+        c3.CATEGORY_NAME AS smallName	
     FROM PRODUCT p
     LEFT JOIN CATEGORY c3 ON p.CATEGORY_NO = c3.CATEGORY_NO
     LEFT JOIN CATEGORY c2 ON c3.PARENT_CATEGORY_NO = c2.CATEGORY_NO
@@ -87,7 +87,7 @@
     <select id="doRetrieve" resultType="ProductVO">
         SELECT 
             PRODUCT_NO        as productNo,
-            SALLER_NO         as sallerNo,
+            User_Num         as sallerNo,
             CATEGORY_NO       as categoryNo,
             PRODUCT_TITLE     as productTitle,
             PRODUCT_CONTENT   as productContent,
@@ -119,7 +119,7 @@
        SET status    = #{status},
            modify_dt = SYSDATE
      WHERE product_no = #{productNo}
-       AND saller_no  = #{sallerNo}
+       AND user_num  = #{sallerNo}
 	</update>
 	
 	<!-- ============ 채팅 수 증가/감소 ============ -->

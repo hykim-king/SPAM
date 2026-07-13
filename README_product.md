@@ -335,7 +335,7 @@ PRODUCT_IMAGE
 
 ```text
 PRODUCT_NO
-SALLER_NO
+User_Num
 CATEGORY_NO
 PRODUCT_TITLE
 PRODUCT_CONTENT
@@ -524,7 +524,7 @@ file.upload.path=D:/SPAM/Upload
 
 코드에서는 `sallerNo`라는 필드명을 사용하고 있습니다. 실제 의미는 판매자 번호이므로 일반적으로는 `sellerNo`가 맞습니다.
 
-다만 이미 DB 컬럼이나 기존 코드가 `SALLER_NO`, `sallerNo` 기준으로 작성되어 있다면 전체를 한 번에 수정해야 합니다.
+다만 이미 DB 컬럼이나 기존 코드가 `User_Num`, `sallerNo` 기준으로 작성되어 있다면 전체를 한 번에 수정해야 합니다.
 
 ---
 

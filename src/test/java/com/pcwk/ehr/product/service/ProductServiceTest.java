@@ -26,7 +26,7 @@ public class ProductServiceTest {
     private ProductService productService;
 
     /** 상품 등록 */
-    @Disabled
+    //@Disabled
     @Test
     public void doInsert() {
         ProductVO param = new ProductVO();
@@ -44,7 +44,7 @@ public class ProductServiceTest {
     }
 
     /** 전체 목록 조회 */
-    @Disabled
+    //@Disabled
     @Test
     public void doRetrieve() {
         List<ProductVO> list = productService.doRetrieve();
