@@ -7,6 +7,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.pcwk.ehr.product.domain.ProductVO;
 import com.pcwk.ehr.transact.service.TransactService;
@@ -18,17 +19,15 @@ public class TransactController {
     @Autowired
     private TransactService transactService;
 
-    // 상품 전체 목록을 조회하여 화면에 전달
     @GetMapping("/list.do")
-    public String list(Model model) {
+    public String list(@RequestParam(value = "status", required = false) String status, Model model) {
         
-        // 서비스의 getAllProducts() 메서드를 호출하여 상품 리스트를 가져옴
-        List<ProductVO> list = transactService.getAllProducts();
+        // 상태값(status)을 넘겨서 조회합니다. null이거나 빈 값이면 전체 조회하도록 서비스에서 처리합니다.
+        List<ProductVO> list = transactService.getAllProducts(status);
         
-        // 모델에 담아서 JSP 페이지로 전달
         model.addAttribute("list", list);
+        model.addAttribute("currentStatus", status); // 현재 선택된 상태를 JSP에서 알기 위해 전달
         
-        // 이동할 JSP 페이지 경로 (프로젝트 설정에 맞게 수정 필요)
         return "transact/transact_list";
     }
 }

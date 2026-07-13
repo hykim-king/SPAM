@@ -1,6 +1,7 @@
 package com.pcwk.ehr.transact.service;
 
 import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,10 +19,16 @@ public class TransactServiceImpl implements TransactService {
     @Autowired
     private ProductMapper productMapper;
 
-    // 상품 전체 목록 조회 구현
+    // 기존 기능 유지 (전체 조회 시 null 전달)
     @Override
     public List<ProductVO> getAllProducts() {
-        return productMapper.doRetrieveAll();
+        return productMapper.doRetrieveAll(null);
+    }
+
+    // [추가] 상태 필터링 기능 구현
+    @Override
+    public List<ProductVO> getAllProducts(String status) {
+        return productMapper.doRetrieveAll(status);
     }
 
     @Override

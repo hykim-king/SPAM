@@ -66,6 +66,6 @@ public interface ProductMapper {
     int minusChatCnt(ProductVO product);
    
  // ProductMapper.java 파일 내에 아래 메서드가 선언되어 있어야 합니다.
-    public List<ProductVO> doRetrieveAll();
+    public List<ProductVO> doRetrieveAll(String status);
     
 }

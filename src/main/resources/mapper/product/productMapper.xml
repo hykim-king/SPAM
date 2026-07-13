@@ -213,17 +213,22 @@
 		<include refid="searchWhere" />
 	</select>
 
-<select id="doRetrieveAll" resultType="com.pcwk.ehr.product.domain.ProductVO">
+<select id="doRetrieveAll" parameterType="String" resultType="com.pcwk.ehr.product.domain.ProductVO">
     SELECT 
         P.PRODUCT_NO,
         P.PRODUCT_TITLE,
         P.PRICE,
         P.STATUS,
-        TO_CHAR(P.CREATE_DT, 'YYYY-MM-DD') AS CREATE_DT_TEXT,
         P.USER_NUM,
         U.USER_ID AS sellerId
     FROM PRODUCT P
-    LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM  ORDER BY P.CREATE_DT DESC
+    LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
+    <where>
+        <if test="status != null and status != ''">
+            AND P.STATUS = #{status}
+        </if>
+    </where>
+    ORDER BY P.CREATE_DT DESC
 </select>
 
 

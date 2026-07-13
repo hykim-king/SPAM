@@ -13,6 +13,9 @@ public interface TransactService {
     TransactHistVO selectByTxId(Long txId);
     List<TransactHistVO> selectAllTransactList();
     
-    // 상품 전체 목록 조회를 위한 메서드 선언
+    // 기존 기능 유지
     List<ProductVO> getAllProducts();
+    
+    // [추가] 상태 필터링을 위한 메서드 선언
+    List<ProductVO> getAllProducts(String status);
 }
