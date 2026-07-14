@@ -731,51 +731,6 @@ img {
     display: none;
 }
 
-.placeholder-page {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg);
-}
-
-.placeholder-logo {
-    margin-bottom: 28px;
-    font-size: 34px;
-    font-weight: 900;
-}
-
-.placeholder-card {
-    width: min(520px, 100%);
-    padding: 42px;
-    text-align: center;
-    background: #FFFFFF;
-    border: 1px solid var(--color-line);
-    border-radius: 24px;
-    box-shadow: var(--shadow-soft);
-}
-
-.placeholder-badge {
-    display: inline-flex;
-    margin-bottom: 18px;
-    padding: 7px 12px;
-    border-radius: 999px;
-    background: #FFF1ED;
-    color: var(--color-point);
-    font-size: 13px;
-    font-weight: 900;
-}
-
-.placeholder-card h1 {
-    margin: 0 0 14px;
-    font-size: 30px;
-}
-
-.placeholder-card p {
-    margin: 0 0 28px;
-    color: #666666;
-    line-height: 1.6;
-}
 
 @media screen and (max-width: 1279px) {
     :root {
@@ -1088,9 +1043,6 @@ img {
         box-shadow: 0 8px 18px rgba(255, 90, 62, 0.28);
     }
 
-    .placeholder-card {
-        padding: 30px 22px;
-    }
 }
 
 @media screen and (max-width: 390px) {
@@ -1594,10 +1546,6 @@ img {
     color: rgba(255, 255, 255, 0.82);
 }
 
-.placeholder-page {
-    min-height: auto;
-    padding: 44px 0 70px;
-}
 
 @media screen and (max-width: 1279px) {
     .category-mega-inner {
@@ -2501,5 +2449,38 @@ html, body {
     .category-nav.is-all-open .category-mega-inner {
         width: calc(100vw - 32px) !important;
         margin-left: 16px !important;
+    }
+}
+
+/* 2026-07-13 [추가] 로그인 필요·권한 없음·서비스 준비중 공통 안내 모달 */
+.spam-notice-modal .spam-confirm-card {
+    width: min(410px, 100%);
+    padding: 34px 30px 28px;
+}
+
+.spam-notice-modal .spam-confirm-icon {
+    background: #ef3f3a;
+}
+
+.spam-notice-modal .spam-confirm-message {
+    white-space: pre-line;
+}
+
+.spam-notice-modal .spam-confirm-actions.is-single .spam-confirm-cancel {
+    display: none;
+}
+
+.spam-notice-modal .spam-confirm-actions.is-single .spam-confirm-ok {
+    min-width: 120px;
+}
+
+@media (max-width: 480px) {
+    .spam-notice-modal {
+        padding: 18px;
+    }
+
+    .spam-notice-modal .spam-confirm-card {
+        padding: 28px 22px 24px;
+        border-radius: 18px;
     }
 }

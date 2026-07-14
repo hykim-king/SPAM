@@ -24,7 +24,9 @@
                 <h1>전체 상품 목록</h1>
                 <p>검색어와 카테고리, 거래 조건에 맞는 상품을 확인하세요.</p>
             </div>
-            <a class="product-primary-button" href="${CP}/product/saveForm.do">＋ 상품 등록</a>
+            <a class="product-primary-button" href="${CP}/product/saveForm.do"
+               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+               data-login-url="${CP}/user/login.do">＋ 상품 등록</a>
         </header>
 
         <section class="product-filter-panel" aria-label="상품 검색 필터">
@@ -115,7 +117,9 @@
                         <div class="product-empty-state">
                             <strong>조건에 맞는 상품이 없습니다.</strong>
                             <p>검색 조건을 바꾸거나 첫 번째 상품을 등록해보세요.</p>
-                            <a class="product-primary-button" href="${CP}/product/saveForm.do">상품 등록하기</a>
+                            <a class="product-primary-button" href="${CP}/product/saveForm.do"
+                               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                               data-login-url="${CP}/user/login.do">상품 등록하기</a>
                         </div>
                     </c:when>
                     <c:otherwise>

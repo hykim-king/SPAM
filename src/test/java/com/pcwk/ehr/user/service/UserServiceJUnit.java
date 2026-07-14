@@ -1,6 +1,7 @@
 package com.pcwk.ehr.user.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,6 +9,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.pcwk.ehr.user.domain.UserSearchDTO;
 import com.pcwk.ehr.user.domain.UserVO;
+import com.pcwk.ehr.user.mapper.UserMapper;
+import com.pcwk.ehr.user.util.PasswordUtil;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {
@@ -30,288 +35,396 @@ import com.pcwk.ehr.user.domain.UserVO;
 @Rollback
 class UserServiceJUnit {
 
+    final static Logger log = LogManager.getLogger(UserServiceJUnit.class);
+
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserMapper userMapper;
 
     private String uniqueValue;
 
     @BeforeEach
     void setUp(TestInfo testInfo) {
+        logStart(testInfo);
+
         uniqueValue = String.valueOf(System.currentTimeMillis());
-        logStart(testInfo.getDisplayName());
-        log("테스트 고유값", uniqueValue);
     }
 
     @Test
     @DisplayName("Service Bean 주입 확인")
-    void serviceBeanInjectionTest() {
-        logStep("GIVEN", "root-context.xml에서 UserServiceImpl이 Spring Bean으로 등록되어 있어야 함");
+    void beans() {
 
-        assertNotNull(userService, "userService가 null이면 component-scan 설정을 확인해야 합니다.");
+        log.debug("[STEP 1] UserService 및 UserMapper Bean 주입 확인");
 
-        logPass("UserService Bean 주입 성공");
+        assertNotNull(userService);
+        assertNotNull(userMapper);
+
+        log.debug("userService: " + userService);
+        log.debug("userMapper: " + userMapper);
+
+        System.out.println("[확인] Service Bean 주입 확인 테스트 완료");
     }
 
     @Test
     @DisplayName("회원가입 후 로그인 성공")
-    void joinAndLoginTest() {
-        String userId = "svc" + uniqueValue;
-        String rawPassword = "1234";
-        UserVO joinUser = createJoinUser(userId, rawPassword, makePhone("2101"), "svc" + uniqueValue + "@test.com");
+    void joinAndLogin() {
 
-        logStep("GIVEN", "회원가입 입력값 준비");
-        logUser("회원가입 입력값", joinUser);
+        log.debug("[STEP 1] 회원가입 데이터 준비");
 
-        int joinCount = userService.join(joinUser);
+        String userId = "service" + uniqueValue;
+        UserVO user = createUser(userId, "1234", makePhone("2101"),
+                "service" + uniqueValue + "@test.com");
 
-        logStep("WHEN", "userService.join(joinUser) 실행");
-        log("회원가입 처리 건수", joinCount);
+        int flag = userService.join(user);
+        assertEquals(1, flag);
 
-        assertEquals(1, joinCount, "회원가입 INSERT는 1건이어야 합니다.");
+        log.debug("[STEP 2] 회원가입 후 비밀번호 해시 저장 결과 확인");
 
-        UserVO loginUser = userService.login(userId, rawPassword);
+        UserVO savedUser = userMapper.selectByUserId(userId);
+        assertNotNull(savedUser);
+        assertNotEquals("1234", savedUser.getPassword());
+        assertTrue(PasswordUtil.matches("1234", savedUser.getPassword()));
 
-        logStep("WHEN", "userService.login(userId, rawPassword) 실행");
-        logUser("로그인 결과", loginUser);
+        log.debug("[STEP 3] 로그인 결과 및 반환 회원정보 확인");
 
-        assertNotNull(loginUser, "로그인 성공 시 UserVO가 반환되어야 합니다.");
-        assertNotNull(loginUser.getUserNum(), "로그인 성공 회원은 USER_NUM이 있어야 합니다.");
-        assertEquals(userId, loginUser.getUserId());
+        UserVO loginUser = userService.login(userId, "1234");
+        assertNotNull(loginUser);
         assertEquals("01", loginUser.getUserRole());
         assertEquals("01", loginUser.getUserStatus());
-        assertNull(loginUser.getPassword(), "로그인 후 세션용 객체에는 password가 null이어야 합니다.");
+        assertNull(loginUser.getPassword());
 
-        logPass("회원가입 후 로그인 성공 확인 완료");
+        log.debug("loginUser: " + loginUser);
+
+        System.out.println("[확인] 회원가입 후 로그인 성공 테스트 완료");
     }
 
     @Test
-    @DisplayName("닉네임 미입력 시 이름 자동 저장 및 가입 직후 변경일자 NULL")
-    void joinWithoutNicknameUsesUserNameTest() {
-        UserVO joinUser = createJoinUser(
-                "noNick" + uniqueValue,
-                "1234",
-                makePhone("2151"),
-                "noNick" + uniqueValue + "@test.com"
-        );
+    @DisplayName("이메일과 닉네임 없이 회원가입")
+    void joinWithoutEmailAndNickname() {
 
-        // 2026-07-13 [추가] 빈 닉네임은 Service에서 USER_NAME으로 대체되어야 함
-        joinUser.setNickname("   ");
+        log.debug("[STEP 1] 이메일·닉네임 미입력 회원정보 준비");
 
-        logStep("GIVEN", "닉네임 없이 회원가입 입력값 준비");
-        int joinCount = userService.join(joinUser);
-        assertEquals(1, joinCount, "회원가입 INSERT는 1건이어야 합니다.");
+        UserVO user = createUser("noEmail" + uniqueValue, "1234", makePhone("2201"), null);
+        user.setNickname("   ");
 
-        UserVO loginUser = userService.login(joinUser.getUserId(), "1234");
+        log.debug("[STEP 2] 회원가입 및 로그인 실행");
 
-        assertEquals(loginUser.getUserName(), loginUser.getNickname(),
-                "닉네임 미입력 시 회원 이름과 동일한 값으로 저장되어야 합니다.");
-        assertNull(loginUser.getUpdateDt(),
-                "신규 가입 직후 UPDATE_DT는 NULL이어야 합니다.");
-        assertNull(loginUser.getWithdrawDt(),
-                "정상 회원의 WITHDRAW_DT는 NULL이어야 합니다.");
+        int flag = userService.join(user);
+        assertEquals(1, flag);
+        UserVO loginUser = userService.login(user.getUserId(), "1234");
 
-        logPass("닉네임 기본값 및 가입 직후 일자 정책 확인 완료");
+        log.debug("[STEP 3] 닉네임 기본값 및 선택 입력값 확인");
+        assertEquals(loginUser.getUserName(), loginUser.getNickname());
+        assertNull(loginUser.getEmail());
+        assertNull(loginUser.getUpdateDt());
+        assertNull(loginUser.getWithdrawDt());
+
+        System.out.println("[확인] 이메일과 닉네임 없이 회원가입 테스트 완료");
     }
 
     @Test
-    @DisplayName("01 정상 회원 아이디 중복 가입 방지")
-    void duplicateUserIdJoinFailTest() {
-        String sameUserId = "dupId" + uniqueValue;
-        UserVO firstUser = createJoinUser(sameUserId, "1234", makePhone("2201"), "first" + uniqueValue + "@test.com");
-        UserVO secondUser = createJoinUser(sameUserId, "1234", makePhone("2202"), "second" + uniqueValue + "@test.com");
+    @DisplayName("정상 회원 아이디 중복 가입 방지")
+    void duplicateUserId() {
 
-        logStep("GIVEN", "첫 번째 회원가입 후 같은 USER_ID로 두 번째 가입 시도");
-        userService.join(firstUser);
-        logPass("첫 번째 회원가입 성공");
+        log.debug("[STEP 1] 동일 아이디 회원 2명 준비");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.join(secondUser)
-        );
+        String userId = "dupId" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("2301"),
+                "dupA" + uniqueValue + "@test.com"));
 
-        log("발생한 예외 메시지", exception.getMessage());
+        UserVO duplicateUser = createUser(userId, "1234", makePhone("2302"),
+                "dupB" + uniqueValue + "@test.com");
+
+        log.debug("[STEP 2] 첫 번째 회원가입 후 두 번째 회원가입 시도");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.join(duplicateUser));
+
+        log.debug("[STEP 3] 아이디 중복 예외 메시지 확인");
+
         assertTrue(exception.getMessage().contains("아이디"));
+        log.debug("exception: " + exception.getMessage());
 
-        logPass("01 정상 회원 아이디 중복 방지 확인 완료");
+        System.out.println("[확인] 정상 회원 아이디 중복 가입 방지 테스트 완료");
     }
 
     @Test
-    @DisplayName("01 정상 회원 전화번호 중복 가입 방지")
-    void duplicatePhoneNumJoinFailTest() {
-        String samePhone = makePhone("2301");
-        UserVO firstUser = createJoinUser("phoneA" + uniqueValue, "1234", samePhone, "phoneA" + uniqueValue + "@test.com");
-        UserVO secondUser = createJoinUser("phoneB" + uniqueValue, "1234", samePhone, "phoneB" + uniqueValue + "@test.com");
+    @DisplayName("정상 회원 전화번호와 이메일 중복 가입 방지")
+    void duplicatePhoneAndEmail() {
 
-        logStep("GIVEN", "두 회원이 같은 전화번호를 사용하도록 준비");
-        userService.join(firstUser);
-        logPass("첫 번째 회원가입 성공");
+        log.debug("[STEP 1] 중복 전화번호·이메일 사용 회원 준비");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.join(secondUser)
-        );
+        String phoneNum = makePhone("2401");
+        String email = "same" + uniqueValue + "@test.com";
 
-        log("발생한 예외 메시지", exception.getMessage());
-        assertTrue(exception.getMessage().contains("전화번호"));
+        userService.join(createUser("dupA" + uniqueValue, "1234", phoneNum, email));
 
-        logPass("01 정상 회원 전화번호 중복 방지 확인 완료");
+        log.debug("[STEP 2] 전화번호 중복 가입 시도 및 예외 확인");
+
+        UserVO samePhoneUser = createUser("dupPhone" + uniqueValue, "1234", phoneNum,
+                "other" + uniqueValue + "@test.com");
+        IllegalArgumentException phoneException = assertThrows(IllegalArgumentException.class,
+                () -> userService.join(samePhoneUser));
+        assertTrue(phoneException.getMessage().contains("전화번호"));
+
+        log.debug("[STEP 3] 이메일 중복 가입 시도 및 예외 확인");
+
+        UserVO sameEmailUser = createUser("dupEmail" + uniqueValue, "1234", makePhone("2402"), email);
+        IllegalArgumentException emailException = assertThrows(IllegalArgumentException.class,
+                () -> userService.join(sameEmailUser));
+        assertTrue(emailException.getMessage().contains("이메일"));
+
+        System.out.println("[확인] 정상 회원 전화번호와 이메일 중복 가입 방지 테스트 완료");
     }
 
     @Test
-    @DisplayName("01 정상 회원 이메일 중복 가입 방지")
-    void duplicateEmailJoinFailTest() {
-        String sameEmail = "same" + uniqueValue + "@test.com";
-        UserVO firstUser = createJoinUser("emailA" + uniqueValue, "1234", makePhone("2401"), sameEmail);
-        UserVO secondUser = createJoinUser("emailB" + uniqueValue, "1234", makePhone("2402"), sameEmail);
+    @DisplayName("탈퇴 회원 정보로 재가입 가능")
+    void rejoinAfterWithdraw() {
 
-        logStep("GIVEN", "두 회원이 같은 이메일을 사용하도록 준비");
-        userService.join(firstUser);
-        logPass("첫 번째 회원가입 성공");
+        log.debug("[STEP 1] 재가입 대상 회원정보 준비");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.join(secondUser)
-        );
+        String userId = "rejoin" + uniqueValue;
+        String phoneNum = makePhone("2501");
+        String email = "rejoin" + uniqueValue + "@test.com";
 
-        log("발생한 예외 메시지", exception.getMessage());
-        assertTrue(exception.getMessage().contains("이메일"));
+        log.debug("[STEP 2] 첫 번째 회원가입 후 회원탈퇴 처리");
 
-        logPass("01 정상 회원 이메일 중복 방지 확인 완료");
+        userService.join(createUser(userId, "1234", phoneNum, email));
+        UserVO firstUser = userService.login(userId, "1234");
+
+        assertEquals(1, userService.withdrawUser(firstUser.getUserNum(), "1234"));
+
+        log.debug("[STEP 3] 동일 정보 재가입 및 로그인 결과 확인");
+
+        UserVO secondUser = createUser(userId, "5678", phoneNum, email);
+        assertEquals(1, userService.join(secondUser));
+        UserVO loginUser = userService.login(userId, "5678");
+        assertNotNull(loginUser);
+        assertEquals("01", loginUser.getUserStatus());
+
+        log.debug("loginUser: " + loginUser);
+
+        System.out.println("[확인] 탈퇴 회원 정보로 재가입 가능 테스트 완료");
     }
 
     @Test
-    @DisplayName("탈퇴 회원 아이디/전화번호/이메일 재사용 가입 가능")
-    void withdrawnUserRejoinSameIdentityTest() {
-        String sameUserId = "rejoin" + uniqueValue;
-        String samePhone = makePhone("2501");
-        String sameEmail = "rejoin" + uniqueValue + "@test.com";
-        String rawPassword = "1234";
+    @DisplayName("잘못된 비밀번호와 탈퇴 회원 로그인 차단")
+    void loginFail() {
 
-        UserVO firstUser = createJoinUser(sameUserId, rawPassword, samePhone, sameEmail);
+        log.debug("[STEP 1] 로그인 실패 확인 대상 회원 등록");
 
-        logStep("GIVEN", "첫 번째 회원가입 후 탈퇴 처리");
-        userService.join(firstUser);
+        String userId = "loginFail" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("2601"),
+                "loginFail" + uniqueValue + "@test.com"));
 
-        UserVO firstLoginUser = userService.login(sameUserId, rawPassword);
-        logUser("첫 번째 로그인 회원", firstLoginUser);
+        log.debug("[STEP 2] 잘못된 비밀번호 로그인 예외 확인");
 
-        int withdrawCount = userService.withdrawUser(firstLoginUser.getUserNum(), rawPassword);
-        log("탈퇴 처리 건수", withdrawCount);
-        assertEquals(1, withdrawCount, "탈퇴 처리는 1건이어야 합니다.");
+        IllegalArgumentException passwordException = assertThrows(IllegalArgumentException.class,
+                () -> userService.login(userId, "9999"));
+        assertTrue(passwordException.getMessage().contains("일치하지 않습니다"));
 
-        logStep("WHEN", "탈퇴한 계정과 같은 아이디/전화번호/이메일로 재가입 시도");
-        UserVO secondUser = createJoinUser(sameUserId, "5678", samePhone, sameEmail);
-        int rejoinCount = userService.join(secondUser);
-        log("재가입 처리 건수", rejoinCount);
+        log.debug("[STEP 3] 회원탈퇴 후 로그인 차단 결과 확인");
 
-        assertEquals(1, rejoinCount, "탈퇴 회원의 아이디/전화번호/이메일은 재가입에 사용할 수 있어야 합니다.");
+        UserVO loginUser = userService.login(userId, "1234");
+        userService.withdrawUser(loginUser.getUserNum(), "1234");
 
-        UserVO secondLoginUser = userService.login(sameUserId, "5678");
-        logUser("재가입 후 로그인 회원", secondLoginUser);
+        IllegalStateException statusException = assertThrows(IllegalStateException.class,
+                () -> userService.login(userId, "1234"));
+        assertTrue(statusException.getMessage().contains("탈퇴"));
 
-        assertNotNull(secondLoginUser);
-        assertEquals("01", secondLoginUser.getUserStatus());
-
-        logPass("탈퇴 회원 정보 재사용 가입 정책 확인 완료");
+        System.out.println("[확인] 잘못된 비밀번호와 탈퇴 회원 로그인 차단 테스트 완료");
     }
 
     @Test
-    @DisplayName("탈퇴한 기존 계정으로 로그인 불가")
-    void withdrawnOldAccountLoginFailTest() {
-        String userId = "wdLogin" + uniqueValue;
-        String password = "1234";
-        UserVO joinUser = createJoinUser(userId, password, makePhone("2601"), "wdLogin" + uniqueValue + "@test.com");
+    @DisplayName("휴면 회원과 정지 회원 로그인 차단")
+    void dormantAndBlockedLoginFail() {
 
-        logStep("GIVEN", "회원가입 후 탈퇴 처리");
-        userService.join(joinUser);
-        UserVO loginUser = userService.login(userId, password);
-        userService.withdrawUser(loginUser.getUserNum(), password);
+        log.debug("[STEP 1] 휴면 대상 회원 준비 및 휴면 상태 변경");
 
-        logStep("WHEN", "탈퇴한 기존 계정으로 로그인 시도");
-        IllegalStateException exception = assertThrows(
-                IllegalStateException.class,
-                () -> userService.login(userId, password)
-        );
+        String dormantId = "dormant" + uniqueValue;
+        userService.join(createUser(dormantId, "1234", makePhone("2701"),
+                "dormant" + uniqueValue + "@test.com"));
+        UserVO dormantUser = userService.login(dormantId, "1234");
+        userService.changeUserStatus(dormantUser.getUserNum(), "03");
 
-        log("발생한 예외 메시지", exception.getMessage());
-        assertTrue(exception.getMessage().contains("탈퇴"));
+        log.debug("[STEP 2] 휴면 회원 로그인 차단 확인");
 
-        logPass("탈퇴 계정 로그인 차단 확인 완료");
+        IllegalStateException dormantException = assertThrows(IllegalStateException.class,
+                () -> userService.login(dormantId, "1234"));
+        assertTrue(dormantException.getMessage().contains("휴면"));
+
+        String blockedId = "blocked" + uniqueValue;
+        userService.join(createUser(blockedId, "1234", makePhone("2702"),
+                "blocked" + uniqueValue + "@test.com"));
+        UserVO blockedUser = userService.login(blockedId, "1234");
+        userService.changeUserStatus(blockedUser.getUserNum(), "04");
+
+        log.debug("[STEP 3] 정지 회원 준비 및 로그인 차단 확인");
+
+        IllegalStateException blockedException = assertThrows(IllegalStateException.class,
+                () -> userService.login(blockedId, "1234"));
+        assertTrue(blockedException.getMessage().contains("정지"));
+
+        System.out.println("[확인] 휴면 회원과 정지 회원 로그인 차단 테스트 완료");
     }
 
     @Test
-    @DisplayName("회원정보 수정 시 01 정상 회원 전화번호 중복 방지")
-    void updateDuplicatePhoneNumFailTest() {
-        UserVO userA = createJoinUser("updPhoneA" + uniqueValue, "1234", makePhone("2701"), "updPhoneA" + uniqueValue + "@test.com");
-        UserVO userB = createJoinUser("updPhoneB" + uniqueValue, "1234", makePhone("2702"), "updPhoneB" + uniqueValue + "@test.com");
+    @DisplayName("회원 단건 조회와 회원정보 수정")
+    void getUserAndUpdateUser() {
 
-        userService.join(userA);
-        userService.join(userB);
+        log.debug("[STEP 1] 조회·수정 대상 회원 등록");
 
-        UserVO loginA = userService.login(userA.getUserId(), "1234");
-        UserVO loginB = userService.login(userB.getUserId(), "1234");
+        String userId = "update" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("2801"),
+                "update" + uniqueValue + "@test.com"));
 
-        UserVO updateB = createUpdateUser(loginB.getUserNum(), "수정자", "수정닉", loginA.getPhoneNum(), "updChange" + uniqueValue + "@test.com");
+        UserVO loginUser = userService.login(userId, "1234");
+        UserVO user = userService.getUser(loginUser.getUserNum());
 
-        logStep("WHEN", "B 회원이 A 회원의 전화번호로 변경 시도");
+        log.debug("[STEP 2] 회원 단건 조회 결과 확인");
 
-        IllegalArgumentException exception = assertThrows(
-                IllegalArgumentException.class,
-                () -> userService.updateUser(updateB)
-        );
+        assertNotNull(user);
+        assertNull(user.getPassword());
 
-        log("발생한 예외 메시지", exception.getMessage());
-        assertTrue(exception.getMessage().contains("전화번호"));
+        UserVO updateUser = new UserVO();
+        updateUser.setUserNum(user.getUserNum());
+        updateUser.setUserName("수정이름");
+        updateUser.setNickname("수정닉네임");
+        updateUser.setPhoneNum(makePhone("2802"));
+        updateUser.setEmail("change" + uniqueValue + "@test.com");
 
-        logPass("회원정보 수정 시 전화번호 중복 방지 확인 완료");
+        log.debug("[STEP 3] 회원정보 수정 및 DB 결과 확인");
+
+        assertEquals(1, userService.updateUser(updateUser));
+
+        UserVO outVO = userService.getUser(user.getUserNum());
+        assertEquals("수정이름", outVO.getUserName());
+        assertEquals("수정닉네임", outVO.getNickname());
+        assertEquals(updateUser.getPhoneNum(), outVO.getPhoneNum());
+        assertNotNull(outVO.getUpdateDt());
+
+        log.debug("outVO: " + outVO);
+
+        System.out.println("[확인] 회원 단건 조회와 회원정보 수정 테스트 완료");
     }
 
     @Test
-    @DisplayName("회원정보 수정 시 탈퇴 회원 전화번호는 중복 검사 제외")
-    void updateWithdrawnPhoneNumAllowedTest() {
-        UserVO userA = createJoinUser("wdPhoneA" + uniqueValue, "1234", makePhone("2801"), "wdPhoneA" + uniqueValue + "@test.com");
-        UserVO userB = createJoinUser("wdPhoneB" + uniqueValue, "1234", makePhone("2802"), "wdPhoneB" + uniqueValue + "@test.com");
+    @DisplayName("비밀번호 변경")
+    void updatePassword() {
 
-        userService.join(userA);
-        userService.join(userB);
+        log.debug("[STEP 1] 비밀번호 변경 대상 회원 등록");
 
-        UserVO loginA = userService.login(userA.getUserId(), "1234");
-        UserVO loginB = userService.login(userB.getUserId(), "1234");
+        String userId = "password" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("2901"),
+                "password" + uniqueValue + "@test.com"));
 
-        userService.withdrawUser(loginA.getUserNum(), "1234");
+        UserVO loginUser = userService.login(userId, "1234");
 
-        UserVO updateB = createUpdateUser(loginB.getUserNum(), "수정자", "수정닉", userA.getPhoneNum(), "wdPhoneChange" + uniqueValue + "@test.com");
+        log.debug("[STEP 2] 현재 비밀번호 확인 및 새 비밀번호 변경");
 
-        logStep("WHEN", "B 회원이 탈퇴한 A 회원의 전화번호로 변경 시도");
-        int updateCount = userService.updateUser(updateB);
+        assertEquals(1, userService.updatePassword(loginUser.getUserNum(), "1234", "5678"));
 
-        log("회원정보 수정 건수", updateCount);
-        assertEquals(1, updateCount, "탈퇴 회원의 전화번호는 수정 시 재사용 가능해야 합니다.");
+        log.debug("[STEP 3] 기존 비밀번호 실패 및 새 비밀번호 성공 확인");
 
-        logPass("회원정보 수정 시 탈퇴 회원 전화번호 재사용 확인 완료");
+        assertThrows(IllegalArgumentException.class, () -> userService.login(userId, "1234"));
+
+        UserVO newLoginUser = userService.login(userId, "5678");
+        assertNotNull(newLoginUser);
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.updatePassword(loginUser.getUserNum(), "9999", "0000"));
+        assertTrue(exception.getMessage().contains("현재 비밀번호"));
+
+        System.out.println("[확인] 비밀번호 변경 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("회원탈퇴")
+    void withdrawUser() {
+
+        log.debug("[STEP 1] 탈퇴 대상 회원 등록");
+
+        String userId = "withdraw" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("3001"),
+                "withdraw" + uniqueValue + "@test.com"));
+
+        UserVO loginUser = userService.login(userId, "1234");
+
+        log.debug("[STEP 2] 잘못된 비밀번호 회원탈퇴 차단 확인");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> userService.withdrawUser(loginUser.getUserNum(), "9999"));
+        assertTrue(exception.getMessage().contains("비밀번호"));
+
+        log.debug("[STEP 3] 정상 비밀번호 회원탈퇴 후 회원상태·탈퇴일자 확인");
+
+        assertEquals(1, userService.withdrawUser(loginUser.getUserNum(), "1234"));
+
+        UserVO savedUser = userMapper.selectByUserNum(loginUser.getUserNum());
+        assertEquals("02", savedUser.getUserStatus());
+        assertNotNull(savedUser.getWithdrawDt());
+
+        System.out.println("[확인] 회원탈퇴 테스트 완료");
+    }
+
+    @Test
+    @DisplayName("관리자 회원상태와 회원권한 변경")
+    void changeStatusAndRole() {
+
+        log.debug("[STEP 1] 상태·권한 변경 대상 회원 등록");
+
+        String userId = "adminChange" + uniqueValue;
+        userService.join(createUser(userId, "1234", makePhone("3101"),
+                "adminChange" + uniqueValue + "@test.com"));
+        UserVO user = userService.login(userId, "1234");
+
+        log.debug("[STEP 2] 관리자 기능 회원상태 변경 및 결과 확인");
+
+        assertEquals(1, userService.changeUserStatus(user.getUserNum(), "04"));
+        assertEquals("04", userMapper.selectByUserNum(user.getUserNum()).getUserStatus());
+
+        log.debug("[STEP 3] 회원권한 변경 및 잘못된 상태값·권한값 차단 확인");
+
+        assertEquals(1, userService.changeUserRole(user.getUserNum(), "02"));
+        assertEquals("02", userMapper.selectByUserNum(user.getUserNum()).getUserRole());
+
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.changeUserStatus(user.getUserNum(), "99"));
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.changeUserRole(user.getUserNum(), "99"));
+
+        System.out.println("[확인] 관리자 회원상태와 회원권한 변경 테스트 완료");
     }
 
     @Test
     @DisplayName("관리자 회원목록 조회")
-    void userListTest() {
+    void getUserList() {
+
+        log.debug("[STEP 1] 관리자 회원목록 검색 조건 준비");
+
         UserSearchDTO searchDTO = new UserSearchDTO();
         searchDTO.setPageNo(1);
         searchDTO.setPageSize(10);
 
-        logStep("WHEN", "관리자 회원목록 조회 실행");
-        List<UserVO> userList = userService.getUserList(searchDTO);
+        log.debug("[STEP 2] 검색 조건 설정 및 목록 조회");
+
+        List<UserVO> list = userService.getUserList(searchDTO);
         int totalCount = userService.getUserTotalCount(searchDTO);
 
-        log("조회 목록 크기", userList.size());
-        log("전체 회원 수", totalCount);
+        log.debug("[STEP 3] 전체 건수 및 조회 결과 확인");
 
-        assertNotNull(userList, "회원목록은 null이면 안 됩니다.");
-        assertTrue(totalCount >= userList.size(), "전체 건수는 현재 페이지 목록 수보다 크거나 같아야 합니다.");
+        assertNotNull(list);
+        assertTrue(totalCount >= list.size());
 
-        logPass("관리자 회원목록 조회 확인 완료");
+        log.debug("list.size(): " + list.size());
+        log.debug("totalCount: " + totalCount);
+
+        System.out.println("[확인] 관리자 회원목록 조회 테스트 완료");
     }
 
-    private UserVO createJoinUser(String userId, String password, String phoneNum, String email) {
+    private UserVO createUser(String userId, String password, String phoneNum, String email) {
         UserVO user = new UserVO();
         user.setUserId(userId);
         user.setPassword(password);
@@ -319,54 +432,46 @@ class UserServiceJUnit {
         user.setNickname("테스터");
         user.setPhoneNum(phoneNum);
         user.setEmail(email);
+        logUser("생성한 테스트 회원", user);
         return user;
     }
 
-    private UserVO createUpdateUser(Long userNum, String userName, String nickname, String phoneNum, String email) {
-        UserVO user = new UserVO();
-        user.setUserNum(userNum);
-        user.setUserName(userName);
-        user.setNickname(nickname);
-        user.setPhoneNum(phoneNum);
-        user.setEmail(email);
-        return user;
+
+    private void logStart(TestInfo testInfo) {
+        String testName = testInfo.getTestMethod().isPresent()
+                ? testInfo.getTestMethod().get().getName()
+                : "테스트";
+
+        System.out.println();
+        System.out.println("========================================");
+        System.out.println("[ TEST " + testName + " ] " + testInfo.getDisplayName());
+        System.out.println("========================================");
+    }
+
+    private void logUser(String title, UserVO user) {
+        System.out.println("[ USER ] " + title);
+
+        if (user == null) {
+            System.out.println("  - 회원정보 없음");
+            return;
+        }
+
+        System.out.println("  - userNum    : " + user.getUserNum());
+        System.out.println("  - userId     : " + user.getUserId());
+        System.out.println("  - userName   : " + user.getUserName());
+        System.out.println("  - nickname   : " + user.getNickname());
+        System.out.println("  - phoneNum   : " + user.getPhoneNum());
+        System.out.println("  - email      : " + user.getEmail());
+        System.out.println("  - birthDt    : " + user.getBirthDt());
+        System.out.println("  - userRole   : " + user.getUserRole());
+        System.out.println("  - userStatus : " + user.getUserStatus());
+        System.out.println("  - createDt   : " + user.getCreateDt());
+        System.out.println("  - updateDt   : " + user.getUpdateDt());
+        System.out.println("  - withdrawDt : " + user.getWithdrawDt());
     }
 
     private String makePhone(String middle) {
         String last4 = uniqueValue.substring(uniqueValue.length() - 4);
         return "010-" + middle + "-" + last4;
-    }
-
-    private void logUser(String title, UserVO user) {
-        System.out.println("  - " + title + " :");
-        System.out.println("    userNum    = " + user.getUserNum());
-        System.out.println("    userId     = " + user.getUserId());
-        System.out.println("    userName   = " + user.getUserName());
-        System.out.println("    nickname   = " + user.getNickname());
-        System.out.println("    phoneNum   = " + user.getPhoneNum());
-        System.out.println("    email      = " + user.getEmail());
-        System.out.println("    userRole   = " + user.getUserRole());
-        System.out.println("    userStatus = " + user.getUserStatus());
-        System.out.println("    password   = " + user.getPassword());
-    }
-
-    private void logStart(String testName) {
-        System.out.println();
-        System.out.println("============================================================");
-        System.out.println("[TEST START] " + testName);
-        System.out.println("============================================================");
-    }
-
-    private void logStep(String step, String message) {
-        System.out.println("[" + step + "] " + message);
-    }
-
-    private void log(String label, Object value) {
-        System.out.println("  - " + label + " : " + value);
-    }
-
-    private void logPass(String message) {
-        System.out.println("[PASS] " + message);
-        System.out.println("------------------------------------------------------------");
     }
 }

@@ -17,6 +17,7 @@
         bindCategoryMegaMenu();
         bindPrivacyModal();
         bindCommonLogoutConfirm();
+        bindSpamNoticeModal();
     });
 
     function bindSearchValidation() {
@@ -344,6 +345,143 @@
             });
         });
     }
+
+
+    var spamNoticeModal = null;
+    var spamNoticeAction = null;
+
+    /**
+     * 2026-07-13 [추가] 별도 안내 페이지 대신 현재 화면 위에 공통 안내 모달을 표시한다.
+     * type: login | forbidden | ready
+     */
+    function openSpamNoticeModal(type, options) {
+        options = options || {};
+        spamNoticeModal = spamNoticeModal || document.getElementById('spamNoticeModal');
+        if (!spamNoticeModal) return;
+
+        var title = spamNoticeModal.querySelector('#spamNoticeTitle');
+        var message = spamNoticeModal.querySelector('#spamNoticeMessage');
+        var actions = spamNoticeModal.querySelector('.spam-confirm-actions');
+        var cancelButton = spamNoticeModal.querySelector('.spam-confirm-cancel');
+        var okButton = spamNoticeModal.querySelector('.spam-confirm-ok');
+        var loginUrl = options.loginUrl || spamNoticeModal.getAttribute('data-login-url');
+
+        var presets = {
+            login: {
+                title: '로그인이 필요한 서비스입니다.',
+                message: '마이페이지, 상품 등록, 채팅, 신고 등은 로그인 후 이용할 수 있습니다.',
+                okText: '로그인',
+                cancelText: '취소',
+                single: false
+            },
+            forbidden: {
+                title: '접근 권한이 없습니다.',
+                message: '현재 계정으로는 해당 메뉴를 이용할 수 없습니다.',
+                okText: '확인',
+                cancelText: '취소',
+                single: true
+            },
+            ready: {
+                title: '서비스 준비중',
+                message: '아직 완성되지 않은 기능입니다.\n빠르게 이용할 수 있도록 준비하겠습니다.',
+                okText: '확인',
+                cancelText: '취소',
+                single: true
+            }
+        };
+
+        var preset = presets[type] || presets.ready;
+        title.textContent = options.title || preset.title;
+        message.textContent = options.message || preset.message;
+        okButton.textContent = options.okText || preset.okText;
+        cancelButton.textContent = options.cancelText || preset.cancelText;
+        actions.classList.toggle('is-single', options.single === true || (options.single !== false && preset.single));
+
+        spamNoticeAction = function () {
+            if (typeof options.onConfirm === 'function') {
+                options.onConfirm();
+                return;
+            }
+            if (type === 'login' && loginUrl) {
+                window.location.href = loginUrl;
+            }
+        };
+
+        spamNoticeModal.classList.add('is-open');
+        spamNoticeModal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('no-scroll');
+        okButton.focus();
+    }
+
+    function closeSpamNoticeModal() {
+        spamNoticeModal = spamNoticeModal || document.getElementById('spamNoticeModal');
+        if (!spamNoticeModal) return;
+
+        spamNoticeModal.classList.remove('is-open');
+        spamNoticeModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('no-scroll');
+        spamNoticeAction = null;
+    }
+
+    function bindSpamNoticeModal() {
+        spamNoticeModal = document.getElementById('spamNoticeModal');
+        if (!spamNoticeModal) return;
+
+        document.querySelectorAll('[data-spam-modal]').forEach(function (trigger) {
+            if (trigger.dataset.spamModalBound === 'true') return;
+            trigger.dataset.spamModalBound = 'true';
+
+            trigger.addEventListener('click', function (event) {
+                var triggerType = trigger.getAttribute('data-spam-modal');
+                if (triggerType !== 'login' && triggerType !== 'forbidden' && triggerType !== 'ready') return;
+
+                event.preventDefault();
+                openSpamNoticeModal(triggerType, {
+                    title: trigger.getAttribute('data-modal-title') || '',
+                    message: trigger.getAttribute('data-modal-message') || '',
+                    loginUrl: trigger.getAttribute('data-login-url') || ''
+                });
+            });
+        });
+
+        spamNoticeModal.querySelectorAll('.js-spam-notice-close').forEach(function (button) {
+            button.addEventListener('click', closeSpamNoticeModal);
+        });
+
+        var okButton = spamNoticeModal.querySelector('.js-spam-notice-ok');
+        if (okButton) {
+            okButton.addEventListener('click', function () {
+                var action = spamNoticeAction;
+                closeSpamNoticeModal();
+                if (action) action();
+            });
+        }
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && spamNoticeModal.classList.contains('is-open')) {
+                closeSpamNoticeModal();
+            }
+        });
+
+        var params = new URLSearchParams(window.location.search);
+        var modalType = params.get('modal');
+        if (modalType === 'login' || modalType === 'forbidden' || modalType === 'ready') {
+            openSpamNoticeModal(modalType);
+
+            // 새로고침할 때 모달이 반복 노출되지 않도록 modal 파라미터만 주소에서 제거한다.
+            params.delete('modal');
+            var cleanQuery = params.toString();
+            var cleanUrl = window.location.pathname + (cleanQuery ? '?' + cleanQuery : '') + window.location.hash;
+            window.history.replaceState({}, document.title, cleanUrl);
+        }
+    }
+
+    window.SPAMModal = {
+        login: function (options) { openSpamNoticeModal('login', options); },
+        forbidden: function (options) { openSpamNoticeModal('forbidden', options); },
+        ready: function (options) { openSpamNoticeModal('ready', options); },
+        close: closeSpamNoticeModal
+    };
 
     function bindPrivacyModal() {
         var modal = document.getElementById('privacyPolicyModal');

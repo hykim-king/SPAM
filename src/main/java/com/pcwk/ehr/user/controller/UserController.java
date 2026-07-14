@@ -161,9 +161,9 @@ public class UserController {
         // 세션에서 로그인 회원을 꺼냄
         UserVO loginUser = getLoginUser(session);
 
-        // 로그인하지 않은 사용자는 로그인 화면으로 이동
+        // 2026-07-13 [수정] 비로그인 사용자는 공통 로그인 안내 모달으로 이동
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         // DB에서 최신 정보 재조회
@@ -189,6 +189,49 @@ public class UserController {
     }
 
     /**
+     * 2026-07-14 [추가] 판매자 공개 프로필과 판매 중인 상품 목록을 조회한다.
+     * 회원 기본 정보는 UserService, 판매 상품은 ProductService에서 각각 조회한다.
+     *
+     * 요청 URL: GET /user/profile.do?userNum={회원번호}
+     */
+    @GetMapping("/profile.do")
+    public String profile(@RequestParam(value = "userNum", required = false) Long userNum,
+                          @ModelAttribute("search") ProductSearchDTO search,
+                          HttpSession session,
+                          Model model) {
+        if (userNum == null) {
+            return "redirect:/product/list.do";
+        }
+
+        UserVO seller = userService.getUser(userNum);
+        if (seller == null) {
+            return "redirect:/product/list.do";
+        }
+
+        // 2026-07-14 [수정] 판매자 상품도 전체/판매중/예약중/판매완료 탭으로 조회한다.
+        search.setUserNum(userNum);
+        search.setPageNo(1);
+        search.setPageSize(100);
+        search.setSort("latest");
+
+        String status = search.getStatus();
+        if (!("01".equals(status) || "02".equals(status) || "03".equals(status))) {
+            // 전체 탭은 판매중과 예약중 상품만 최신 등록순으로 조회한다.
+            search.setStatus("ACTIVE");
+        }
+
+        UserVO loginUser = getLoginUser(session);
+        boolean isOwnProfile = loginUser != null && userNum.equals(loginUser.getUserNum());
+
+        model.addAttribute("seller", seller);
+        model.addAttribute("list", productService.doRetrieve(search));
+        model.addAttribute("sellerUserNum", userNum);
+        model.addAttribute("isOwnProfile", isOwnProfile);
+
+        return "user/user_profile";
+    }
+
+    /**
      * 회원정보 수정 화면 이동
      *
      * 요청 URL: GET /user/update.do
@@ -198,7 +241,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         UserVO user = userService.getUser(loginUser.getUserNum());
@@ -221,7 +264,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -258,7 +301,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -286,7 +329,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {

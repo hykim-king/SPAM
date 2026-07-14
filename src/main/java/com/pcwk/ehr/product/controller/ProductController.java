@@ -73,11 +73,11 @@ public class ProductController {
         return "product/productView";
     }
 
-    /** 로그인 회원의 상품 등록 화면. */
+    /** 2026-07-13 [수정] 비로그인 시 공통 로그인 안내 모달으로 이동하는 상품 등록 화면. */
     @GetMapping("/saveForm.do")
     public String saveForm(HttpSession session, Model model) {
         if (getLoginUser(session) == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
         model.addAttribute("categoryList", categoryService.doRetrieveParent());
         return "product/productSave";
@@ -88,7 +88,7 @@ public class ProductController {
     public String updateForm(@RequestParam("productNo") int productNo, HttpSession session, Model model) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         ProductVO param = new ProductVO();
@@ -112,7 +112,7 @@ public class ProductController {
     @GetMapping("/myList.do")
     public String myList(@RequestParam(value = "status", required = false) String status, HttpSession session) {
         if (getLoginUser(session) == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         if ("01".equals(status) || "02".equals(status) || "03".equals(status)) {
@@ -122,18 +122,13 @@ public class ProductController {
         return "redirect:/user/mypage.do";
     }
 
-    /** 판매자 프로필과 판매 중인 상품 목록. */
+    /**
+     * 2026-07-14 [수정] 판매자 프로필의 소유 모듈을 user로 이전한다.
+     * 기존 상품 모듈 URL을 사용하던 링크가 깨지지 않도록 새 프로필 주소로 redirect한다.
+     */
     @GetMapping("/seller.do")
-    public String seller(@RequestParam("userNum") Long userNum, Model model) {
-        ProductSearchDTO search = new ProductSearchDTO();
-        search.setUserNum(userNum);
-        search.setStatus("01");
-        search.setPageSize(100);
-
-        model.addAttribute("seller", userService.getUser(userNum));
-        model.addAttribute("list", productService.doRetrieve(search));
-        model.addAttribute("sellerUserNum", userNum);
-        return "product/productSeller";
+    public String legacySeller(@RequestParam("userNum") Long userNum) {
+        return "redirect:/user/profile.do?userNum=" + userNum;
     }
 
     /** 대분류 또는 중분류의 사용 중인 자식 카테고리 JSON 조회. */
@@ -150,7 +145,7 @@ public class ProductController {
                          HttpSession session) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         product.setUserNum(loginUser.getUserNum());
@@ -165,7 +160,7 @@ public class ProductController {
                            HttpSession session) {
         UserVO loginUser = getLoginUser(session);
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         product.setUserNum(loginUser.getUserNum());

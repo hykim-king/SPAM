@@ -246,7 +246,11 @@
             .then(res => res.text())
             .then(result => {
                 if (result === 'NEED_LOGIN') {
-                    location.href = ctx + '/user/login.do';
+                    if (window.SPAMModal && typeof window.SPAMModal.login === 'function') {
+                        window.SPAMModal.login({ loginUrl: ctx + '/user/login.do' });
+                    } else {
+                        location.href = ctx + '/user/login.do';
+                    }
                     return;
                 }
                 alert(result === 'Success' ? '나갔습니다.' : '실패: ' + result);

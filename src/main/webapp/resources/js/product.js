@@ -510,7 +510,11 @@
         button.addEventListener('click', function () {
             var login = button.getAttribute('data-login');
             if (login !== 'true') {
-                window.location.href = button.getAttribute('data-login-url');
+                if (window.SPAMModal && typeof window.SPAMModal.login === 'function') {
+                    window.SPAMModal.login({ loginUrl: button.getAttribute('data-login-url') });
+                } else {
+                    window.location.href = button.getAttribute('data-login-url');
+                }
                 return;
             }
 

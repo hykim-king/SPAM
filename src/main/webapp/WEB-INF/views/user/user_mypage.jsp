@@ -23,7 +23,6 @@
             <header class="page-header mypage-page-header">
                 <div>
                     <h1 class="page-title">마이페이지</h1>
-                    <p class="page-desc">내 정보와 등록한 상품을 한 번에 확인합니다.</p>
                 </div>
                 <nav class="header-actions mypage-header-actions" aria-label="마이페이지 바로가기">
                     <a class="btn primary" href="${CP}/product/saveForm.do">상품 등록</a>

@@ -56,7 +56,9 @@
 
                             <div class="hero-actions">
                                 <a href="${CP}/product/list.do" class="btn btn-dark">상품 둘러보기</a>
-                                <a href="${CP}/product/saveForm.do" class="btn btn-light">판매하기</a>
+                                <a href="${CP}/product/saveForm.do" class="btn btn-light"
+                                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                                   data-login-url="${CP}/user/login.do">판매하기</a>
                             </div>
                         </div>
                     </article>
@@ -107,16 +109,22 @@
                     <img src="${CP}/resources/images/icons/04_latest_registration.png" alt="" aria-hidden="true">
                     <span>최근 등록</span>
                 </a>
-                <a href="${CP}/chat/view.do" class="quick-card">
+                <a href="${CP}/chat/view.do" class="quick-card"
+                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                   data-login-url="${CP}/user/login.do">
                     <img src="${CP}/resources/images/icons/05_chat.png" alt="" aria-hidden="true">
                     <span>채팅하기</span>
                 </a>
                 <%-- 2026-07-13 [수정] 거래내역 바로가기를 마이페이지로 변경, 아이콘은 그대로 사용. --%>
-                <a href="${CP}/user/mypage.do" class="quick-card">
+                <a href="${CP}/user/mypage.do" class="quick-card"
+                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                   data-login-url="${CP}/user/login.do">
                     <img src="${CP}/resources/images/icons/06_transaction_history.png" alt="" aria-hidden="true">
                     <span>마이페이지</span>
                 </a>
-                <a href="${CP}/report/doRetrieve.do" class="quick-card">
+                <a href="${CP}/report/doRetrieve.do" class="quick-card"
+                   data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                   data-login-url="${CP}/user/login.do">
                     <img src="${CP}/resources/images/icons/07_report_center.png" alt="" aria-hidden="true">
                     <span>신고센터</span>
                 </a>

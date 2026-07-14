@@ -124,7 +124,7 @@
                                     <span><c:out value="${empty product.location ? '거래지역 미입력' : product.location}"/></span>
                                 </div>
                             </div>
-                            <a class="product-seller-link" href="${CP}/product/seller.do?userNum=${product.userNum}">판매자 보기</a>
+                            <a class="product-seller-link" href="${CP}/user/profile.do?userNum=${product.userNum}">판매자 보기</a>
                         </div>
 
                         <c:set var="isOwner" value="${not empty sessionScope.loginUser and sessionScope.loginUser.userNum == product.userNum}" />
@@ -147,7 +147,9 @@
                             </c:choose>
                             <a class="product-secondary-button" href="${CP}/product/list.do">목록으로</a>
                             <a class="product-secondary-button product-report-button"
-                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.userNum}&amp;reportType=PRODUCT">신고하기</a>
+                               href="${CP}/report/report_product_form.do?targetId=${product.productNo}&amp;reportedUserNo=${product.userNum}&amp;reportType=PRODUCT"
+                               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
+                               data-login-url="${CP}/user/login.do">신고하기</a>
                         </div>
 
                         <c:if test="${isOwner}">
