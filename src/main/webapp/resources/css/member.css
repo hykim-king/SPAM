@@ -1164,3 +1164,172 @@ button {
         width: 100%;
     }
 }
+
+/* ==========================================================================
+   2026-07-14 [추가] 판매자 공개 프로필
+   ========================================================================== */
+.user-profile-layout {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 30px;
+    align-items: start;
+}
+
+.user-profile-card {
+    padding: 26px 24px 22px;
+    background: var(--member-surface);
+    border: 1px solid var(--member-line);
+    border-radius: var(--member-radius-lg);
+    box-shadow: var(--member-shadow);
+    text-align: center;
+}
+
+.user-profile-avatar {
+    width: 78px;
+    height: 78px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 15px;
+    border-radius: 50%;
+    background: var(--member-primary);
+    color: #FFFFFF;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.user-profile-nickname {
+    margin: 0;
+    color: var(--member-text);
+    font-size: 19px;
+    letter-spacing: -0.03em;
+}
+
+.user-profile-stats {
+    display: grid;
+    gap: 11px;
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--member-line);
+    text-align: left;
+}
+
+.user-profile-stats div {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    color: var(--member-muted);
+    font-size: 13px;
+}
+
+.user-profile-stats strong {
+    color: var(--member-text);
+}
+
+.user-profile-report-button {
+    min-height: 30px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 18px;
+    padding: 0 11px;
+    border: 1px solid #E4B9B9;
+    border-radius: 8px;
+    background: #FFFFFF;
+    color: #B42318;
+    font-size: 11px;
+    font-weight: 800;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.user-profile-report-button:hover {
+    border-color: #D99A9A;
+    background: var(--member-danger-soft);
+}
+
+.user-profile-products {
+    min-width: 0;
+}
+
+.user-profile-products-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.user-profile-products-header h2 {
+    margin: 0;
+    font-size: 20px;
+    letter-spacing: -0.03em;
+}
+
+.user-profile-products-header span {
+    color: var(--member-muted);
+    font-size: 13px;
+}
+
+/* 2026-07-14 [추가] 판매자 프로필 상품 상태 탭 */
+.product-status-tabs.user-profile-status-tabs {
+    justify-content: flex-end;
+    margin: 0 0 15px;
+}
+
+.product-status-tabs.user-profile-status-tabs a {
+    min-width: 76px;
+    height: 35px;
+    padding: 0 14px;
+    font-size: 12px;
+}
+
+.product-card-grid.user-profile-product-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 20px 24px;
+}
+
+.product-empty-state.user-profile-empty-state {
+    min-height: 360px;
+}
+
+@media screen and (max-width: 1100px) {
+    .product-card-grid.user-profile-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media screen and (max-width: 860px) {
+    .user-profile-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .user-profile-card {
+        width: min(100%, 460px);
+        margin: 0 auto;
+    }
+
+    .product-status-tabs.user-profile-status-tabs {
+        justify-content: center;
+    }
+}
+
+@media screen and (max-width: 620px) {
+    .product-card-grid.user-profile-product-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .product-status-tabs.user-profile-status-tabs {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .product-status-tabs.user-profile-status-tabs a {
+        width: 100%;
+    }
+
+    .user-profile-report-button {
+        min-height: 34px;
+        padding: 0 14px;
+        font-size: 12px;
+    }
+}
+

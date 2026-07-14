@@ -124,7 +124,7 @@
                                     <span><c:out value="${empty product.location ? '거래지역 미입력' : product.location}"/></span>
                                 </div>
                             </div>
-                            <a class="product-seller-link" href="${CP}/product/seller.do?userNum=${product.userNum}">판매자 보기</a>
+                            <a class="product-seller-link" href="${CP}/user/profile.do?userNum=${product.userNum}">판매자 보기</a>
                         </div>
 
                         <c:set var="isOwner" value="${not empty sessionScope.loginUser and sessionScope.loginUser.userNum == product.userNum}" />

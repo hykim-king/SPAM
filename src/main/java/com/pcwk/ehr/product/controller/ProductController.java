@@ -122,18 +122,13 @@ public class ProductController {
         return "redirect:/user/mypage.do";
     }
 
-    /** 판매자 프로필과 판매 중인 상품 목록. */
+    /**
+     * 2026-07-14 [수정] 판매자 프로필의 소유 모듈을 user로 이전한다.
+     * 기존 상품 모듈 URL을 사용하던 링크가 깨지지 않도록 새 프로필 주소로 redirect한다.
+     */
     @GetMapping("/seller.do")
-    public String seller(@RequestParam("userNum") Long userNum, Model model) {
-        ProductSearchDTO search = new ProductSearchDTO();
-        search.setUserNum(userNum);
-        search.setStatus("01");
-        search.setPageSize(100);
-
-        model.addAttribute("seller", userService.getUser(userNum));
-        model.addAttribute("list", productService.doRetrieve(search));
-        model.addAttribute("sellerUserNum", userNum);
-        return "product/productSeller";
+    public String legacySeller(@RequestParam("userNum") Long userNum) {
+        return "redirect:/user/profile.do?userNum=" + userNum;
     }
 
     /** 대분류 또는 중분류의 사용 중인 자식 카테고리 JSON 조회. */
