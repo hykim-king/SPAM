@@ -25,7 +25,7 @@
             </div>
             <nav class="header-actions">
                 <a class="btn outline" href="${CP}/admin/user/list.do">전체 목록</a>
-                <a class="btn" href="${CP}/report/doRetrieve.do">신고 목록</a>
+                <a class="btn" href="${CP}/report/admin_doRetrieve.do">신고 목록</a>
             </nav>
         </header>
 

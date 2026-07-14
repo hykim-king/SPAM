@@ -42,7 +42,7 @@
             TARGET_ID, REASON, REPORT_STATUS
         ) VALUES (
             SEQ_REPORT_INFO.NEXTVAL, #{reporterNo}, #{reportedUserNo}, #{reportType},
-            #{targetId}, #{reason}, #{reportStatus}
+            #{targetId}, #{reason}, '01'
         )
     </insert>
     

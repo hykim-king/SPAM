@@ -125,7 +125,7 @@ public class ReportController {
     // ================ 사용자 ================
     
     // 1. 상품 신고등록 페이지 GET 요청 
-    @GetMapping("/reportProductForm.do")
+    @GetMapping("/report_product_form.do")
     public String reportProductForm() {
         return "report/report_product_form"; 
     }
@@ -218,7 +218,7 @@ public class ReportController {
         // 중복 제출(F5) 방지를 위해 마이페이지 신고 내역 목록으로 보냅니다.
         return "<script>" +
                "alert('신고서 제출이 완료되었습니다.');" +
-               "location.href='/report/myReportList.do';" +
+               "location.href='myReportList.do';" +
                "</script>";
     }
 }
