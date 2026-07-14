@@ -25,9 +25,8 @@
         .modal-content { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:350px; background:white; padding:30px; border-radius:10px; box-shadow:0 4px 6px rgba(0,0,0,0.1); height:auto; max-height:90vh; }
         .close-btn { display:block !important; width:100%; padding:12px; margin-top:20px; cursor:pointer; background:#e2e8f0; border:none; border-radius:5px; font-weight:bold; text-align:center; color:#000; }
         
-        /* 페이징 스타일 수정: flex-wrap 적용하여 줄바꿈 해결 */
         .paging-area { display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; margin-top: 30px; }
-        .paging-area a { padding: 8px 16px; border: 1px solid #cbd5e1; text-decoration: none; color: #475569; border-radius: 4px; }
+        .paging-area a { padding: 8px 16px; border: 1px solid #cbd5e1; text-decoration: none; color: #475569; border-radius: 4px; background: #fff; }
         .paging-area a.active { background-color: #3b82f6; color: white; border-color: #3b82f6; }
     </style>
 </head>
@@ -50,41 +49,47 @@
                 <tr><th>상품명</th><th>판매자 아이디</th><th>가격</th><th>상태</th></tr>
             </thead>
             <tbody>
-                <c:forEach var="vo" items="${list}">
-                    <tr>
-                        <td style="text-align: left; padding-left: 20px;">
-                            <a href="javascript:showDetail('${vo.productNo}')" style="text-decoration:none; color:#334155; cursor:pointer;">${vo.productTitle}</a>
-                        </td>
-                        <td>${vo.userId}</td>
-                        <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
-                        <td>${vo.status == '01' ? '판매중' : (vo.status == '02' ? '거래완료' : '기타')}</td>
-                    </tr>
-                </c:forEach>
+                <c:choose>
+                    <c:when test="${not empty list}">
+                        <c:forEach var="vo" items="${list}">
+                            <tr>
+                                <td style="text-align: left; padding-left: 20px;">
+                                    <a href="javascript:showDetail('${vo.productNo}')" style="text-decoration:none; color:#334155; cursor:pointer;">${vo.productTitle}</a>
+                                </td>
+                                <td>${vo.userId}</td>
+                                <td><fmt:formatNumber value="${vo.price}" pattern="#,###" />원</td>
+                                <td>${vo.status == '01' ? '판매중' : (vo.status == '02' ? '거래완료' : '기타')}</td>
+                            </tr>
+                        </c:forEach>
+                    </c:when>
+                    <c:otherwise>
+                        <tr><td colspan="4" style="padding: 40px;">등록된 상품이 없습니다.</td></tr>
+                    </c:otherwise>
+                </c:choose>
             </tbody>
         </table>
 
-        <%-- 페이징 영역 전체를 아래 코드로 교체하세요 --%>
-<div class="paging-area" style="display: flex; justify-content: center; gap: 10px; margin-top: 30px;">
-    <%-- 이전 버튼 --%>
-    <c:if test="${paging.startPage > 1}">
-        <a href="list.do?pageNo=${paging.startPage - 1}&status=${currentStatus}" 
-           style="padding: 8px 16px; border: 1px solid #cbd5e1; text-decoration: none; color: #475569; border-radius: 4px; background: #fff;">이전</a>
-    </c:if>
+        <%-- 페이징 영역: 데이터가 없어도 '이전' 페이지로 갈 수 있게 수정 --%>
+        <div class="paging-area">
+            <%-- 현재 페이지가 1보다 클 경우 '이전' 버튼 항상 노출 --%>
+            <c:if test="${paging.pageNo > 1}">
+                <a href="list.do?pageNo=${paging.pageNo - 1}&status=${currentStatus}">이전</a>
+            </c:if>
 
-    <%-- 페이지 번호 --%>
-    <c:forEach var="i" begin="${paging.startPage}" end="${paging.endPage}">
-        <a href="list.do?pageNo=${i}&status=${currentStatus}" 
-           style="padding: 8px 16px; border: 1px solid #cbd5e1; text-decoration: none; color: #475569; border-radius: 4px; background: ${paging.pageNo == i ? '#3b82f6' : '#fff'}; color: ${paging.pageNo == i ? 'white' : '#475569'}; font-weight: ${paging.pageNo == i ? 'bold' : 'normal'};">
-           ${i}
-        </a>
-    </c:forEach>
+            <%-- 데이터가 있을 때만 페이지 번호 표시 --%>
+            <c:if test="${not empty list}">
+                <c:forEach var="i" begin="${paging.startPage}" end="${paging.endPage}">
+                    <a href="list.do?pageNo=${i}&status=${currentStatus}" 
+                       class="${paging.pageNo == i ? 'active' : ''}">
+                       ${i}
+                    </a>
+                </c:forEach>
 
-    <%-- 다음 버튼 --%>
-    <c:if test="${paging.endPage < (totalCount + 9) / 10}">
-        <a href="list.do?pageNo=${paging.endPage + 1}&status=${currentStatus}" 
-           style="padding: 8px 16px; border: 1px solid #cbd5e1; text-decoration: none; color: #475569; border-radius: 4px; background: #fff;">다음</a>
-    </c:if>
-</div>
+                <c:if test="${paging.endPage < (totalCount + 9) / 10}">
+                    <a href="list.do?pageNo=${paging.endPage + 1}&status=${currentStatus}">다음</a>
+                </c:if>
+            </c:if>
+        </div>
     </div>
 </div>
 
