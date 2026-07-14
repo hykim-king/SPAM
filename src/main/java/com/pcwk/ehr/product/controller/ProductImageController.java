@@ -24,7 +24,7 @@ public class ProductImageController {
     private static final Logger LOG = LogManager.getLogger(ProductImageController.class);
 
     // 이미지 저장 폴더 (ProductServiceImpl.UPLOAD_PATH 와 동일해야 함)
-    private static final String UPLOAD_PATH = "C:\\SPAM\\Upload";
+    private static final String UPLOAD_PATH = "D:\\SPAM\\Upload";
 
     /** 이미지 서빙: /image/view.do?name=xxxx.png */
     @GetMapping("/image/view.do")

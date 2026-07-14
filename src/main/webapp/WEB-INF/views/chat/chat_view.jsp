@@ -95,8 +95,10 @@
                         div.dataset.sellerNo = (room.sellerNo ?? '');
                         div.dataset.sellerExitYn = (room.sellerExitYn ?? 'N');
                         div.dataset.productTitle = (room.productTitle ?? '상품');
+                        div.dataset.productNo = (room.productNo ?? '');
                         // 방 이름(상대 닉네임)도 저장해두기 — openRoom에서 씀
                         div.dataset.oppNick = (room.opponentNick ?? '상대방');
+                        div.dataset.oppNo = (room.opponentNo ?? '');
                         div.innerHTML =
                             '<div class="rname">' + (room.opponentNick ?? '상대방') + '</div>' +
                             '<div class="rsub">' + (room.productTitle ?? '-') + ' · ' + (room.location ?? '') + '</div>' +
@@ -121,7 +123,16 @@
 
             const oppNick = el ? (el.dataset.oppNick || '상대방') : '상대방';
             const productTitle = el ? (el.dataset.productTitle || '상품') : '상품';
-            document.getElementById('currentRoomName').textContent = productTitle + ' · ' + oppNick;
+            const productNo = el ? (el.dataset.productNo || '') : '';
+            const oppNo = el ? (el.dataset.oppNo || '') : '';
+
+            document.getElementById('currentRoomName').innerHTML =
+                '<a class="room-link room-link-title" href="' + ctx + '/product/view.do?productNo=' + productNo + '">'
+                    + productTitle + '</a>'
+                + ' · '
+                + '<a class="room-link room-link-seller" href="' + ctx + '/product/seller.do?userNum=' + oppNo + '">'
+                    + oppNick + '</a>';
+                    
             document.getElementById('exitBtn').style.display = 'inline-block';
 
             // 판매자가 나간 방인지 판단 (내가 구매자이고 + 판매자 EXIT = Y)
@@ -166,34 +177,60 @@
         }
 
         /* ------------------ 웹소켓 연결 ------------------ */
-        function connectSocket(roomNo) {
-            if (socket) {
-                socket.close();
-                socket = null;
-            }
+		let heartbeatTimer = null;   // 하트비트 타이머
+		let reconnectTimer = null;   // 재연결 타이머
+		let manualClose = false;     // 내가 일부러 닫은 건지 표시(나가기/방전환)
+		
+		function connectSocket(roomNo) {
+		    // 기존 연결/타이머 정리
+		    manualClose = true;                      // 아래 close는 의도된 종료
+		    if (socket) { socket.close(); socket = null; }
+		    if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+		    if (reconnectTimer) { clearTimeout(reconnectTimer); reconnectTimer = null; }
+		
+		    const proto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
+		    const url = proto + location.host + ctx + '/ws/chat.do?roomNo=' + roomNo;
+		
+		    socket = new WebSocket(url);
+		    manualClose = false;                     // 새 연결 시작 — 이제 끊기면 비정상
+		
+		    socket.onopen = function() {
+		        console.log('웹소켓 연결됨');
+		        // 하트비트 시작: 25초마다 ping 신호
+		        heartbeatTimer = setInterval(function() {
+		            if (socket && socket.readyState === WebSocket.OPEN) {
+		                socket.send(JSON.stringify({ type: 'ping' }));
+		            }
+		        }, 25000);
+		    };
 
-            const proto = (location.protocol === 'https:') ? 'wss://' : 'ws://';
-            const url = proto + location.host + ctx + '/ws/chat.do?roomNo=' + roomNo;
-
-            socket = new WebSocket(url);
-
-            socket.onmessage = function(event) {
-                const msg = JSON.parse(event.data);
-                const box = document.getElementById('msgList');
-                const ph = box.querySelector('.msg-placeholder');
-                if (ph) ph.remove();
-                appendMessage(msg);
-                box.scrollTop = box.scrollHeight;
-            };
-
-            socket.onclose = function() {
-                console.log('웹소켓 연결 종료');
-            };
-
-            socket.onerror = function(err) {
-                console.error('웹소켓 오류', err);
-            };
-        }
+		    socket.onmessage = function(event) {
+		        const msg = JSON.parse(event.data);
+		        if (msg.type === 'pong') return;     // 서버 응답 신호는 화면에 안 그림
+		        const box = document.getElementById('msgList');
+		        const ph = box.querySelector('.msg-placeholder');
+		        if (ph) ph.remove();
+		        appendMessage(msg);
+		        box.scrollTop = box.scrollHeight;
+		    };
+		
+		    socket.onclose = function() {
+		        console.log('웹소켓 연결 종료');
+		        if (heartbeatTimer) { clearInterval(heartbeatTimer); heartbeatTimer = null; }
+		        // 내가 일부러 닫은 게 아니고, 아직 이 방을 보고 있으면 재연결 시도
+		        if (!manualClose && currentRoomNo === roomNo) {
+		            reconnectTimer = setTimeout(function() {
+		                console.log('재연결 시도...');
+		                connectSocket(roomNo);
+		            }, 2000);   // 2초 뒤 재연결
+		        }
+		    };
+		
+		    socket.onerror = function(err) {
+		        console.error('웹소켓 오류', err);
+		        // 오류 나면 소켓이 곧 close됨 → onclose에서 재연결 처리
+		    };
+		}
 
         /* ------------------ 메시지 전송 ------------------ */
         function sendMessage() {
@@ -251,7 +288,7 @@
                 }
                 alert(result === 'Success' ? '나갔습니다.' : '실패: ' + result);
 
-                if (socket) { socket.close(); socket = null; }
+                if (socket) { manualClose = true; socket.close(); socket = null; }
                 currentRoomNo = null;
                 document.getElementById('currentRoomName').textContent = '채팅방을 선택하세요';
                 document.getElementById('exitBtn').style.display = 'none';
