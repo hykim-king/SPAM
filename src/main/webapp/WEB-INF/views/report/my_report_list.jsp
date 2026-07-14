@@ -18,11 +18,38 @@
             border-radius: 8px;
             box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
         }
+        /* 타이틀 블록 정렬을 위한 헤더 스타일 추가 */
+        .page-header-block {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
         .page-title {
             font-size: 22px;
             font-weight: bold;
-            margin-bottom: 24px;
             color: #333;
+            margin: 0;
+        }
+        /* 메인 버튼 스타일 추가 */
+        .btn-main-home {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #495057;
+            background-color: #f1f3f5;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        .btn-main-home:hover {
+            background-color: #e9ecef;
+            color: #212529;
+            border-color: #adb5bd;
         }
         /* 탭 스타일 */
         .tab-menu {
@@ -96,7 +123,10 @@
 <body>
 
 <div class="report-list-container">
-    <h1 class="page-title">🚨 나의 신고 내역 관리</h1>
+    <div class="page-header-block">
+        <h1 class="page-title">🚨 나의 신고 내역 관리</h1>
+        <a href="${pageContext.request.contextPath}/main.do" class="btn-main-home">🏠 메인으로</a>
+    </div>
     
     <div class="tab-menu">
         <div class="tab-item active" onclick="switchTab('my-reports')">내가 신고한 목록</div>
@@ -120,24 +150,23 @@
                     <c:when test="${not empty myReportList}">
                         <c:forEach var="report" items="${myReportList}" varStatus="status">
                             <tr onclick="goDetail('${report.reportNo}')">
-                                <td>${status.count}</td> <%-- 💡 reportStatus.count를 status.count로 수정 완료! --%>
+                                <td>${status.count}</td>
                                 <td><strong>${report.reportType}</strong></td>
                                 <td>
-    								<a href="${pageContext.request.contextPath}/report/doSelectOne.do?reportNo=${report.reportNo}" 
-								       style="text-decoration: none; color: inherit; display: block;">
-								        <c:choose>
-								            <c:when test="${report.reason.length() > 30}">
-								                <c:out value="${report.reason.substring(0, 30)}..."/>
-								            </c:when>
-								            <c:otherwise>
-								                <c:out value="${report.reason}"/>
-								            </c:otherwise>
-								        </c:choose>
-								    </a>
-								</td>
+                                    <a href="${pageContext.request.contextPath}/report/doSelectOne.do?reportNo=${report.reportNo}" 
+                                       style="text-decoration: none; color: inherit; display: block;">
+                                        <c:choose>
+                                            <c:when test="${report.reason.length() > 30}">
+                                                <c:out value="${report.reason.substring(0, 30)}..."/>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <c:out value="${report.reason}"/>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </a>
+                                </td>
                                 <td>${report.createDt}</td>
                                 <td>
-                                    <%-- 💡 DB 코드 규칙이 '01', '02' 형태이므로 맞춰서 바인딩할 수 있도록 유연하게 설계 --%>
                                     <span class="status-badge status-${report.reportStatus}">
                                         <c:choose>
                                             <c:when test="${report.reportStatus == '01' || report.reportStatus == '0'}">처리대기</c:when>
@@ -196,16 +225,13 @@
 <script>
     // 1. 탭 전환 스크립트
     function switchTab(tabId) {
-        // 모든 탭 아이템 active 제거
         document.querySelectorAll('.tab-menu .tab-item').forEach(tab => {
             tab.classList.remove('active');
         });
-        // 모든 테이블 패널 숨기기
         document.querySelectorAll('.report-table-panel').forEach(panel => {
             panel.classList.remove('active');
         });
         
-        // 클릭한 탭과 패널 활성화
         event.currentTarget.classList.add('active');
         document.getElementById(tabId).classList.add('active');
     }
@@ -213,7 +239,6 @@
     // 2. 상세 페이지 이동 스크립트
     function goDetail(reportNo) {
         if(!reportNo) return;
-        // 상세조회 Get 매핑 주소로 번호를 파라미터로 들고 이동
         location.href = "${pageContext.request.contextPath}/report/doSelectOne.do?reportNo=" + reportNo;
     }
 </script>

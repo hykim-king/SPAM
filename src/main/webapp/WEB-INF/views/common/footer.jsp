@@ -27,9 +27,14 @@
 
         <div class="footer-column">
             <strong>고객센터</strong>
-            <a href="${CP}/report/doRetrieve.do"
-               data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
-               data-login-url="${CP}/user/login.do">신고 문의</a>
+            <c:choose>
+        		<c:when test="${sessionScope.loginUser.userRole == '02'}">
+            		<a href="${CP}/report/admin_doRetrieve.do">신고 문의</a>
+        		</c:when>
+        		<c:otherwise>
+            		<a href="${CP}/report/myReportList.do">신고 문의</a>
+        		</c:otherwise>
+    		</c:choose>
             <a href="${CP}/service/info.do?tab=safe">이용 정책 안내</a>
             <a href="${CP}/user/update.do#withdrawStartArea"
                data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"

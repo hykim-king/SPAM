@@ -8,7 +8,6 @@ package com.pcwk.ehr.report.controller;
 
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,53 +27,36 @@ import com.pcwk.ehr.user.domain.UserVO;
 @RequestMapping("/report")
 public class ReportController {
 
-    private static final String SESSION_LOGIN_USER = "loginUser";
-    private static final String ROLE_ADMIN = "02";
-
     @Autowired
     private ReportService reportService;
 
-    /**
-     * 2026-07-13 [추가] 공통 신고 메뉴 진입점.
-     * 관리자는 전체 신고 목록, 일반 회원은 자신의 신고 목록으로 이동한다.
-     */
-    @GetMapping("/doRetrieve.do")
-    public String reportHome(HttpSession session) {
-        UserVO loginUser = getLoginUser(session);
-        if (loginUser == null) {
-            return "redirect:/main.do?modal=login";
-        }
-
-        return ROLE_ADMIN.equals(loginUser.getUserRole())
-                ? "redirect:/report/admin_doRetrieve.do"
-                : "redirect:/report/myReportList.do";
-    }
-
+    // ================ 관리자 ================
     // ================ 관리자 ================
 
     // 1. 신고 목록 조회 (관리자용 전체 조회)
     @GetMapping("/admin_doRetrieve.do")
     public String doRetrieve(ReportSearchDTO search, Model model, HttpSession session) {
-        // 2026-07-13 [수정] 비로그인과 권한 부족을 공통 안내 모달로 구분한다.
-        if (!isAdmin(session)) {
-            return accessDeniedRedirect(session);
+    	// 1. 보안 유효성 검사 (관리자 권한 확인)
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
+            return "redirect:/user/login.do"; 
         }
 
         // 2. 파라미터가 비어있거나 잘못 왔을 때 강제 보정
         int pNo = search.getPageNo() <= 0 ? 1 : search.getPageNo();
-        int pSize = 10; // 한 페이지당 10개 고정
-
+        int pSize = 10; // 대장이 요청한 한 페이지당 10개 고정
+        
         // 3. 연산 순서 꼬임 방지를 위해 직접 연산 후 DTO 변수에 강제 주입
         int computedStart = (pNo - 1) * pSize + 1;
         int computedEnd = computedStart + pSize - 1;
-
+        
         // DTO 멤버 변수에 정확한 값 세팅
         search.setPageNo(pNo);
         search.setPageSize(pSize);
         search.setStartRow(computedStart);
         search.setEndRow(computedEnd);
-
-        // 디버깅 로그: 페이징 계산값 확인용
+        
+        // 💡 디버깅 로그: 이 숫자가 콘솔에 정확히 찍히는지 확인용
         System.out.println("====== [페이징 디버깅] ======");
         System.out.println("요청 PageNo : " + search.getPageNo());
         System.out.println("보낼 StartRow : " + search.getStartRow());
@@ -85,114 +67,114 @@ public class ReportController {
         List<ReportVO> list = reportService.doRetrieve(search);
         int totalCount = reportService.totalCnt();
 
-        // 5. JSP로 모델 전달
+        // 5. JSP로 모델 전달    
         model.addAttribute("list", list);
         model.addAttribute("totalCount", totalCount);
         model.addAttribute("search", search);
 
         return "report/admin_report_list";
     }
-
+    
     // 2. 신고 상세 조회 (관리자용)
     @GetMapping("/admin_report_detail.do")
     public String adminReportDetail(ReportVO report, Model model, HttpSession session) {
-        if (!isAdmin(session)) {
-            return accessDeniedRedirect(session);
+    	
+    	// 1. 보안 유효성 검사 (관리자 권한 확인)
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
+            // 프로젝트 설계에 맞춘 관리자 권한 체크 조건 (예: ROLE_ADMIN 또는 ADMIN)
+            return "redirect:/user/login.do"; 
         }
 
+        // 2. 파라미터 검증 및 서비스 호출을 통한 단건 상세 데이터 조회
+        // report 객체 내에 reportNo가 자동으로 매핑되어 들어옵니다.
         ReportVO outVO = reportService.doSelectOne(report);
+        
+        // 3. 조회된 데이터를 Model에 담아 JSP(화면)로 전달
         model.addAttribute("outVO", outVO);
-
-        return "report/admin_report_detail";
+        
+        // 4. 관리자용 상세 페이지 JSP 경로 리턴
+        return "report/admin_report_detail"; 
     }
-
+    
     // 3. 관리자용 신고 처리 상태 변경 (접수/완료/반려)
-    @PostMapping(value = "/doUpdateStatus.do", produces = "text/html; charset=UTF-8")
+    @PostMapping(value="/doUpdateStatus.do", produces="text/html; charset=UTF-8")
     @ResponseBody
-    public String doUpdateStatus(ReportVO report,
-                                 HttpSession session,
-                                 HttpServletRequest request) {
-        UserVO loginUser = getLoginUser(session);
-        if (loginUser == null) {
-            return scriptRedirect(
-                    "",
-                    request.getContextPath() + "/main.do?modal=login");
+    public String doUpdateStatus(ReportVO report, HttpSession session) {
+    	UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+    	if (loginUser != null) {
+            // 관리자의 고유 번호(UserNum)를 ReportVO의 adminNo에 세팅합니다.
+            report.setAdminNo(loginUser.getUserNum());
+        } else {
+            // 혹시 세션이 만료되었거나 로그인이 안 된 경우를 위한 예외 처리 (선택)
+            return "<script>" +
+                   "alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');" +
+                   "location.href='/ehr/user/login.do';" +
+                   "</script>";
         }
-        if (!ROLE_ADMIN.equals(loginUser.getUserRole())) {
-            return scriptRedirect(
-                    "",
-                    request.getContextPath() + "/main.do?modal=forbidden");
-        }
-
-        report.setAdminNo(loginUser.getUserNum());
+    	
         reportService.doUpdateStatus(report);
-
-        return scriptRedirect(
-                "수정되었습니다.",
-                request.getContextPath() + "/report/admin_doRetrieve.do");
+        
+        return "<script>" + 
+        "alert('수정되었습니다.');" +  
+        "location.href='admin_doRetrieve.do';" + 
+        "</script>";
     }
-
+    
     // ================ 사용자 ================
-
-    // 1. 상품 신고등록 페이지 GET 요청
-    @GetMapping({"/reportProductForm.do", "/report_product_form.do"})
-    public String reportProductForm(HttpSession session) {
-        if (getLoginUser(session) == null) {
-            return "redirect:/main.do?modal=login";
-        }
-        return "report/report_product_form";
+    // ================ 사용자 ================
+    
+    // 1. 상품 신고등록 페이지 GET 요청 
+    @GetMapping("/report_product_form.do")
+    public String reportProductForm() {
+        return "report/report_product_form"; 
     }
 
     // 2. 유저 신고등록 페이지 GET 요청
-    @GetMapping({"/reportUserForm.do", "/report_user_form.do"})
-    public String reportUserForm(HttpSession session) {
-        if (getLoginUser(session) == null) {
-            return "redirect:/main.do?modal=login";
-        }
-        return "report/report_user_form";
+    @GetMapping("/reportUserForm.do")
+    public String reportUserForm() {
+        return "report/report_user_form"; 
     }
-
+    
     // 3. 나의 신고 내역 목록 조회 (내가 한 신고 / 내가 당한 신고)
     @GetMapping("/myReportList.do")
     public String myReportList(HttpSession session, Model model) {
-        UserVO loginUser = getLoginUser(session);
-
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        
+        // 로그인 되어있지 않으면 로그인 페이지로 강제 리다이렉트
         if (loginUser == null) {
-            return "redirect:/main.do?modal=login";
+            return "redirect:/user/login.do";
         }
-
+        
+        // 내가 신고한 목록 조회 및 바인딩
         long currentUserNum = loginUser.getUserNum();
         List<ReportVO> myReportList = reportService.doRetrieveMyReports(currentUserNum);
         model.addAttribute("myReportList", myReportList);
-
+        
+        // 내가 신고당한 목록 조회 및 바인딩 
         List<ReportVO> receivedReportList = reportService.doRetrieveReceivedReports(currentUserNum);
         model.addAttribute("receivedReportList", receivedReportList);
-
-        return "report/my_report_list";
+        
+        return "report/my_report_list"; 
     }
-
-    // 4. 신고 상세 조회
+    
+    // 5. 신고 상세 조회
     @GetMapping("/doSelectOne.do")
-    public String doSelectOne(ReportVO report,
-                              Model model,
-                              HttpSession session) {
-        if (getLoginUser(session) == null) {
-            return "redirect:/main.do?modal=login";
-        }
-
+    public String doSelectOne(ReportVO report, Model model) {
+        // 신고번호(reportNo)를 기준으로 서비스에서 데이터를 조회해와
         ReportVO outVO = reportService.doSelectOne(report);
+        
+        // 조회된 데이터를 모델에 담아서 JSP로 전달
         model.addAttribute("outVO", outVO);
-
+        
         return "report/report_detail";
     }
-
-    // 5. 신고 등록 POST 요청 (@ResponseBody 활용 문자열 반환)
-    @PostMapping(value = "/doInsert.do", produces = "text/html; charset=UTF-8")
+    
+ // 3. 신고 등록 POST 요청 (@ResponseBody 활용 문자열 반환)
+    @PostMapping(value="/doInsert.do", produces="text/html; charset=UTF-8")
     @ResponseBody
-    public String doInsert(ReportVO report,
-                           HttpSession session,
-                           HttpServletRequest request) {
-
+    public String doInsert(ReportVO report, HttpSession session) {
+        
         // [유효성 검사] 신고 유형 및 사유 미선택 검사
         if (report.getReportType() == null || report.getReportType().trim().isEmpty()) {
             return "<script>" +
@@ -200,7 +182,7 @@ public class ReportController {
                    "history.back();" +
                    "</script>";
         }
-
+        
         // [유효성 검사] 상세내용 미입력 검사
         if (report.getReason() == null || report.getReason().trim().isEmpty()) {
             return "<script>" +
@@ -208,7 +190,7 @@ public class ReportController {
                    "history.back();" +
                    "</script>";
         }
-
+        
         // [유효성 검사] 상세내용 1000자 이상 검사
         if (report.getReason().length() >= 1000) {
             return "<script>" +
@@ -216,48 +198,27 @@ public class ReportController {
                    "history.back();" +
                    "</script>";
         }
-
+        
         // 로그인 세션 체크 및 신고자 번호 설정
-        UserVO loginUser = getLoginUser(session);
-        if (loginUser == null) {
-            return scriptRedirect(
-                    "",
-                    request.getContextPath() + "/main.do?modal=login");
+        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        if(loginUser == null) {
+            return "<script>" +
+                   "alert('로그인 후 이용 가능합니다.');" +
+                   "location.href='/login/loginView.do';" +
+                   "</script>";
         }
-
-        report.setReporterNo(loginUser.getUserNum());
+        
+        // 세션에서 꺼낸 로그인 유저의 고유 번호를 세팅
+        report.setReporterNo(loginUser.getUserNum()); 
+       
+        // 서비스 단 비즈니스 로직 수행
         reportService.doInsert(report);
-
-        return scriptRedirect(
-                "신고서 제출이 완료되었습니다.",
-                request.getContextPath() + "/report/myReportList.do");
-    }
-
-    /** 2026-07-13 [추가] 비로그인과 관리자 권한 부족의 이동 화면을 구분한다. */
-    private String accessDeniedRedirect(HttpSession session) {
-        return getLoginUser(session) == null
-                ? "redirect:/main.do?modal=login"
-                : "redirect:/main.do?modal=forbidden";
-    }
-
-    private boolean isAdmin(HttpSession session) {
-        UserVO loginUser = getLoginUser(session);
-        return loginUser != null && ROLE_ADMIN.equals(loginUser.getUserRole());
-    }
-
-    private UserVO getLoginUser(HttpSession session) {
-        Object loginUser = session.getAttribute(SESSION_LOGIN_USER);
-        return loginUser instanceof UserVO ? (UserVO) loginUser : null;
-    }
-
-    private String scriptRedirect(String message, String targetUrl) {
-        String alertScript = (message == null || message.trim().isEmpty())
-                ? ""
-                : "alert('" + message + "');";
-
+        
+        // 💡 핵심 수정: @ResponseBody 상황이므로 redirect 문자열 대신 스크립트로 강제 이동 처리!
+        // 중복 제출(F5) 방지를 위해 마이페이지 신고 내역 목록으로 보냅니다.
         return "<script>" +
-               alertScript +
-               "location.href='" + targetUrl + "';" +
+               "alert('신고서 제출이 완료되었습니다.');" +
+               "location.href='myReportList.do';" +
                "</script>";
     }
 }

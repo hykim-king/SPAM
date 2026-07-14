@@ -1,5 +1,4 @@
-<%@ page language="java" contentType="text/html; charset=UTF-8"
-	pageEncoding="UTF-8"%>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
 <!DOCTYPE html>
@@ -7,8 +6,7 @@
 <head>
 <meta charset="UTF-8">
 <title>신고 상세 내역</title>
-<link rel="stylesheet" type="text/css"
-	href="${pageContext.request.contextPath}/resources/css/member.css">
+<link rel="stylesheet" type="text/css" href="${pageContext.request.contextPath}/resources/css/member.css">
 <style>
 .detail-container {
 	max-width: 750px;
@@ -117,18 +115,19 @@
 		<div class="detail-header">
 			<div class="detail-title">🚨 신고 상세 내역</div>
 			<div>
+				<%-- 💡 기존 reportVO를 컨트롤러에서 보낸 outVO로 명칭 통일 변경 --%>
 				<c:choose>
-					<c:when test="${reportVO.reportStatus eq '01'}">
+					<c:when test="${outVO.reportStatus eq '01'}">
 						<span class="status-badge status-ing">접수중</span>
 					</c:when>
-					<c:when test="${reportVO.reportStatus eq '02'}">
+					<c:when test="${outVO.reportStatus eq '02'}">
 						<span class="status-badge status-done">처리완료</span>
 					</c:when>
-					<c:when test="${reportVO.reportStatus eq '03'}">
+					<c:when test="${outVO.reportStatus eq '03'}">
 						<span class="status-badge status-reject">반려</span>
 					</c:when>
 					<c:otherwise>
-						<span class="status-badge status-wait">${reportVO.reportStatus}</span>
+						<span class="status-badge status-wait">${outVO.reportStatus}</span>
 					</c:otherwise>
 				</c:choose>
 			</div>
@@ -137,71 +136,70 @@
 		<table class="info-table">
 			<tr>
 				<th>신고 번호</th>
-				<td>${reportVO.reportNo}</td>
+				<td>${outVO.reportNo}</td>
 			</tr>
 			<tr>
 				<th>신고 구분</th>
-				<td><strong> <c:choose>
-							<c:when test="${reportVO.reportType eq 'USER'}">유저 비매너 신고</c:when>
-							<c:when test="${reportVO.reportType eq 'PRODUCT'}">상품 게시글 신고</c:when>
-							<c:otherwise>${reportVO.reportType}</c:otherwise>
-						</c:choose>
+				<td><strong> 
+					<c:choose>
+						<c:when test="${outVO.reportType eq 'USER'}">유저 비매너 신고</c:when>
+						<c:when test="${outVO.reportType eq 'PRODUCT'}">상품 게시글 신고</c:when>
+						<c:otherwise>${outVO.reportType}</c:otherwise>
+					</c:choose>
 				</strong></td>
 			</tr>
-			<%-- 💡 요구사항: '신고자 회원번호' -> '신고자 회원닉네임', 값도 nickname으로 변경 --%>
 			<tr>
 				<th>신고자 회원닉네임</th>
-				<td><c:out value="${reportVO.reporterNickname}" default="이름없음" /></td>
+				<td><c:out value="${outVO.reporterNickname}" default="이름없음" /></td>
 			</tr>
-			<%-- 💡 요구사항: '피신고자 회원번호' -> '피신고자 회원닉네임', 값도 nickname으로 변경 --%>
 			<tr>
 				<th>피신고자 회원닉네임</th>
-				<td><c:choose>
-						<c:when test="${not empty reportVO.reportedNickname}">
-							<c:out value="${reportVO.reportedNickname}" />
+				<td>
+					<c:choose>
+						<c:when test="${not empty outVO.reportedNickname}">
+							<c:out value="${outVO.reportedNickname}" />
 						</c:when>
 						<c:otherwise>없음 (대상물 신고)</c:otherwise>
-					</c:choose></td>
+					</c:choose>
+				</td>
 			</tr>
-			<%-- 💡 요구사항: targetId가 0일 땐 '신고대상ID' 행을 보여주지 않음 --%>
-			<c:if test="${reportVO.targetId ne 0}">
+			<c:if test="${outVO.targetId ne 0}">
 				<tr>
 					<th>신고 대상 ID (PK)</th>
-					<td>${reportVO.targetId}</td>
+					<td>${outVO.targetId}</td>
 				</tr>
 			</c:if>
 			<tr>
 				<th>신고 접수일</th>
-				<td>${reportVO.createDt}</td>
+				<td>${outVO.createDt}</td>
 			</tr>
 
-			<%-- 💡 반려(04)인 경우에도 관리자 정보가 보여야 한다면 eq '04' 조건을 추가해 주면 좋아 --%>
-			<c:if
-				test="${reportVO.reportStatus eq '03' or reportVO.reportStatus eq '04'}">
+			<c:if test="${outVO.reportStatus eq '03' or outVO.reportStatus eq '04'}">
 				<tr>
 					<th>담당 관리자</th>
-					<td><c:choose>
-							<c:when test="${not empty reportVO.adminNickName}">
-								<c:out value="${reportVO.adminNickName}" /> 관리자
-           </c:when>
+					<td>
+						<c:choose>
+							<c:when test="${not empty outVO.adminNickName}">
+								<c:out value="${outVO.adminNickName}" /> 관리자
+							</c:when>
 							<c:otherwise>
-               ${reportVO.adminNickName}번 관리자
-           </c:otherwise>
-						</c:choose></td>
+								${outVO.adminNickName}번 관리자
+							</c:otherwise>
+						</c:choose>
+					</td>
 				</tr>
 				<tr>
 					<th>처리가 완료된 날짜</th>
-					<td>${reportVO.processDt}</td>
+					<td>${outVO.processDt}</td>
 				</tr>
 			</c:if>
 		</table>
 
 		<h3 style="margin-bottom: 10px; color: #495057;">📄 신고 사유 및 상세 내용</h3>
-		<div class="reason-box">${reportVO.reason}</div>
+		<div class="reason-box"><c:out value="${outVO.reason}"/></div>
 
 		<div class="btn-area">
-			<a href="${pageContext.request.contextPath}/report/myReportList.do"
-				class="btn-list">목록으로 돌아가기</a>
+			<a href="${pageContext.request.contextPath}/report/myReportList.do" class="btn-list">목록으로 돌아가기</a>
 		</div>
 	</div>
 
