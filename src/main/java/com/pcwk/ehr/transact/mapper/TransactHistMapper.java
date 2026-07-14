@@ -26,7 +26,7 @@ public interface TransactHistMapper {
     int deleteAll();
     
     // 데이터베이스에 저장된 전체 거래 내역의 개수를 조회합니다.
-    int totalCount();
+    int totalCount(TransacHistSearchDTO dto);
     
     // 특정 거래 아이디(txId)로 단건의 거래 정보를 조회합니다.
     TransactHistVO selectByTxId(Long txId);

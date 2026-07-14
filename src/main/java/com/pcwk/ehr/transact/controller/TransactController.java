@@ -39,7 +39,7 @@ public class TransactController {
         List<ProductVO> list = transactService.selectProductListPaged(dto);
         
         // 2. 전체 건수 조회: 페이징 계산을 위해 현재 검색 조건의 전체 데이터 개수를 가져옴
-        int totalCount = transactService.getTotalCount(dto);
+        int totalCount = transactService.totalCount(dto);
         
         // 3. 페이징 계산: DTO 내부의 메서드를 호출하여 페이지 블록(startPage, endPage 등)을 설정
         dto.calculatePaging(totalCount);

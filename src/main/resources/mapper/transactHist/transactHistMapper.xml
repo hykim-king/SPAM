@@ -55,10 +55,12 @@
 </select>
 
     <select id="totalCount" parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO" resultType="int">
-    SELECT COUNT(*) FROM PRODUCT
+    SELECT COUNT(*) 
+    FROM PRODUCT P
+    LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
     <where>
         <if test="status != null and status != ''">
-            AND STATUS = #{status}
+            AND P.STATUS = #{status}
         </if>
     </where>
 </select>
