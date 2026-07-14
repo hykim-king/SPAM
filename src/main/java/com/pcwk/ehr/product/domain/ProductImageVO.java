@@ -14,7 +14,7 @@ public class ProductImageVO implements Serializable {
     private int imageOrder;
     private String thumbnailYn;
     private String createDt;
-
+  
     public ProductImageVO() {
     }
 
@@ -82,9 +82,13 @@ public class ProductImageVO implements Serializable {
         this.createDt = createDt;
     }
 
-    @Override
-    public String toString() {
-        return "ProductImageVO [imageNo=" + imageNo + ", productNo=" + productNo + ", changeName="
-                + changeName + ", imageOrder=" + imageOrder + ", thumbnailYn=" + thumbnailYn + "]";
-    }
+	@Override
+	public String toString() {
+		return "ProductImageVO [imageNo=" + imageNo + ", productNo=" + productNo + ", originName=" + originName
+				+ ", changeName=" + changeName + ", filePath=" + filePath + ", imageOrder=" + imageOrder
+				+ ", thumbnailYn=" + thumbnailYn + ", createDt=" + createDt + "]";
+	}
+    
+    
+    
 }

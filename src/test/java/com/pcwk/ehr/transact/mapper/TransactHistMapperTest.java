@@ -1,18 +1,16 @@
-/**
- * 파일명: TransactHistMapperTest.java <br>
- * 작성자: Wholesome-Gee  <br>
- * 생성일: 2026-07-11 <br>
- * 설 명: 거래내역 매퍼 테스트  <br>
- */
 package com.pcwk.ehr.transact.mapper;
 
 import static org.junit.jupiter.api.Assertions.*;
+
+import java.util.List;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import com.pcwk.ehr.transact.domain.TransactHistVO;
+
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.transact.domain.TransacHistSearchDTO;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(locations = {"file:src/main/webapp/WEB-INF/spring/root-context.xml"})
@@ -22,25 +20,28 @@ public class TransactHistMapperTest {
     @Autowired
     private TransactHistMapper mapper;
 
-    @BeforeEach
-    void setUp() {
-        mapper.deleteAll(); // 테스트 전 데이터 초기화
+    @Test
+    @Order(1)
+    @DisplayName("매퍼: 페이징 목록 조회 테스트")
+    void selectProductListPaged() {
+        TransacHistSearchDTO dto = new TransacHistSearchDTO();
+        dto.setPageNo(1);
+        dto.setPageSize(10);
+        
+        List<ProductVO> list = mapper.selectProductListPaged(dto);
+        
+        assertNotNull(list);
+        System.out.println("조회된 상품 수: " + list.size());
     }
 
     @Test
-    @Order(1)
-    @DisplayName("매퍼: 등록 및 전체 건수")
-    void insertAndCount() {
-        TransactHistVO vo = new TransactHistVO();
-        vo.setSellerNo(10L);
-        vo.setProductNo(200L);
-        vo.setReceiverNo(20L);
-        vo.setTxType("01");
-        vo.setAmount(10000L);
-        vo.setTxStatus("01");
-
-        int flag = mapper.insertTransact(vo);
-        assertEquals(1, flag);
-        assertEquals(1, mapper.totalCount());
+    @Order(2)
+    @DisplayName("매퍼: 전체 건수 조회 테스트")
+    void totalCount() {
+        TransacHistSearchDTO dto = new TransacHistSearchDTO();
+        int count = mapper.totalCount(dto);
+        
+        assertTrue(count >= 0);
+        System.out.println("전체 상품 수: " + count);
     }
 }

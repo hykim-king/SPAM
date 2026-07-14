@@ -19,6 +19,7 @@ public class ProductVO implements Serializable {
     private String status;
     private String adminHideYn;
     private String hideReason;
+    private String userId; //추가
     private int viewCount;
     private String createDt;
     private String modifyDt;
@@ -121,7 +122,11 @@ public class ProductVO implements Serializable {
     public String getHideReason() {
         return hideReason;
     }
-
+    
+    public String getuserId() { 
+    	return userId; 
+    }//추가
+   
     public void setHideReason(String hideReason) {
         this.hideReason = hideReason;
     }
@@ -141,7 +146,11 @@ public class ProductVO implements Serializable {
     public void setCreateDt(String createDt) {
         this.createDt = createDt;
     }
-
+    
+    public void setuserId(String userId) { 
+    	this.userId = userId; 
+    }//추가
+    
     public String getModifyDt() {
         return modifyDt;
     }
@@ -206,10 +215,16 @@ public class ProductVO implements Serializable {
         this.smallName = smallName;
     }
 
-    @Override
-    public String toString() {
-        return "ProductVO [productNo=" + productNo + ", userNum=" + userNum + ", categoryNo=" + categoryNo
-                + ", productTitle=" + productTitle + ", price=" + price + ", location=" + location
-                + ", status=" + status + ", viewCount=" + viewCount + ", createDt=" + createDt + "]";
-    }
+	@Override
+	public String toString() {
+		return "ProductVO [productNo=" + productNo + ", userNum=" + userNum + ", categoryNo=" + categoryNo
+				+ ", productTitle=" + productTitle + ", productContent=" + productContent + ", productCondition="
+				+ productCondition + ", price=" + price + ", location=" + location + ", status=" + status
+				+ ", adminHideYn=" + adminHideYn + ", hideReason=" + hideReason + ", userId=" + userId + ", viewCount="
+				+ viewCount + ", createDt=" + createDt + ", modifyDt=" + modifyDt + ", likeCnt=" + likeCnt
+				+ ", chatCnt=" + chatCnt + ", thumbnailPath=" + thumbnailPath + ", imageList=" + imageList
+				+ ", largeName=" + largeName + ", middleName=" + middleName + ", smallName=" + smallName + "]";
+	}
+
+    
 }

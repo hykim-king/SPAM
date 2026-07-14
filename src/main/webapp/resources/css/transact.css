@@ -1,45 +1,27 @@
 @charset "UTF-8";
 
-/* 1. 기본 레이아웃 */
-body { font-family: 'Pretendard', sans-serif; margin: 0; padding: 0; color: #111; }
-.container { width: 1250px; margin: 50px auto; } /* .container에 맞춤 */
+html, body { height: 100%; margin: 0; padding: 0; }
+.admin-wrap { display: flex; width: 100%; height: 100vh; background: #f4f4f4; }
 
-/* 2. 상단 탭 스타일 */
-.tabs { display: flex; gap: 40px; border-bottom: 1px solid #eee; margin-bottom: 30px; } /* .tabs에 맞춤 */
-.tabs a { text-decoration: none; color: #888; font-size: 18px; font-weight: 500; padding-bottom: 15px; }
-.tabs a.active { color: #111; font-weight: 700; border-bottom: 3px solid #111; }
+/* 사이드바 스타일 */
+.sidebar { width: 220px; background-color: #1e293b; color: white; flex-shrink: 0; }
+.sidebar h2 { padding: 30px; font-size: 18px; text-align: center; color: #fff; }
+.sidebar ul { list-style: none; padding: 0; }
+.sidebar li { padding: 20px 30px; color: #94a3b8; cursor: pointer; }
+.sidebar li.active { background-color: #0f172a; color: #fff; border-left: 4px solid #38bdf8; }
 
-/* 3. 거래 내역 표(Table) 스타일 */
-.styled-table { /* .styled-table에 맞춤 */
-    width: 100%; 
-    border-collapse: collapse; 
-    margin-top: 20px; 
-    border-top: 2px solid #333; 
-}
-.styled-table th { 
-    background-color: #f8f8f8; 
-    padding: 15px; 
-    font-size: 14px; 
-    border-bottom: 1px solid #ddd; 
-    text-align: center; 
-    font-weight: 700;
-}
-.styled-table td { 
-    padding: 15px; 
-    font-size: 14px; 
-    border-bottom: 1px solid #eee; 
-    text-align: center; 
-}
+/* 콘텐츠 영역 */
+.content { flex: 1; padding: 40px; background: #fff; }
+.content h2 { font-size: 24px; margin-bottom: 25px; color: #1e293b; }
 
-/* 4. 버튼 스타일 */
-.detailBtn { /* .detailBtn에 맞춤 */
-    padding: 5px 12px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 12px;
-}
-.detailBtn:hover {
-    background-color: #f1f1f1;
-}
+/* 전체 버튼 스타일 */
+.top-nav { background: #f8fafc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
+.filter-btn { padding: 8px 20px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+
+/* 테이블 스타일: 균등 간격 */
+.styled-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.styled-table th, .styled-table td { padding: 20px; border: 1px solid #e2e8f0; text-align: center; }
+.styled-table th { background: #f8fafc; color: #475569; }
+
+/* 데이터 없음 안내 문구 */
+.no-data { padding: 50px; font-size: 14px; color: #64748b; }

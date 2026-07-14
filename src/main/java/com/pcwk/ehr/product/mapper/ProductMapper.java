@@ -1,9 +1,13 @@
 package com.pcwk.ehr.product.mapper;
 
 import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
+
 import com.pcwk.ehr.product.domain.ProductSearchDTO;
 import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.transact.domain.TransacHistSearchDTO;
+import com.pcwk.ehr.transact.domain.TransactHistVO;
 
 @Mapper
 public interface ProductMapper {
@@ -60,4 +64,8 @@ public interface ProductMapper {
     
     /** 채팅 수 -1 */
     int minusChatCnt(ProductVO product);
+   
+ // ProductMapper.java 파일 내에 아래 메서드가 선언되어 있어야 합니다.
+    public List<ProductVO> doRetrieveAll(String status);
+    
 }
