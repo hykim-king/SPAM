@@ -43,6 +43,14 @@ public class ChatHandler extends TextWebSocketHandler {
 		// 1. 받은 메시지를 꺼내서 VO로 변환
 		String payLoad = message.getPayload();	// 프론트가 보낸 글자
 		
+		// 추가: 하트비트(ping) 처리 — 채팅으로 저장하지 않고 pong만 응답
+		if (payLoad != null && payLoad.contains("\"type\":\"ping\"")) {
+			if (session.isOpen()) {
+				session.sendMessage(new TextMessage("{\"type\":\"pong\"}"));
+			}
+			return;   // 여기서 끝 — 아래 채팅 처리로 안 내려감
+		}
+		
 		// JSON -> VO
 		ChatMessageVO vo = new Gson().fromJson(payLoad, ChatMessageVO.class);
 		

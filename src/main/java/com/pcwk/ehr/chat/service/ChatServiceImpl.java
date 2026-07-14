@@ -173,7 +173,6 @@ public class ChatServiceImpl implements ChatService {
 			if (chatCntFlag != 1) {
 				throw new IllegalStateException("상품 채팅 수 감소에 실패했습니다.");
 			}
-
 		}
 	}
 }

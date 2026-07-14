@@ -212,3 +212,12 @@
     .msg-list { min-height: 360px; }
     .msg-bubble { max-width: 80%; }
 }
+
+.room-link {
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+.room-link:hover {
+    text-decoration: underline;
+}

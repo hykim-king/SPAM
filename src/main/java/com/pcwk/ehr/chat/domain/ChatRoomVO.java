@@ -46,6 +46,9 @@ public class ChatRoomVO {
 
 	    /** 상대방 닉네임 */
 	    private String opponentNick;
+	    
+	    /** 상대방 번호 */
+	    private int opponentNo;
 
 
 	    public ChatRoomVO() {
@@ -198,6 +201,15 @@ public class ChatRoomVO {
 		}
 
 
+		public int getOpponentNo() {
+			return opponentNo;
+		}
+
+		public void setOpponentNo(int opponentNo) {
+			this.opponentNo = opponentNo;
+		}
+
+
 		@Override
 		public String toString() {
 			return "ChatRoomVO [chatRoomNo=" + chatRoomNo + ", productNo=" + productNo + ", sellerNo=" + sellerNo
@@ -205,7 +217,7 @@ public class ChatRoomVO {
 					+ ", buyerExitYn=" + buyerExitYn + ", createDt=" + createDt + ", lastMsgDt=" + lastMsgDt
 					+ ", productStatus=" + productStatus + ", sellerExitDt=" + sellerExitDt + ", buyerExitDt="
 					+ buyerExitDt + ", productTitle=" + productTitle + ", location=" + location + ", opponentNick="
-					+ opponentNick + "]";
+					+ opponentNick + ", opponentNo=" + opponentNo + "]";
 		}
 
 	}
