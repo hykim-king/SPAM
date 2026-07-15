@@ -86,8 +86,13 @@
             </if>
         </where>
     </sql>
-
-    <!-- 회원가입 INSERT -->
+    
+    <!--
+        회원가입 INSERT
+        - 2026-07-13 [수정] 닉네임 미입력 시 USER_NAME으로 저장
+        - USER_ROLE/USER_STATUS는 서비스 기본값과 DB 기본값 모두 01을 사용
+        - UPDATE_DT/WITHDRAW_DT는 실제 수정·탈퇴 시점에만 저장하므로 INSERT 대상에서 제외
+    -->
     <insert id="insertUser" parameterType="com.pcwk.ehr.user.domain.UserVO">
         INSERT INTO USER_INFO (
             USER_NUM,
@@ -106,7 +111,7 @@
             #{userId,jdbcType=VARCHAR},
             #{password,jdbcType=VARCHAR},
             #{userName,jdbcType=NVARCHAR},
-            #{nickname,jdbcType=NVARCHAR},
+            NVL(#{nickname,jdbcType=NVARCHAR}, #{userName,jdbcType=NVARCHAR}),
             #{phoneNum,jdbcType=VARCHAR},
             #{email,jdbcType=VARCHAR},
             #{birthDt,jdbcType=DATE},
@@ -152,7 +157,8 @@
 
     <!--
         회원가입 아이디 중복 확인
-        - 02 탈퇴 회원은 중복 검사에서 제외
+        - 2026-07-13 [수정] 02 탈퇴 회원은 중복 검사에서 제외하여 재가입을 허용
+        - DB의 UK_USER_INFO_USER_ID_ACTIVE 조건과 동일한 정책 적용
     -->
     <select id="countByUserId" parameterType="string" resultType="int">
         SELECT COUNT(*)
@@ -168,7 +174,7 @@
     <select id="countByPhoneNum" parameterType="string" resultType="int">
         SELECT COUNT(*)
         FROM USER_INFO
-        WHERE PHONE_NUM = #{phoneNum,jdbcType=VARCHAR}
+        WHERE REPLACE(PHONE_NUM, '-', '') = #{phoneNum,jdbcType=VARCHAR}
           AND USER_STATUS &lt;&gt; '02'
     </select>
 
@@ -195,7 +201,7 @@
             resultType="int">
         SELECT COUNT(*)
         FROM USER_INFO
-        WHERE PHONE_NUM = #{phoneNum,jdbcType=VARCHAR}
+        WHERE REPLACE(PHONE_NUM, '-', '') = #{phoneNum,jdbcType=VARCHAR}
           AND USER_NUM != #{userNum,jdbcType=NUMERIC}
           AND USER_STATUS &lt;&gt; '02'
     </select>

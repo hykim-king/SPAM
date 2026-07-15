@@ -1,76 +1,99 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPAM 회원가입</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
-    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
+    <title>회원가입 | SPAM</title>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260715">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
+    <script defer src="${CP}/resources/js/member.js?v=20260715"></script>
 </head>
 <body class="auth-page">
-    <main class="auth-card wide">
-        <a class="brand" href="${pageContext.request.contextPath}/user/login.do" aria-label="SPAM 로그인">
-            <span class="brand-mark">SP</span>
-            <span>SPAM</span>
-        </a>
+    <div class="page-shell" id="top">
+        <jsp:include page="../common/header.jsp" />
+        <jsp:include page="../common/nav.jsp" />
+
+        <main class="member-auth-main">
+            <section class="auth-card wide">
 
         <h1 class="auth-title">회원가입</h1>
-        <p class="auth-desc">아이디, 전화번호, 이메일은 탈퇴 회원을 제외하고 중복 검사됩니다.</p>
+        <div class="auth-message-slot">
+            <c:if test="${not empty msg}">
+                <p class="alert"><c:out value="${msg}" /></p>
+            </c:if>
+        </div>
 
-        <c:if test="${not empty msg}">
-            <p class="alert"><c:out value="${msg}" /></p>
-        </c:if>
-
-        <form id="joinForm" class="form-grid two-col" action="${pageContext.request.contextPath}/user/join.do" method="post" novalidate>
+        <form id="joinForm" class="form-grid two-col" action="${CP}/user/join.do" method="post" novalidate>
             <div class="form-row full">
                 <label class="label" for="userId">아이디 <span class="required">*</span></label>
-                <input class="input" type="text" id="userId" name="userId" value="<c:out value='${user.userId}'/>" maxlength="30" autocomplete="username" required>
+                <input class="input" type="text" id="userId" name="userId" value="<c:out value='${user.userId}'/>" maxlength="30" pattern="[A-Za-z0-9]+" inputmode="text" data-format="user-id" autocomplete="username" aria-describedby="userIdHint" required>
+                <span class="input-hint" id="userIdHint">영문 또는 숫자만 입력할 수 있습니다.</span>
+                <p class="field-message" data-error-for="userId"></p>
             </div>
 
             <div class="form-row">
-                <label class="label" for="password">비밀번호 <span class="required">*</span></label>
+                <div class="label-line">
+                    <label class="label" for="password">비밀번호 <span class="required">*</span></label>
+                    <span class="label-note">4자 이상 입력</span>
+                </div>
                 <input class="input" type="password" id="password" name="password" maxlength="100" autocomplete="new-password" required>
-                <p class="help-text">4자 이상 입력하세요.</p>
+                <p class="field-message" data-error-for="password"></p>
             </div>
 
             <div class="form-row">
                 <label class="label" for="passwordConfirm">비밀번호 확인 <span class="required">*</span></label>
                 <input class="input" type="password" id="passwordConfirm" name="passwordConfirm" maxlength="100" autocomplete="new-password" required>
+                <p class="field-message" data-error-for="passwordConfirm"></p>
             </div>
 
             <div class="form-row">
                 <label class="label" for="userName">이름 <span class="required">*</span></label>
-                <input class="input" type="text" id="userName" name="userName" value="<c:out value='${user.userName}'/>" maxlength="7" required>
+                <input class="input" type="text" id="userName" name="userName" value="<c:out value='${user.userName}'/>" maxlength="20" required>
+                <p class="field-message" data-error-for="userName"></p>
             </div>
 
             <div class="form-row">
-                <label class="label" for="nickname">닉네임</label>
+                <div class="label-line">
+                    <label class="label" for="nickname">닉네임</label>
+                    <span class="label-note">미입력시 이름과 같은 값으로 저장</span>
+                </div>
                 <input class="input" type="text" id="nickname" name="nickname" value="<c:out value='${user.nickname}'/>" maxlength="30">
-                <p class="help-text">비워두면 이름과 같은 값으로 저장됩니다.</p>
+                <p class="field-message" data-error-for="nickname"></p>
             </div>
 
             <div class="form-row">
                 <label class="label" for="phoneNum">전화번호 <span class="required">*</span></label>
-                <input class="input" type="text" id="phoneNum" name="phoneNum" value="<c:out value='${user.phoneNum}'/>" maxlength="13" placeholder="010-0000-0000" data-format="phone" autocomplete="tel" required>
+                <input class="input" type="tel" id="phoneNum" name="phoneNum" value="<c:out value='${user.phoneNum}'/>" maxlength="11" minlength="11" pattern="010[0-9]{8}" inputmode="numeric" placeholder="01012345678" data-format="phone" autocomplete="tel" required>
+                <p class="field-message" data-error-for="phoneNum"></p>
             </div>
 
             <div class="form-row">
                 <label class="label" for="email">이메일</label>
                 <input class="input" type="email" id="email" name="email" value="<c:out value='${user.email}'/>" maxlength="100" placeholder="example@test.com" autocomplete="email">
+                <p class="field-message" data-error-for="email"></p>
             </div>
 
             <div class="form-row full">
                 <label class="label" for="birthDt">생년월일</label>
-                <input class="input" type="date" id="birthDt" name="birthDt">
+                <input class="input" type="text" id="birthDt" name="birthDt" placeholder="YYYY-MM-DD" pattern="\d{4}-\d{2}-\d{2}">
+                <p class="field-message" data-error-for="birthDt"></p>
             </div>
 
             <div class="form-actions full">
                 <button class="btn primary" type="submit">회원가입</button>
-                <a class="btn outline" href="${pageContext.request.contextPath}/user/login.do">로그인으로 이동</a>
+                <a class="btn outline" href="${CP}/user/login.do">로그인으로 이동</a>
             </div>
         </form>
-    </main>
+            </section>
+        </main>
+
+        <jsp:include page="../common/footer.jsp" />
+        <jsp:include page="../common/floatingBar.jsp" />
+        <jsp:include page="../common/mobileBottomNav.jsp" />
+    </div>
 </body>
 </html>

@@ -9,17 +9,24 @@
         http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
         http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
-    <!-- [추가] root-context만 읽는 JUnit에서도 UserServiceImpl을 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
+    <!-- root-context만 읽는 JUnit에서도 Service를 Bean으로 등록하기 위해 서비스 패키지를 스캔 -->
     <context:component-scan base-package="com.pcwk.ehr.user.service" />
+    <context:component-scan base-package="com.pcwk.ehr.report.service" />
+    <context:component-scan base-package="com.pcwk.ehr.transact.service" />
+    <context:component-scan base-package="com.pcwk.ehr.product.service" />
+    <context:component-scan base-package="com.pcwk.ehr.category.service" />
+    <context:component-scan base-package="com.pcwk.ehr.chat.service" />
 
     <!-- MyBatis설정 -->
     <!-- @Mapper interface -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <!-- 일괄 빈 등록: 지정한 패키지(basePackage) 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
-        <property name="basePackage" value="com.pcwk.ehr.mapper, com.pcwk.ehr.user.mapper" />
+        <!-- 일괄 빈 등록: 지정한 패키지 내의 모든 매퍼 인터페이스를 자동으로 찾아 Spring bean 등록 -->
+        <property name="basePackage" value="com.pcwk.ehr.user.mapper, com.pcwk.ehr.chat.mapper,
+                                            com.pcwk.ehr.report.mapper, com.pcwk.ehr.transact.mapper,
+                                            com.pcwk.ehr.product.mapper, com.pcwk.ehr.category.mapper"></property>
 
         <!-- 연결할 SqlSessionFactory의 빈 이름을 지정 : 선택 -->
-        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean" />
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactoryBean"></property>
     </bean>
 
     <!-- SqlSessionTemplate -->
@@ -59,16 +66,15 @@
     따라서 회원관리 프로젝트에서는 XML AOP 트랜잭션 대신
     Service 메서드의 @Transactional을 사용합니다.
 -->
-<!-- 
+
+<!--
     <aop:config>
         <aop:pointcut
             expression="execution(* com.pcwk.ehr..service.*Impl.up*(..))"
             id="txPointcut" />
-        advice + pointcut
         <aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
     </aop:config>
 
-    트랜잭션 Advice: 트랜잭션 규칙, 정책
     <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="up*" propagation="REQUIRES_NEW" isolation="SERIALIZABLE" />
@@ -83,7 +89,7 @@
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <constructor-arg name="dataSource" ref="dataSource" />
     </bean>
-<!-- 
+<!--
     <bean id="dummyMailService" class="com.pcwk.ehr.user.service.DummyMailService" />
 
     <bean id="mailSenderImpl" class="org.springframework.mail.javamail.JavaMailSenderImpl">
@@ -93,7 +99,6 @@
         <property name="password" value="앱비밀번호" />
         <property name="defaultEncoding" value="utf-8" />
 
-        SSL
         <property name="javaMailProperties">
             <props>
                 <prop key="mail.smtp.ssl.protocols">TLSv1.2</prop>
@@ -105,25 +110,31 @@
     </bean>
  -->
     <!-- HikariCP -->
+    <!-- 
     <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
         <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
-<!--         <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
+        <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
         <property name="username" value="spampcwk" />
-        <property name="password" value="Q2w3e4r" /> -->
-		<property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />  
+        <property name="password" value="Q2w3e4r" />
+     -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="oracle.jdbc.driver.OracleDriver" />
+        <property name="jdbcUrl" value="jdbc:oracle:thin:@192.168.100.30:1522:xe" />
+        <property name="username" value="spampcwk" />
+        <property name="password" value="Q2w3e4r" />
+	 <!-- scott
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="jdbcUrl" value="jdbc:oracle:thin:@localhost:1521:xe" />
         <property name="username" value="scott" />
         <property name="password" value="pcwk" />
+        -->
+
         <!-- option -->
         <property name="maximumPoolSize" value="10" />
         <property name="minimumIdle" value="5" />
         <property name="connectionTimeout" value="30000" />
         <property name="idleTimeout" value="600000" />
         <property name="maxLifetime" value="1800000" />
-
-        <!-- maximumPoolSize : 풀에 유지할 최대 연결 수 minimumIdle : 유휴상태로 유지할 수 있는 최대 연결 수
-             connectionTimeout : 연결 시도 시 타임아웃 설정(밀리 초)
-             idleTimeout : 유휴 연결이 풀에서 제거되기 전 대기 시간(밀리 초)
-             maxLifetime : 연결이 풀에서 제거되기 전 최대 생존 시간(밀리 초) -->
     </bean>
 
 </beans>

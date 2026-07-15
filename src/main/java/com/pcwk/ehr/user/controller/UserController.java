@@ -1,5 +1,7 @@
 package com.pcwk.ehr.user.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +14,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.pcwk.ehr.product.domain.ProductSearchDTO;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 import com.pcwk.ehr.user.domain.UserVO;
 import com.pcwk.ehr.user.service.UserService;
 
@@ -30,9 +35,15 @@ public class UserController {
      * DB USER_INFO.USER_ROLE 컬럼의 02 관리자 코드값과 동일해야 함
      */
     private static final String ROLE_ADMIN = "02";
+    private static final int PROFILE_PAGE_SIZE = 8;
+    private static final int PROFILE_PAGE_BLOCK_SIZE = 5;
 
     @Autowired
     private UserService userService;
+
+    // 2026-07-13 [추가] 마이페이지에서 로그인 회원의 상품을 함께 조회한다.
+    @Autowired
+    private ProductService productService;
 
     /**
      * 회원가입 화면 이동
@@ -67,7 +78,7 @@ public class UserController {
             userService.join(user);
 
             // redirect 후 로그인 화면에서 보여줄 메시지
-            redirectAttributes.addFlashAttribute("msg", "회원가입이 완료되었습니다. 로그인하세요.");
+            redirectAttributes.addFlashAttribute("joinSuccessMsg", "회원가입이 완료되었습니다. 로그인하세요.");
 
             return "redirect:/user/login.do";
 
@@ -137,7 +148,7 @@ public class UserController {
         // 세션 전체 제거
         session.invalidate();
 
-        return "redirect:/user/login.do";
+        return "redirect:/main.do";
     }
 
     /**
@@ -146,21 +157,96 @@ public class UserController {
      * 요청 URL: GET /user/mypage.do
      */
     @GetMapping("/mypage.do")
-    public String mypage(HttpSession session, Model model) {
+    public String mypage(@ModelAttribute("search") ProductSearchDTO search,
+                         HttpSession session,
+                         Model model) {
         // 세션에서 로그인 회원을 꺼냄
         UserVO loginUser = getLoginUser(session);
 
-        // 로그인하지 않은 사용자는 로그인 화면으로 이동
+        // 2026-07-13 [수정] 비로그인 사용자는 공통 로그인 안내 모달으로 이동
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         // DB에서 최신 정보 재조회
         UserVO user = userService.getUser(loginUser.getUserNum());
 
+        // 2026-07-13 [추가] 왼쪽 내 정보와 오른쪽 내 상품을 한 화면에서 제공한다.
+        search.setUserNum(loginUser.getUserNum());
+        search.setPageNo(1);
+        search.setPageSize(100);
+
+        String status = search.getStatus();
+        if (!("01".equals(status) || "02".equals(status) || "03".equals(status))) {
+            // 기본 전체는 판매중과 예약중만 포함한다.
+            search.setStatus("ACTIVE");
+        }
+
+        List<ProductVO> myProductList = productService.doRetrieve(search);
+
         model.addAttribute("user", user);
+        model.addAttribute("list", myProductList);
 
         return "user/user_mypage";
+    }
+
+    /**
+     * 2026-07-14 [추가] 판매자 공개 프로필과 판매 중인 상품 목록을 조회한다.
+     * 회원 기본 정보는 UserService, 판매 상품은 ProductService에서 각각 조회한다.
+     *
+     * 요청 URL: GET /user/profile.do?userNum={회원번호}
+     */
+    @GetMapping("/profile.do")
+    public String profile(@RequestParam(value = "userNum", required = false) Long userNum,
+                          @ModelAttribute("search") ProductSearchDTO search,
+                          HttpSession session,
+                          Model model) {
+        if (userNum == null) {
+            return "redirect:/product/list.do";
+        }
+
+        UserVO seller = userService.getUser(userNum);
+        if (seller == null) {
+            return "redirect:/product/list.do";
+        }
+
+        // 2026-07-14 [수정] 판매자 상품도 전체/판매중/예약중/판매완료 탭으로 조회한다.
+        search.setUserNum(userNum);
+        search.setPageSize(PROFILE_PAGE_SIZE);
+        search.setSort("latest");
+
+        String status = search.getStatus();
+        if (!("01".equals(status) || "02".equals(status) || "03".equals(status))) {
+            // 전체 탭은 판매중과 예약중 상품만 최신 등록순으로 조회한다.
+            search.setStatus("ACTIVE");
+        }
+
+        int totalCnt = productService.totalCnt(search);
+        int totalPage = totalCnt == 0 ? 0 : (int) Math.ceil(totalCnt / (double) PROFILE_PAGE_SIZE);
+        if (totalPage > 0 && search.getPageNo() > totalPage) {
+            search.setPageNo(totalPage);
+        }
+
+        int startPage = totalPage == 0
+                ? 0
+                : ((search.getPageNo() - 1) / PROFILE_PAGE_BLOCK_SIZE) * PROFILE_PAGE_BLOCK_SIZE + 1;
+        int endPage = totalPage == 0
+                ? 0
+                : Math.min(startPage + PROFILE_PAGE_BLOCK_SIZE - 1, totalPage);
+
+        UserVO loginUser = getLoginUser(session);
+        boolean isOwnProfile = loginUser != null && userNum.equals(loginUser.getUserNum());
+
+        model.addAttribute("seller", seller);
+        model.addAttribute("list", productService.doRetrieve(search));
+        model.addAttribute("sellerUserNum", userNum);
+        model.addAttribute("isOwnProfile", isOwnProfile);
+        model.addAttribute("totalCnt", totalCnt);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
+        return "user/user_profile";
     }
 
     /**
@@ -173,7 +259,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         UserVO user = userService.getUser(loginUser.getUserNum());
@@ -196,7 +282,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -233,7 +319,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -261,7 +347,7 @@ public class UserController {
         UserVO loginUser = getLoginUser(session);
 
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
 
         try {
@@ -272,7 +358,7 @@ public class UserController {
             session.invalidate();
 
             redirectAttributes.addFlashAttribute("msg", "회원탈퇴가 완료되었습니다.");
-            return "redirect:/user/login.do";
+            return "redirect:/main.do";
 
         } catch (RuntimeException e) {
             // 비밀번호가 틀렸거나 탈퇴 처리에 실패하면 회원정보 수정 화면으로 돌아감

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.category.mapper.CategoryMapper">
+
+    <select id="doRetrieveParent" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE CATEGORY_LEVEL = 1
+           AND USE_YN = 'Y'
+         ORDER BY SORT_ORDER, CATEGORY_NO
+    </select>
+
+    <select id="doRetrieveChild" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE PARENT_CATEGORY_NO = #{parentCategoryNo}
+           AND USE_YN = 'Y'
+         ORDER BY SORT_ORDER, CATEGORY_NO
+    </select>
+
+    <select id="doRetrieveAll" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE USE_YN = 'Y'
+         ORDER BY CATEGORY_LEVEL, SORT_ORDER, CATEGORY_NO
+    </select>
+
+    <select id="doSelectOne" resultType="CategoryVO">
+        SELECT CATEGORY_NO,
+               PARENT_CATEGORY_NO,
+               CATEGORY_NAME,
+               CATEGORY_LEVEL,
+               SORT_ORDER,
+               USE_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM CATEGORY
+         WHERE CATEGORY_NO = #{categoryNo}
+           AND USE_YN = 'Y'
+    </select>
+
+</mapper>

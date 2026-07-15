@@ -1,0 +1,496 @@
+(function () {
+    'use strict';
+
+    // 2026-07-13 [추가] 로그아웃 확인창과 같은 형태의 상품 공통 확인 팝업 상태.
+    var productConfirmModal = null;
+    var productConfirmState = null;
+
+    function qs(selector, root) {
+        return (root || document).querySelector(selector);
+    }
+
+    function qsa(selector, root) {
+        return Array.prototype.slice.call((root || document).querySelectorAll(selector));
+    }
+
+    function bindFilterToggle() {
+        var panel = qs('.product-filter-panel');
+        var toggle = qs('.js-product-filter-toggle');
+        if (!panel || !toggle) return;
+
+        toggle.addEventListener('click', function () {
+            var opened = panel.classList.toggle('is-open');
+            toggle.setAttribute('aria-expanded', opened ? 'true' : 'false');
+        });
+    }
+
+    function bindListAutoSubmit() {
+        var options = qsa('.js-product-list-auto-submit');
+        if (options.length === 0) return;
+
+        options.forEach(function (option) {
+            option.addEventListener('change', function () {
+                if (option.form) option.form.submit();
+            });
+        });
+    }
+
+    function bindGallery() {
+        var mainImage = qs('.js-product-main-image');
+        var thumbs = qsa('.js-product-gallery-thumb');
+        if (!mainImage || thumbs.length === 0) return;
+
+        thumbs.forEach(function (button) {
+            button.addEventListener('click', function () {
+                var src = button.getAttribute('data-image-src');
+                var alt = button.getAttribute('data-image-alt') || '상품 이미지';
+                if (!src) return;
+
+                mainImage.src = src;
+                mainImage.alt = alt;
+                thumbs.forEach(function (item) {
+                    item.classList.toggle('is-active', item === button);
+                    item.setAttribute('aria-pressed', item === button ? 'true' : 'false');
+                });
+            });
+        });
+    }
+
+    function bindImagePreview() {
+        var input = qs('.js-product-file-input');
+        var preview = qs('.js-product-upload-preview');
+        if (!input || !preview) return;
+
+        // 선택한 파일들을 누적해서 저장할 배열
+        var selectedFiles = [];
+
+        input.addEventListener('change', function () {
+            // 이번에 새로 고른 파일들을 누적 배열에 추가
+            Array.prototype.slice.call(input.files || []).forEach(function (file) {
+                // 이미지 아닌 건 제외
+                if (!file.type || file.type.indexOf('image/') !== 0) return;
+                selectedFiles.push(file);
+            });
+
+            // 5장 초과 검사
+            if (selectedFiles.length > 5) {
+                alert('상품 이미지는 최대 5장까지 선택할 수 있습니다.');
+                selectedFiles = selectedFiles.slice(0, 5);
+            }
+
+            // 누적 배열을 실제 input.files에 다시 세팅 (서버 전송용)
+            var dt = new DataTransfer();
+            selectedFiles.forEach(function (file) {
+                dt.items.add(file);
+            });
+            input.files = dt.files;
+
+            // 미리보기 다시 그리기
+            renderPreview();
+        });
+
+        // 미리보기 그리는 함수 (누적 배열 전체를 그림)
+        function renderPreview() {
+            preview.innerHTML = '';
+            selectedFiles.forEach(function (file, index) {
+                var reader = new FileReader();
+                reader.onload = function (event) {
+                    var figure = document.createElement('figure');
+                    var image = document.createElement('img');
+                    var caption = document.createElement('figcaption');
+
+                    image.src = event.target.result;
+                    image.alt = index === 0 ? '대표 이미지 미리보기' : '추가 이미지 미리보기';
+                    caption.textContent = index === 0 ? '대표 · ' + file.name : file.name;
+
+                    figure.appendChild(image);
+                    figure.appendChild(caption);
+                    preview.appendChild(figure);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    }
+
+    function option(label, value) {
+        var item = document.createElement('option');
+        item.textContent = label;
+        item.value = value;
+        return item;
+    }
+
+    function resetSelect(select, placeholder) {
+        if (!select) return;
+        select.innerHTML = '';
+        select.appendChild(option(placeholder, ''));
+        select.disabled = true;
+    }
+
+    function fillSelect(select, list, placeholder) {
+        resetSelect(select, placeholder);
+        (list || []).forEach(function (item) {
+            select.appendChild(option(item.categoryName, item.categoryNo));
+        });
+        select.disabled = !(list && list.length);
+    }
+
+    function bindCategorySelects() {
+        var large = qs('.js-category-large');
+        var middle = qs('.js-category-middle');
+        var small = qs('.js-category-small');
+        var hidden = qs('.js-category-value');
+        var endpoint = large ? large.getAttribute('data-child-url') : '';
+        if (!large || !middle || !small || !hidden || !endpoint) return;
+
+        function setDeepestValue() {
+            hidden.value = small.value || middle.value || large.value || hidden.getAttribute('data-original-value') || '';
+        }
+
+        function loadChildren(parentNo, target, placeholder) {
+            if (!parentNo) {
+                resetSelect(target, placeholder);
+                setDeepestValue();
+                return Promise.resolve([]);
+            }
+
+            target.disabled = true;
+            return fetch(endpoint + '?parentCategoryNo=' + encodeURIComponent(parentNo), {
+                headers: { 'Accept': 'application/json' }
+            })
+                .then(function (response) {
+                    if (!response.ok) throw new Error('카테고리 조회 실패');
+                    return response.json();
+                })
+                .then(function (list) {
+                    fillSelect(target, list, placeholder);
+                    setDeepestValue();
+                    return list;
+                })
+                .catch(function () {
+                    resetSelect(target, '불러오기 실패');
+                    setDeepestValue();
+                    return [];
+                });
+        }
+
+        large.addEventListener('change', function () {
+            hidden.removeAttribute('data-original-value');
+            resetSelect(middle, '중분류 선택');
+            resetSelect(small, '소분류 선택');
+            setDeepestValue();
+            loadChildren(large.value, middle, '중분류 선택');
+        });
+
+        middle.addEventListener('change', function () {
+            hidden.removeAttribute('data-original-value');
+            resetSelect(small, '소분류 선택');
+            setDeepestValue();
+            loadChildren(middle.value, small, '소분류 선택');
+        });
+
+        small.addEventListener('change', function () {
+            hidden.removeAttribute('data-original-value');
+            setDeepestValue();
+        });
+
+        setDeepestValue();
+    }
+
+    function bindProductFormValidation() {
+        qsa('.js-product-form').forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                var category = qs('.js-category-value', form);
+                var price = qs('input[name="price"]', form);
+                var large = qs('.js-category-large', form);
+                var small = qs('.js-category-small', form);
+
+                if (category && !category.value) {
+                    event.preventDefault();
+                    alert('카테고리를 선택해주세요.');
+                    if (large) large.focus();
+                    return;
+                }
+
+                if (large && large.value && small && !small.value) {
+                    event.preventDefault();
+                    alert('카테고리를 소분류까지 선택해주세요.');
+                    small.focus();
+                    return;
+                }
+
+                if (price && Number(price.value) < 0) {
+                    event.preventDefault();
+                    alert('가격은 0원 이상으로 입력해주세요.');
+                    price.focus();
+                }
+            });
+        });
+    }
+
+    function buildProductConfirmModal() {
+        if (productConfirmModal) return productConfirmModal;
+
+        productConfirmModal = document.createElement('div');
+        productConfirmModal.className = 'product-confirm-modal';
+        productConfirmModal.setAttribute('aria-hidden', 'true');
+        productConfirmModal.innerHTML = '' +
+            '<div class="product-confirm-backdrop" data-product-confirm-cancel="true"></div>' +
+            '<section class="product-confirm-card" role="dialog" aria-modal="true" aria-labelledby="productConfirmTitle">' +
+            '  <div class="product-confirm-icon">!</div>' +
+            '  <h2 id="productConfirmTitle">확인</h2>' +
+            '  <p class="product-confirm-message">진행하시겠습니까?</p>' +
+            '  <div class="product-confirm-actions">' +
+            '    <button type="button" class="product-confirm-cancel" data-product-confirm-cancel="true">취소</button>' +
+            '    <button type="button" class="product-confirm-ok">확인</button>' +
+            '  </div>' +
+            '</section>';
+
+        document.body.appendChild(productConfirmModal);
+
+        productConfirmModal.addEventListener('click', function (event) {
+            if (event.target.matches('[data-product-confirm-cancel]')) resolveProductConfirm(false);
+            if (event.target.classList.contains('product-confirm-ok')) resolveProductConfirm(true);
+        });
+
+        document.addEventListener('keydown', function (event) {
+            if (event.key === 'Escape' && productConfirmModal.classList.contains('is-open')) {
+                resolveProductConfirm(false);
+            }
+        });
+
+        return productConfirmModal;
+    }
+
+    function resolveProductConfirm(result) {
+        if (!productConfirmState) return;
+
+        var resolver = productConfirmState.resolve;
+        productConfirmState = null;
+        productConfirmModal.classList.remove('is-open');
+        productConfirmModal.setAttribute('aria-hidden', 'true');
+        document.body.classList.remove('no-scroll');
+        resolver(result);
+    }
+
+    function productConfirm(options) {
+        var modal = buildProductConfirmModal();
+        options = options || {};
+        modal.querySelector('#productConfirmTitle').textContent = options.title || '확인';
+        modal.querySelector('.product-confirm-message').textContent = options.message || '진행하시겠습니까?';
+        modal.querySelector('.product-confirm-ok').textContent = options.okText || '확인';
+        modal.querySelector('.product-confirm-cancel').textContent = options.cancelText || '취소';
+
+        modal.classList.add('is-open');
+        modal.setAttribute('aria-hidden', 'false');
+        document.body.classList.add('no-scroll');
+        modal.querySelector('.product-confirm-cancel').focus();
+
+        return new Promise(function (resolve) {
+            productConfirmState = { resolve: resolve };
+        });
+    }
+
+    // 2026-07-13 [추가] 상품 등록의 상태/카테고리 select를 커스텀 토글 UI로 변환한다.
+    function bindProductCustomSelects() {
+        qsa('.product-form-card select.product-form-select, select.js-product-custom-select').forEach(function (select) {
+            if (select.dataset.customized === 'true') return;
+            select.dataset.customized = 'true';
+            select.classList.add('is-product-custom-hidden');
+
+            var wrapper = document.createElement('div');
+            wrapper.className = 'product-custom-select';
+
+            var current = document.createElement('button');
+            current.className = 'product-custom-select-current';
+            current.type = 'button';
+
+            var list = document.createElement('div');
+            list.className = 'product-custom-select-options';
+
+            function selectedText() {
+                return select.options[select.selectedIndex]
+                    ? select.options[select.selectedIndex].textContent
+                    : '선택';
+            }
+
+            function render() {
+                current.textContent = selectedText();
+                list.innerHTML = '';
+
+                Array.prototype.forEach.call(select.options, function (option) {
+                    var item = document.createElement('button');
+                    item.type = 'button';
+                    item.className = 'product-custom-select-option';
+                    item.textContent = option.textContent;
+                    item.disabled = option.disabled;
+                    item.classList.toggle('is-selected', option.selected);
+                    item.addEventListener('click', function () {
+                        select.value = option.value;
+                        select.dispatchEvent(new Event('change', { bubbles: true }));
+                        wrapper.classList.remove('is-open');
+                        render();
+                    });
+                    list.appendChild(item);
+                });
+
+                wrapper.classList.toggle('is-disabled', select.disabled);
+                current.disabled = select.disabled;
+            }
+
+            current.addEventListener('click', function () {
+                if (select.disabled) return;
+                qsa('.product-custom-select.is-open').forEach(function (other) {
+                    if (other !== wrapper) other.classList.remove('is-open');
+                });
+                wrapper.classList.toggle('is-open');
+            });
+
+            select.addEventListener('change', render);
+
+            var observer = new MutationObserver(render);
+            observer.observe(select, { childList: true, subtree: true, attributes: true });
+
+            document.addEventListener('click', function (event) {
+                if (!wrapper.contains(event.target)) wrapper.classList.remove('is-open');
+            });
+
+            wrapper.appendChild(current);
+            wrapper.appendChild(list);
+            select.insertAdjacentElement('afterend', wrapper);
+            render();
+        });
+    }
+
+    function bindEditButton() {
+        var button = qs('.js-product-edit');
+        if (!button) return;
+
+        button.addEventListener('click', function () {
+            productConfirm({
+                title: '상품 수정',
+                message: '상품 설명을 수정하시겠습니까?',
+                okText: '수정하기'
+            }).then(function (ok) {
+                if (ok) window.location.href = button.getAttribute('data-update-url');
+            });
+        });
+    }
+
+    function postForm(url, data) {
+        var body = new FormData();
+        Object.keys(data).forEach(function (key) {
+            body.append(key, data[key]);
+        });
+
+        return fetch(url, {
+            method: 'POST',
+            body: body
+        }).then(function (response) {
+            if (!response.ok) throw new Error('요청 실패');
+            return response.text();
+        });
+    }
+
+    function bindDeleteButtons() {
+        qsa('.js-product-delete').forEach(function (button) {
+            button.addEventListener('click', function () {
+                var productNo = button.getAttribute('data-product-no');
+                var deleteUrl = button.getAttribute('data-delete-url');
+                var redirectUrl = button.getAttribute('data-redirect-url');
+                if (!productNo || !deleteUrl) return;
+
+                if (!window.confirm('상품을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다.')) return;
+
+                postForm(deleteUrl, {
+                    productNo: productNo
+                })
+                    .then(function (result) {
+                        if (String(result).trim() !== '1') throw new Error('삭제 실패');
+                        alert('상품이 삭제되었습니다.');
+                        window.location.href = redirectUrl;
+                    })
+                    .catch(function () {
+                        alert('상품 삭제 중 오류가 발생했습니다.');
+                    });
+            });
+        });
+    }
+
+    function bindStatusButtons() {
+        qsa('.js-product-status').forEach(function (button) {
+            button.addEventListener('click', function () {
+                if (button.classList.contains('is-active')) return;
+
+                var statusText = button.getAttribute('data-status-text') || '선택한 상태';
+
+                // 2026-07-13 [수정] 브라우저 기본 confirm 대신 공통 디자인 팝업을 사용한다.
+                productConfirm({
+                    title: '거래 상태 변경',
+                    message: '거래 상태를 ' + statusText + '(으)로 변경하시겠습니까?',
+                    okText: '변경하기'
+                }).then(function (ok) {
+                    if (!ok) return;
+
+                    postForm(button.getAttribute('data-status-url'), {
+                        productNo: button.getAttribute('data-product-no'),
+                        status: button.getAttribute('data-status')
+                    })
+                        .then(function (result) {
+                            if (String(result).trim() !== '1') throw new Error('상태 변경 실패');
+                            window.location.reload();
+                        })
+                        .catch(function () {
+                            alert('거래 상태 변경 중 오류가 발생했습니다.');
+                        });
+                });
+            });
+        });
+    }
+
+    function bindChatButton() {
+        var button = qs('.js-product-chat');
+        if (!button) return;
+
+        button.addEventListener('click', function () {
+            var login = button.getAttribute('data-login');
+            if (login !== 'true') {
+                if (window.SPAMModal && typeof window.SPAMModal.login === 'function') {
+                    window.SPAMModal.login({ loginUrl: button.getAttribute('data-login-url') });
+                } else {
+                    window.location.href = button.getAttribute('data-login-url');
+                }
+                return;
+            }
+
+            postForm(button.getAttribute('data-chat-url'), {
+                productNo: button.getAttribute('data-product-no'),
+                sellerNo: button.getAttribute('data-seller-no')
+            })
+                .then(function (text) {
+                    var room = JSON.parse(text);
+                    var target = button.getAttribute('data-chat-view-url');
+                    if (room && room.chatRoomNo) {
+                        target += '?chatRoomNo=' + encodeURIComponent(room.chatRoomNo);
+                    }
+                    window.location.href = target;
+                })
+                .catch(function () {
+                    alert('채팅방을 여는 중 오류가 발생했습니다.');
+                });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        bindFilterToggle();
+        bindListAutoSubmit();
+        bindGallery();
+        bindImagePreview();
+        bindCategorySelects();
+        bindProductCustomSelects();
+        bindProductFormValidation();
+        bindDeleteButtons();
+        bindStatusButtons();
+        bindEditButton();
+        bindChatButton();
+    });
+}());

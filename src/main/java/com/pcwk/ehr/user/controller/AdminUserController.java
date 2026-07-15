@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.pcwk.ehr.user.domain.UserSearchDTO;
 import com.pcwk.ehr.user.domain.UserVO;
@@ -56,18 +57,26 @@ public class AdminUserController {
     public String list(UserSearchDTO searchDTO, HttpSession session, Model model) {
         // 02 관리자 권한인지 확인
         if (!isAdmin(session)) {
-            return "redirect:/user/login.do";
+            return accessDeniedRedirect(session);
         }
 
-        // 회원 목록 조회
-        List<UserVO> userList = userService.getUserList(searchDTO);
-
-        // 전체 회원 수 조회
+        // 2026-07-13 [수정] 전체 건수를 먼저 계산해 존재하지 않는 페이지 번호를 보정한다.
         int totalCount = userService.getUserTotalCount(searchDTO);
+        int totalPage = totalCount == 0
+                ? 1
+                : (int) Math.ceil(totalCount / (double) searchDTO.getPageSize());
+
+        if (searchDTO.getPageNo() > totalPage) {
+            searchDTO.setPageNo(totalPage);
+        }
+
+        // 페이지 번호 보정 후 회원 목록을 조회한다.
+        List<UserVO> userList = userService.getUserList(searchDTO);
 
         // 조회 결과 JSP로 전달
         model.addAttribute("userList", userList);
         model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPage", totalPage);
         model.addAttribute("searchDTO", searchDTO);
 
         return "admin/user/user_list";
@@ -84,7 +93,7 @@ public class AdminUserController {
                          Model model) {
         // 관리자 권한이 없으면 로그인 화면으로 보냄
         if (!isAdmin(session)) {
-            return "redirect:/user/login.do";
+            return accessDeniedRedirect(session);
         }
 
         // 회원 단건 조회
@@ -109,14 +118,16 @@ public class AdminUserController {
     @PostMapping("/statusUpdate.do")
     public String statusUpdate(@RequestParam("userNum") Long userNum,
                                @RequestParam("userStatus") String userStatus,
-                               HttpSession session) {
+                               HttpSession session,
+                               RedirectAttributes redirectAttributes) {
         // 관리자 권한이 없으면 변경을 막음
         if (!isAdmin(session)) {
-            return "redirect:/user/login.do";
+            return accessDeniedRedirect(session);
         }
 
         userService.changeUserStatus(userNum, userStatus);
 
+        redirectAttributes.addFlashAttribute("statusMsg", "회원상태가 변경되었습니다.");
         return "redirect:/admin/user/detail.do?userNum=" + userNum;
     }
 
@@ -132,32 +143,39 @@ public class AdminUserController {
     @PostMapping("/roleUpdate.do")
     public String roleUpdate(@RequestParam("userNum") Long userNum,
                              @RequestParam("userRole") String userRole,
-                             HttpSession session) {
+                             HttpSession session,
+                             RedirectAttributes redirectAttributes) {
 
         if (!isAdmin(session)) {
-            return "redirect:/user/login.do";
+            return accessDeniedRedirect(session);
         }
 
         userService.changeUserRole(userNum, userRole);
 
+        redirectAttributes.addFlashAttribute("roleMsg", "회원권한이 변경되었습니다.");
         return "redirect:/admin/user/detail.do?userNum=" + userNum;
+    }
+
+    /**
+     * 2026-07-13 [추가] 비로그인과 권한 부족을 공통 안내 모달로 구분한다.
+     */
+    private String accessDeniedRedirect(HttpSession session) {
+        return getLoginUser(session) == null
+                ? "redirect:/main.do?modal=login"
+                : "redirect:/main.do?modal=forbidden";
+    }
+
+    /** 현재 세션의 로그인 회원을 안전하게 조회한다. */
+    private UserVO getLoginUser(HttpSession session) {
+        Object loginUser = session.getAttribute(SESSION_LOGIN_USER);
+        return loginUser instanceof UserVO ? (UserVO) loginUser : null;
     }
 
     /**
      * 현재 세션 사용자가 02 관리자인지 확인하는 내부 메서드
      */
     private boolean isAdmin(HttpSession session) {
-        // UserController.login()에서 저장한 loginUser를 꺼냄
-        Object loginUser = session.getAttribute(SESSION_LOGIN_USER);
-
-        // 값이 없거나 UserVO 타입이 아니면 로그인하지 않은 상태
-        if (!(loginUser instanceof UserVO)) {
-            return false;
-        }
-
-        // 권한 확인
-        UserVO user = (UserVO) loginUser;
-
-        return ROLE_ADMIN.equals(user.getUserRole());
+        UserVO user = getLoginUser(session);
+        return user != null && ROLE_ADMIN.equals(user.getUserRole());
     }
 }

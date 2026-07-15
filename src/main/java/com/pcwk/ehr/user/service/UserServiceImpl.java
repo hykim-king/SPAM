@@ -18,7 +18,7 @@ import com.pcwk.ehr.user.util.PasswordUtil;
  *    - USER_ROLE   : 01 일반회원, 02 관리자
  *    - USER_STATUS : 01 정상, 02 탈퇴, 03 휴면, 04 정지
  * 3. 01/03/04 상태 회원 기준으로 아이디/전화번호/이메일 중복을 막습니다.
- * 4. 02 탈퇴 회원의 아이디/전화번호/이메일은 재가입 가능하도록 중복 검사에서 제외합니다.
+ * 4. 02 탈퇴 회원의 아이디/전화번호/이메일은 재가입 시 다시 사용할 수 있도록 처리합니다.
  * 5. 비밀번호는 평문으로 저장하지 않고 SHA-256 해시값으로 저장합니다.
  * 6. 회원탈퇴는 DELETE가 아니라 USER_STATUS='02' 상태 변경으로 처리합니다.
  */
@@ -52,8 +52,8 @@ public class UserServiceImpl implements UserService {
      * 8. USER_INFO INSERT
      *
      * 재가입 정책:
-     * - countByUserId/countByPhoneNum/countByEmail SQL은 USER_STATUS <> '02' 조건으로 검사합니다.
-     * - 따라서 02 탈퇴 회원의 아이디/전화번호/이메일은 재사용할 수 있습니다.
+     * - 2026-07-13 [수정] 아이디/전화번호/이메일 모두 02 탈퇴 회원을 제외하고 중복을 검사합니다.
+     * - DB의 조건부 UNIQUE 인덱스 정책과 동일하게 01/03/04 상태 회원만 중복 검사 대상입니다.
      */
     @Override
     @Transactional
@@ -198,13 +198,13 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("수정할 회원번호가 없습니다.");
         }
 
-        if (isBlank(user.getUserName())) {
-            throw new IllegalArgumentException("이름은 필수입니다.");
-        }
+        validateUserName(user.getUserName());
 
         if (isBlank(user.getPhoneNum())) {
             throw new IllegalArgumentException("전화번호는 필수입니다.");
         }
+
+        validatePhoneNumber(user.getPhoneNum());
 
         // 중복 검사
         if (userMapper.countByPhoneNumForUpdate(user) > 0) {
@@ -268,7 +268,8 @@ public class UserServiceImpl implements UserService {
      *   USER_STATUS='02', WITHDRAW_DT=SYSDATE로 변경
      *
      * 재가입 정책:
-     * - 탈퇴 회원의 USER_ID/PHONE_NUM/EMAIL은 중복 검사에서 제외
+     * - 2026-07-13 [수정] 탈퇴 회원의 USER_ID/PHONE_NUM/EMAIL은 중복 검사에서 제외
+     * - 재가입 시 새로운 USER_NUM을 발급하여 별도 회원 데이터로 저장
      */
     @Override
     @Transactional
@@ -391,16 +392,42 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("아이디는 필수입니다.");
         }
 
+        if (!user.getUserId().matches("^[A-Za-z0-9]+$")) {
+            throw new IllegalArgumentException("아이디는 영문 또는 숫자만 입력할 수 있습니다.");
+        }
+
         if (isBlank(user.getPassword())) {
             throw new IllegalArgumentException("비밀번호는 필수입니다.");
         }
 
-        if (isBlank(user.getUserName())) {
-            throw new IllegalArgumentException("이름은 필수입니다.");
+        if (user.getPassword().length() < 4) {
+            throw new IllegalArgumentException("비밀번호는 4자 이상 입력하세요.");
         }
+
+        validateUserName(user.getUserName());
 
         if (isBlank(user.getPhoneNum())) {
             throw new IllegalArgumentException("전화번호는 필수입니다.");
+        }
+
+        validatePhoneNumber(user.getPhoneNum());
+    }
+
+
+    // 이름 형식 검증: 한글/영문만 허용하고 숫자, 특수문자, 내부 공백은 금지
+    private void validateUserName(String userName) {
+        if (isBlank(userName)) {
+            throw new IllegalArgumentException("이름은 필수입니다.");
+        }
+
+        if (!userName.matches("^[가-힣a-zA-Z]+$")) {
+            throw new IllegalArgumentException("이름은 한글 또는 영문만 입력할 수 있습니다.");
+        }
+    }
+
+    private void validatePhoneNumber(String phoneNum) {
+        if (isBlank(phoneNum) || !phoneNum.matches("^010[0-9]{8}$")) {
+            throw new IllegalArgumentException("전화번호는 010으로 시작하는 숫자 11자리로 입력하세요.");
         }
     }
 

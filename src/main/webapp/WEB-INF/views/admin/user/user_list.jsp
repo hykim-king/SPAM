@@ -1,34 +1,40 @@
 <%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SPAM 관리자 회원목록</title>
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/member.css">
-    <script defer src="${pageContext.request.contextPath}/resources/js/member.js"></script>
+    <title>회원 관리 | SPAM 관리자</title>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/admin.css?v=20260715">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
+    <script defer src="${CP}/resources/js/member.js?v=20260715"></script>
 </head>
 <body>
-    <main class="page-shell">
-        <header class="page-header">
-            <div>
-                <a class="brand" href="${pageContext.request.contextPath}/admin/user/list.do" aria-label="SPAM 관리자 회원목록">
-                    <span class="brand-mark">SP</span>
-                    <span>SPAM Admin</span>
-                </a>
-                <h1 class="page-title">관리자 회원목록</h1>
-                <p class="page-desc">회원 검색, 페이징 조회, 상세 화면 이동을 처리합니다.</p>
+    <div class="page-shell" id="top">
+        <jsp:include page="../../common/header.jsp" />
+        <jsp:include page="../../common/nav.jsp" />
+
+        <main class="member-page-shell">
+        <header class="admin-page-header">
+            <div class="admin-heading">
+                <span class="admin-kicker">ADMIN</span>
+                <h1>회원 관리</h1>
             </div>
-            <nav class="header-actions">
-                <a class="btn outline" href="${pageContext.request.contextPath}/admin/user/list.do">전체 목록</a>
-                <a class="btn" href="${pageContext.request.contextPath}/user/logout.do">로그아웃</a>
+            <nav class="admin-nav" aria-label="관리자 메뉴">
+                <span class="admin-nav-link is-active" aria-current="page">회원 관리</span>
+                <a class="admin-nav-link" href="${CP}/report/admin_doRetrieve.do">신고 센터</a>
+                <a class="admin-nav-link" href="${CP}/admin/transact/list.do">전체 상품</a>
             </nav>
         </header>
 
         <section class="panel stack">
-            <form class="search-box" action="${pageContext.request.contextPath}/admin/user/list.do" method="get">
+            <%-- 2026-07-13 [수정] 검색 조건과 목록 개수 select를 회원 상세와 같은 커스텀 UI로 표시한다. --%>
+            <form class="search-box admin-filter-box" action="${CP}/admin/user/list.do" method="get">
                 <input type="hidden" name="pageNo" value="1">
 
                 <select class="select" id="searchDiv" name="searchDiv" aria-label="검색 조건">
@@ -104,7 +110,7 @@
                                 </td>
                                 <td><fmt:formatDate value="${user.createDt}" pattern="yyyy-MM-dd" /></td>
                                 <td>
-                                    <a class="btn outline" href="${pageContext.request.contextPath}/admin/user/detail.do?userNum=${user.userNum}">상세</a>
+                                    <a class="btn outline" href="${CP}/admin/user/detail.do?userNum=${user.userNum}">상세</a>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -118,28 +124,40 @@
                 </table>
             </div>
 
-            <div class="pagination">
-                <c:if test="${searchDTO.pageNo > 1}">
-                    <c:url var="prevUrl" value="/admin/user/list.do">
-                        <c:param name="pageNo" value="${searchDTO.pageNo - 1}" />
-                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
-                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
-                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
-                    </c:url>
-                    <a class="btn outline" href="${prevUrl}">이전</a>
-                </c:if>
+            <%-- 2026-07-13 [수정] 이전/현재/다음을 좌측·중앙·우측에 고정한다. --%>
+            <nav class="pagination admin-pagination" aria-label="회원 목록 페이지 이동">
+                <div class="admin-pagination-side admin-pagination-prev">
+                    <c:if test="${searchDTO.pageNo > 1}">
+                        <c:url var="prevUrl" value="/admin/user/list.do">
+                            <c:param name="pageNo" value="${searchDTO.pageNo - 1}" />
+                            <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                            <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                            <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                        </c:url>
+                        <a class="btn outline" href="${prevUrl}">이전</a>
+                    </c:if>
+                </div>
 
-                <c:if test="${searchDTO.pageNo * searchDTO.pageSize < totalCount}">
-                    <c:url var="nextUrl" value="/admin/user/list.do">
-                        <c:param name="pageNo" value="${searchDTO.pageNo + 1}" />
-                        <c:param name="pageSize" value="${searchDTO.pageSize}" />
-                        <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
-                        <c:param name="searchWord" value="${searchDTO.searchWord}" />
-                    </c:url>
-                    <a class="btn outline" href="${nextUrl}">다음</a>
-                </c:if>
-            </div>
+                <strong class="admin-pagination-current">${searchDTO.pageNo} / ${totalPage}</strong>
+
+                <div class="admin-pagination-side admin-pagination-next">
+                    <c:if test="${searchDTO.pageNo < totalPage}">
+                        <c:url var="nextUrl" value="/admin/user/list.do">
+                            <c:param name="pageNo" value="${searchDTO.pageNo + 1}" />
+                            <c:param name="pageSize" value="${searchDTO.pageSize}" />
+                            <c:param name="searchDiv" value="${searchDTO.searchDiv}" />
+                            <c:param name="searchWord" value="${searchDTO.searchWord}" />
+                        </c:url>
+                        <a class="btn outline" href="${nextUrl}">다음</a>
+                    </c:if>
+                </div>
+            </nav>
         </section>
-    </main>
+        </main>
+
+        <jsp:include page="../../common/footer.jsp" />
+        <jsp:include page="../../common/floatingBar.jsp" />
+        <jsp:include page="../../common/mobileBottomNav.jsp" />
+    </div>
 </body>
 </html>

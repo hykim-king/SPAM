@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.pcwk.ehr.product.mapper.ProductImageMapper">
+
+    <insert id="doInsert" parameterType="ProductImageVO">
+        INSERT INTO PRODUCT_IMAGE (
+            IMAGE_NO, PRODUCT_NO, ORIGIN_NAME, CHANGE_NAME, FILE_PATH,
+            IMAGE_ORDER, THUMBNAIL_YN, CREATE_DT
+        ) VALUES (
+            SEQ_PRODUCT_IMAGE.NEXTVAL, #{productNo}, #{originName}, #{changeName}, #{filePath},
+            #{imageOrder}, #{thumbnailYn}, SYSDATE
+        )
+    </insert>
+
+    <select id="doRetrieveByProduct" resultType="ProductImageVO">
+        SELECT IMAGE_NO,
+               PRODUCT_NO,
+               ORIGIN_NAME,
+               CHANGE_NAME,
+               FILE_PATH,
+               IMAGE_ORDER,
+               THUMBNAIL_YN,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+          FROM PRODUCT_IMAGE
+         WHERE PRODUCT_NO = #{productNo}
+         ORDER BY IMAGE_ORDER, IMAGE_NO
+    </select>
+
+    <delete id="doDeleteByProduct">
+        DELETE FROM PRODUCT_IMAGE
+         WHERE PRODUCT_NO = #{productNo}
+    </delete>
+
+</mapper>

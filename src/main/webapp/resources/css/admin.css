@@ -1,0 +1,234 @@
+@charset "UTF-8";
+
+/* 회원 관리·신고 센터·전체 상품 현황 공통 관리자 UI */
+.admin-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.admin-heading h1 {
+    margin: 0;
+    color: #111111;
+    font-size: clamp(28px, 4vw, 36px);
+    line-height: 1.2;
+    letter-spacing: -0.045em;
+}
+
+.admin-kicker {
+    display: inline-flex;
+    margin-bottom: 9px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: #111111;
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.08em;
+}
+
+.admin-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.admin-nav-link {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 17px;
+    border: 1px solid #d9d9d9;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #333333;
+    font-size: 13px;
+    font-weight: 800;
+    transition: border-color 0.18s ease, background 0.18s ease, transform 0.18s ease;
+}
+
+a.admin-nav-link:hover {
+    border-color: #111111;
+    transform: translateY(-1px);
+}
+
+.admin-nav-link.is-active {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+    cursor: default;
+    pointer-events: none;
+}
+
+.admin-list-meta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+    color: #777777;
+    font-size: 13px;
+}
+
+.admin-list-meta strong {
+    color: #222222;
+}
+
+.report-page.is-admin .report-panel,
+.report-page.is-admin .report-card {
+    border-color: #e5e5e5;
+    border-radius: 18px;
+    box-shadow: 0 12px 34px rgba(17, 17, 17, 0.055);
+}
+
+.report-page.is-admin .report-panel {
+    padding: 26px;
+}
+
+.report-page.is-admin .report-table th,
+.report-page.is-admin .report-table td {
+    padding: 14px 16px;
+}
+
+.report-page.is-admin .report-table th {
+    background: #f7f7f7;
+    color: #333333;
+    font-weight: 900;
+}
+
+.admin-product-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.admin-filter-link {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 15px;
+    border: 1px solid #dddddd;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #555555;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.admin-filter-link:hover,
+.admin-filter-link.is-active {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+.admin-product-title-link {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: #222222;
+    font-weight: 750;
+    font: inherit;
+    cursor: pointer;
+}
+
+.admin-product-title-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.admin-detail-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 2100;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.admin-detail-modal.is-open {
+    display: flex;
+}
+
+.admin-detail-modal-card {
+    width: min(100%, 430px);
+    padding: 26px;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.2);
+}
+
+.admin-detail-modal-card h2 {
+    margin: 0 0 18px;
+    font-size: 21px;
+}
+
+.admin-detail-list {
+    display: grid;
+    gap: 11px;
+    margin: 0;
+}
+
+.admin-detail-list div {
+    display: grid;
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 12px;
+}
+
+.admin-detail-list dt {
+    color: #777777;
+    font-size: 13px;
+}
+
+.admin-detail-list dd {
+    margin: 0;
+    color: #222222;
+    font-size: 13px;
+    font-weight: 750;
+    overflow-wrap: anywhere;
+}
+
+.admin-modal-actions {
+    display: flex;
+    justify-content: center;
+    gap: 9px;
+    margin-top: 22px;
+}
+
+@media screen and (max-width: 767px) {
+    .admin-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .admin-nav {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    }
+
+    .admin-nav-link {
+        min-width: 0;
+        padding: 0 8px;
+        text-align: center;
+    }
+
+    .admin-list-meta {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+}
