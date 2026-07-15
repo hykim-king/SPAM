@@ -13,64 +13,6 @@
         return Array.prototype.slice.call((root || document).querySelectorAll(selector));
     }
 
-    function parseProductDate(value) {
-        var match = String(value || '').trim().match(
-            /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
-        );
-        if (!match) return null;
-
-        var date = new Date(
-            Number(match[1]),
-            Number(match[2]) - 1,
-            Number(match[3]),
-            Number(match[4] || 0),
-            Number(match[5] || 0),
-            Number(match[6] || 0)
-        );
-
-        return Number.isNaN(date.getTime()) ? null : date;
-    }
-
-    function formatProductDate(date, now) {
-        var sameYear = date.getFullYear() === now.getFullYear();
-        var baseText = sameYear
-            ? (date.getMonth() + 1) + '월 ' + date.getDate() + '일'
-            : date.getFullYear() + '년 ' + (date.getMonth() + 1) + '월 ' + date.getDate() + '일';
-
-        var elapsedMs = now.getTime() - date.getTime();
-        var elapsedMinutes = Math.floor(elapsedMs / (60 * 1000));
-        var elapsedHours = Math.floor(elapsedMinutes / 60);
-        var twoHoursInMinutes = 2 * 60;
-        var fortyEightHoursInMinutes = 48 * 60;
-
-        if (elapsedMinutes < 0 || elapsedMinutes > fortyEightHoursInMinutes) {
-            return baseText;
-        }
-
-        if (elapsedMinutes <= twoHoursInMinutes) {
-            if (elapsedHours === 0) {
-                return baseText + ' (' + Math.max(elapsedMinutes, 0) + '분 전)';
-            }
-            return baseText + ' (' + elapsedHours + '시간 ' + (elapsedMinutes % 60) + '분 전)';
-        }
-
-        return baseText + ' (' + elapsedHours + '시간 전)';
-    }
-
-    function renderProductDates() {
-        var now = new Date();
-
-        qsa('.js-product-date').forEach(function (element) {
-            var rawValue = element.getAttribute('data-product-date');
-            var date = parseProductDate(rawValue);
-            if (!date) return;
-
-            element.textContent = formatProductDate(date, now);
-            element.setAttribute('datetime', date.toISOString());
-            element.setAttribute('title', rawValue);
-        });
-    }
-
     function bindFilterToggle() {
         var panel = qs('.product-filter-panel');
         var toggle = qs('.js-product-filter-toggle');
@@ -82,12 +24,14 @@
         });
     }
 
-    function bindSortAutoSubmit() {
-        var select = qs('.js-product-sort');
-        if (!select || !select.form) return;
+    function bindListAutoSubmit() {
+        var options = qsa('.js-product-list-auto-submit');
+        if (options.length === 0) return;
 
-        select.addEventListener('change', function () {
-            select.form.submit();
+        options.forEach(function (option) {
+            option.addEventListener('change', function () {
+                if (option.form) option.form.submit();
+            });
         });
     }
 
@@ -348,7 +292,7 @@
 
     // 2026-07-13 [추가] 상품 등록의 상태/카테고리 select를 커스텀 토글 UI로 변환한다.
     function bindProductCustomSelects() {
-        qsa('.product-form-card select.product-form-select').forEach(function (select) {
+        qsa('.product-form-card select.product-form-select, select.js-product-custom-select').forEach(function (select) {
             if (select.dataset.customized === 'true') return;
             select.dataset.customized = 'true';
             select.classList.add('is-product-custom-hidden');
@@ -538,7 +482,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         bindFilterToggle();
-        bindSortAutoSubmit();
+        bindListAutoSubmit();
         bindGallery();
         bindImagePreview();
         bindCategorySelects();
@@ -548,6 +492,5 @@
         bindStatusButtons();
         bindEditButton();
         bindChatButton();
-        renderProductDates();
     });
 }());

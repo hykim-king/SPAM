@@ -7,9 +7,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>로그인 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260714">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260714">
+    <script defer src="${CP}/resources/js/index.js?v=20260714"></script>
     <script defer src="${CP}/resources/js/member.js"></script>
 </head>
 <body class="auth-page">

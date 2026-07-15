@@ -8,10 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
-    <script defer src="${CP}/resources/js/member.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260715">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
+    <script defer src="${CP}/resources/js/member.js?v=20260715"></script>
 </head>
 <body>
     <div class="page-shell" id="top">
@@ -61,7 +61,7 @@
 
                     <div class="form-row">
                         <label class="label" for="updatePhoneNum">전화번호 <span class="required">*</span></label>
-                        <input class="input" type="text" id="updatePhoneNum" name="phoneNum" value="<c:out value='${user.phoneNum}'/>" maxlength="13" placeholder="010-0000-0000" data-format="phone" required>
+                        <input class="input" type="tel" id="updatePhoneNum" name="phoneNum" value="<c:out value='${user.phoneNum}'/>" maxlength="11" minlength="11" pattern="010[0-9]{8}" inputmode="numeric" placeholder="01012345678" data-format="phone" autocomplete="tel" required>
                         <p class="field-message" data-error-for="updatePhoneNum"></p>
                     </div>
 

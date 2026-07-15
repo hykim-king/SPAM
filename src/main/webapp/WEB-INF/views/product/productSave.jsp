@@ -7,10 +7,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>상품 등록 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/product.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
-    <script defer src="${CP}/resources/js/product.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260714">
+    <link rel="stylesheet" href="${CP}/resources/css/product.css?v=20260714">
+    <script defer src="${CP}/resources/js/index.js?v=20260714"></script>
+    <script defer src="${CP}/resources/js/product.js?v=20260714"></script>
 </head>
 <body>
 <div class="page-shell" id="top">

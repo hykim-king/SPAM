@@ -21,55 +21,56 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.pcwk.ehr.report.domain.ReportSearchDTO;
 import com.pcwk.ehr.report.domain.ReportVO;
 import com.pcwk.ehr.report.service.ReportService;
+import com.pcwk.ehr.product.domain.ProductVO;
+import com.pcwk.ehr.product.service.ProductService;
 import com.pcwk.ehr.user.domain.UserVO;
 
 @Controller
 @RequestMapping("/report")
 public class ReportController {
 
+    private static final String SESSION_LOGIN_USER = "loginUser";
+    private static final String ROLE_ADMIN = "02";
+
     @Autowired
     private ReportService reportService;
 
-    // ================ 관리자 ================
+    @Autowired
+    private ProductService productService;
+
     // ================ 관리자 ================
 
     // 1. 신고 목록 조회 (관리자용 전체 조회)
     @GetMapping("/admin_doRetrieve.do")
     public String doRetrieve(ReportSearchDTO search, Model model, HttpSession session) {
-    	// 1. 보안 유효성 검사 (관리자 권한 확인)
-        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
-            return "redirect:/user/login.do"; 
+        // 1. 보안 유효성 검사 (관리자 권한 확인)
+        UserVO loginUser = getLoginUser(session);
+        if (!isAdmin(loginUser)) {
+            return accessDeniedRedirect(loginUser);
         }
 
-        // 2. 파라미터가 비어있거나 잘못 왔을 때 강제 보정
+        // 2026-07-14 [수정] 조회 전 총 페이지를 계산하고 잘못된 페이지 번호를 안전하게 보정한다.
         int pNo = search.getPageNo() <= 0 ? 1 : search.getPageNo();
-        int pSize = 10; // 대장이 요청한 한 페이지당 10개 고정
-        
-        // 3. 연산 순서 꼬임 방지를 위해 직접 연산 후 DTO 변수에 강제 주입
-        int computedStart = (pNo - 1) * pSize + 1;
-        int computedEnd = computedStart + pSize - 1;
-        
-        // DTO 멤버 변수에 정확한 값 세팅
+        int pSize = 10;
+        int totalCount = reportService.totalCnt();
+        int totalPage = totalCount == 0 ? 0 : (int) Math.ceil(totalCount / (double) pSize);
+        if (totalPage > 0 && pNo > totalPage) {
+            pNo = totalPage;
+        }
+
         search.setPageNo(pNo);
         search.setPageSize(pSize);
-        search.setStartRow(computedStart);
-        search.setEndRow(computedEnd);
-        
-        // 💡 디버깅 로그: 이 숫자가 콘솔에 정확히 찍히는지 확인용
-        System.out.println("====== [페이징 디버깅] ======");
-        System.out.println("요청 PageNo : " + search.getPageNo());
-        System.out.println("보낼 StartRow : " + search.getStartRow());
-        System.out.println("보낼 EndRow : " + search.getEndRow());
-        System.out.println("============================");
-
-        // 4. 데이터 조회 및 총 건수 조회
         List<ReportVO> list = reportService.doRetrieve(search);
-        int totalCount = reportService.totalCnt();
 
-        // 5. JSP로 모델 전달    
+        int pageBlockSize = 5;
+        int startPage = totalPage == 0 ? 0 : ((pNo - 1) / pageBlockSize) * pageBlockSize + 1;
+        int endPage = totalPage == 0 ? 0 : Math.min(startPage + pageBlockSize - 1, totalPage);
+
         model.addAttribute("list", list);
         model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
         model.addAttribute("search", search);
 
         return "report/admin_report_list";
@@ -80,10 +81,9 @@ public class ReportController {
     public String adminReportDetail(ReportVO report, Model model, HttpSession session) {
     	
     	// 1. 보안 유효성 검사 (관리자 권한 확인)
-        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-        if (loginUser == null || !"02".equals(loginUser.getUserRole())) { 
-            // 프로젝트 설계에 맞춘 관리자 권한 체크 조건 (예: ROLE_ADMIN 또는 ADMIN)
-            return "redirect:/user/login.do"; 
+        UserVO loginUser = getLoginUser(session);
+        if (!isAdmin(loginUser)) {
+            return accessDeniedRedirect(loginUser);
         }
 
         // 2. 파라미터 검증 및 서비스 호출을 통한 단건 상세 데이터 조회
@@ -101,16 +101,21 @@ public class ReportController {
     @PostMapping(value="/doUpdateStatus.do", produces="text/html; charset=UTF-8")
     @ResponseBody
     public String doUpdateStatus(ReportVO report, HttpSession session) {
-    	UserVO loginUser = (UserVO) session.getAttribute("loginUser");
-    	if (loginUser != null) {
+        UserVO loginUser = getLoginUser(session);
+        if (isAdmin(loginUser)) {
             // 관리자의 고유 번호(UserNum)를 ReportVO의 adminNo에 세팅합니다.
             report.setAdminNo(loginUser.getUserNum());
         } else {
-            // 혹시 세션이 만료되었거나 로그인이 안 된 경우를 위한 예외 처리 (선택)
             return "<script>" +
-                   "alert('로그인 세션이 만료되었습니다. 다시 로그인해주세요.');" +
-                   "location.href='/ehr/user/login.do';" +
+                   "alert('관리자 권한이 필요합니다.');" +
+                   "location.href='../main.do?modal=forbidden';" +
                    "</script>";
+        }
+
+        if (!("01".equals(report.getReportStatus())
+                || "02".equals(report.getReportStatus())
+                || "03".equals(report.getReportStatus()))) {
+            return "<script>alert('허용되지 않은 처리 상태입니다.');history.back();</script>";
         }
     	
         reportService.doUpdateStatus(report);
@@ -122,28 +127,33 @@ public class ReportController {
     }
     
     // ================ 사용자 ================
-    // ================ 사용자 ================
     
     // 1. 상품 신고등록 페이지 GET 요청 
     @GetMapping("/report_product_form.do")
-    public String reportProductForm() {
-        return "report/report_product_form"; 
+    public String reportProductForm(HttpSession session) {
+        if (getLoginUser(session) == null) {
+            return "redirect:/main.do?modal=login";
+        }
+        return "report/report_product_form";
     }
 
     // 2. 유저 신고등록 페이지 GET 요청
     @GetMapping("/reportUserForm.do")
-    public String reportUserForm() {
-        return "report/report_user_form"; 
+    public String reportUserForm(HttpSession session) {
+        if (getLoginUser(session) == null) {
+            return "redirect:/main.do?modal=login";
+        }
+        return "report/report_user_form";
     }
     
     // 3. 나의 신고 내역 목록 조회 (내가 한 신고 / 내가 당한 신고)
     @GetMapping("/myReportList.do")
     public String myReportList(HttpSession session, Model model) {
-        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        UserVO loginUser = getLoginUser(session);
         
         // 로그인 되어있지 않으면 로그인 페이지로 강제 리다이렉트
         if (loginUser == null) {
-            return "redirect:/user/login.do";
+            return "redirect:/main.do?modal=login";
         }
         
         // 내가 신고한 목록 조회 및 바인딩
@@ -160,9 +170,24 @@ public class ReportController {
     
     // 5. 신고 상세 조회
     @GetMapping("/doSelectOne.do")
-    public String doSelectOne(ReportVO report, Model model) {
+    public String doSelectOne(ReportVO report, Model model, HttpSession session) {
+        UserVO loginUser = getLoginUser(session);
+        if (loginUser == null) {
+            return "redirect:/main.do?modal=login";
+        }
+
         // 신고번호(reportNo)를 기준으로 서비스에서 데이터를 조회해와
         ReportVO outVO = reportService.doSelectOne(report);
+
+        if (outVO == null) {
+            return "redirect:/report/myReportList.do";
+        }
+
+        boolean ownsReport = loginUser.getUserNum().equals(outVO.getReporterNo())
+                || loginUser.getUserNum().equals(outVO.getReportedUserNo());
+        if (!ownsReport && !isAdmin(loginUser)) {
+            return "redirect:/main.do?modal=forbidden";
+        }
         
         // 조회된 데이터를 모델에 담아서 JSP로 전달
         model.addAttribute("outVO", outVO);
@@ -191,25 +216,59 @@ public class ReportController {
                    "</script>";
         }
         
-        // [유효성 검사] 상세내용 1000자 이상 검사
-        if (report.getReason().length() >= 1000) {
+        // 2026-07-14 [수정] 화면의 maxlength=1000과 동일하게 1000자까지 허용한다.
+        if (report.getReason().length() > 1000) {
             return "<script>" +
-                   "alert('신고양식은 1000자 미만으로 작성해주세요.');" +
+                   "alert('신고양식은 1000자 이하로 작성해주세요.');" +
                    "history.back();" +
                    "</script>";
         }
         
         // 로그인 세션 체크 및 신고자 번호 설정
-        UserVO loginUser = (UserVO) session.getAttribute("loginUser");
+        UserVO loginUser = getLoginUser(session);
         if(loginUser == null) {
             return "<script>" +
                    "alert('로그인 후 이용 가능합니다.');" +
-                   "location.href='/login/loginView.do';" +
+                   "location.href='../main.do?modal=login';" +
                    "</script>";
         }
         
         // 세션에서 꺼낸 로그인 유저의 고유 번호를 세팅
-        report.setReporterNo(loginUser.getUserNum()); 
+        report.setReporterNo(loginUser.getUserNum());
+
+        if (!("PRODUCT".equals(report.getReportType()) || "USER".equals(report.getReportType()))) {
+            return "<script>alert('허용되지 않은 신고 유형입니다.');history.back();</script>";
+        }
+
+        if ("PRODUCT".equals(report.getReportType())) {
+            if (report.getTargetId() == null) {
+                return "<script>alert('신고할 상품 정보가 없습니다.');history.back();</script>";
+            }
+
+            ProductVO targetProduct;
+            try {
+                targetProduct = productService.getProduct(Math.toIntExact(report.getTargetId()));
+            } catch (ArithmeticException e) {
+                targetProduct = null;
+            }
+
+            if (targetProduct == null) {
+                return "<script>alert('신고할 상품을 찾을 수 없습니다.');history.back();</script>";
+            }
+
+            // 화면에서 전달된 회원번호를 신뢰하지 않고 상품의 실제 판매자로 보정한다.
+            report.setReportedUserNo(targetProduct.getUserNum());
+        } else {
+            report.setTargetId(null);
+        }
+
+        if (report.getReportedUserNo() == null) {
+            return "<script>alert('피신고 회원 정보가 없습니다.');history.back();</script>";
+        }
+
+        if (loginUser.getUserNum().equals(report.getReportedUserNo())) {
+            return "<script>alert('자기 자신은 신고할 수 없습니다.');history.back();</script>";
+        }
        
         // 서비스 단 비즈니스 로직 수행
         reportService.doInsert(report);
@@ -220,5 +279,20 @@ public class ReportController {
                "alert('신고서 제출이 완료되었습니다.');" +
                "location.href='myReportList.do';" +
                "</script>";
+    }
+
+    private UserVO getLoginUser(HttpSession session) {
+        Object value = session.getAttribute(SESSION_LOGIN_USER);
+        return value instanceof UserVO ? (UserVO) value : null;
+    }
+
+    private boolean isAdmin(UserVO user) {
+        return user != null && ROLE_ADMIN.equals(user.getUserRole());
+    }
+
+    private String accessDeniedRedirect(UserVO user) {
+        return user == null
+                ? "redirect:/main.do?modal=login"
+                : "redirect:/main.do?modal=forbidden";
     }
 }

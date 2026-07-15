@@ -45,6 +45,8 @@ public class ProductController {
     /** 검색, 카테고리, 지역, 가격, 상태, 정렬, 페이징이 적용되는 전체 상품 목록. */
     @GetMapping("/list.do")
     public String list(@ModelAttribute("search") ProductSearchDTO search, Model model) {
+        // 공개 목록에서는 개별 거래상태 필터를 사용하지 않고 판매완료 포함 여부만 받는다.
+        search.setStatus(null);
         int totalCnt = productService.totalCnt(search);
         int totalPage = calculateTotalPage(totalCnt, search.getPageSize());
         clampPageNo(search, totalPage);
@@ -210,7 +212,8 @@ public class ProductController {
 
     @GetMapping("/recommend.do")
     public String recommend() {
-        return "redirect:/product/list.do?sort=recommend";
+        // 2026-07-14 [수정] 제거된 기존 추천 링크도 404 없이 전체 상품 목록으로 보낸다.
+        return "redirect:/product/list.do";
     }
 
     @GetMapping("/latest.do")

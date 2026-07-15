@@ -174,7 +174,7 @@
     <select id="countByPhoneNum" parameterType="string" resultType="int">
         SELECT COUNT(*)
         FROM USER_INFO
-        WHERE PHONE_NUM = #{phoneNum,jdbcType=VARCHAR}
+        WHERE REPLACE(PHONE_NUM, '-', '') = #{phoneNum,jdbcType=VARCHAR}
           AND USER_STATUS &lt;&gt; '02'
     </select>
 
@@ -201,7 +201,7 @@
             resultType="int">
         SELECT COUNT(*)
         FROM USER_INFO
-        WHERE PHONE_NUM = #{phoneNum,jdbcType=VARCHAR}
+        WHERE REPLACE(PHONE_NUM, '-', '') = #{phoneNum,jdbcType=VARCHAR}
           AND USER_NUM != #{userNum,jdbcType=NUMERIC}
           AND USER_STATUS &lt;&gt; '02'
     </select>

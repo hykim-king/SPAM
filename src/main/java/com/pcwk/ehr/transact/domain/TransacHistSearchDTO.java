@@ -14,10 +14,13 @@ public class TransacHistSearchDTO implements Serializable {
     private int pageNo = 1;    // 현재 페이지 번호 (기본값 1)
     private int pageSize = 10; // 한 페이지에 보여줄 데이터 건수 (기본값 10)
     private String status;     // 상태값 (예: 판매중, 거래완료 등 필터링 조건)
+    private String type = "purchase"; // purchase: 구매내역, sale: 판매내역
+    private Long userNum;      // 로그인 회원 번호
 
     // 페이징 관련 필드 (화면에 표시할 페이지 버튼 정보를 계산하기 위함)
     private int startPage; // 페이지 블록의 시작 번호
     private int endPage;   // 페이지 블록의 끝 번호
+    private int totalPage;
 
     public TransacHistSearchDTO() {
         super();
@@ -38,6 +41,7 @@ public class TransacHistSearchDTO implements Serializable {
         
         // 전체 데이터로 나눈 실제 마지막 페이지 번호
         int lastPage = (int) Math.ceil(totalCount / (double) pageSize);
+        this.totalPage = lastPage;
         
         // 계산된 끝 페이지가 실제 마지막 페이지보다 크면 보정
         if (this.endPage > lastPage) {
@@ -66,11 +70,18 @@ public class TransacHistSearchDTO implements Serializable {
     public void setPageNo(int pageNo) { this.pageNo = pageNo <= 0 ? 1 : pageNo; }
 
     public int getPageSize() { return pageSize; }
-    public void setPageSize(int pageSize) { this.pageSize = pageSize <= 0 ? 1 : pageSize; }
+    public void setPageSize(int pageSize) { this.pageSize = pageSize <= 0 ? 10 : Math.min(pageSize, 100); }
 
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
 
+    public String getType() { return type; }
+    public void setType(String type) { this.type = "sale".equals(type) ? "sale" : "purchase"; }
+
+    public Long getUserNum() { return userNum; }
+    public void setUserNum(Long userNum) { this.userNum = userNum; }
+
     public int getStartPage() { return startPage; }
     public int getEndPage() { return endPage; }
+    public int getTotalPage() { return totalPage; }
 }

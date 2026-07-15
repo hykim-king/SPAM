@@ -35,6 +35,8 @@ public class UserController {
      * DB USER_INFO.USER_ROLE 컬럼의 02 관리자 코드값과 동일해야 함
      */
     private static final String ROLE_ADMIN = "02";
+    private static final int PROFILE_PAGE_SIZE = 8;
+    private static final int PROFILE_PAGE_BLOCK_SIZE = 5;
 
     @Autowired
     private UserService userService;
@@ -210,8 +212,7 @@ public class UserController {
 
         // 2026-07-14 [수정] 판매자 상품도 전체/판매중/예약중/판매완료 탭으로 조회한다.
         search.setUserNum(userNum);
-        search.setPageNo(1);
-        search.setPageSize(100);
+        search.setPageSize(PROFILE_PAGE_SIZE);
         search.setSort("latest");
 
         String status = search.getStatus();
@@ -220,6 +221,19 @@ public class UserController {
             search.setStatus("ACTIVE");
         }
 
+        int totalCnt = productService.totalCnt(search);
+        int totalPage = totalCnt == 0 ? 0 : (int) Math.ceil(totalCnt / (double) PROFILE_PAGE_SIZE);
+        if (totalPage > 0 && search.getPageNo() > totalPage) {
+            search.setPageNo(totalPage);
+        }
+
+        int startPage = totalPage == 0
+                ? 0
+                : ((search.getPageNo() - 1) / PROFILE_PAGE_BLOCK_SIZE) * PROFILE_PAGE_BLOCK_SIZE + 1;
+        int endPage = totalPage == 0
+                ? 0
+                : Math.min(startPage + PROFILE_PAGE_BLOCK_SIZE - 1, totalPage);
+
         UserVO loginUser = getLoginUser(session);
         boolean isOwnProfile = loginUser != null && userNum.equals(loginUser.getUserNum());
 
@@ -227,6 +241,10 @@ public class UserController {
         model.addAttribute("list", productService.doRetrieve(search));
         model.addAttribute("sellerUserNum", userNum);
         model.addAttribute("isOwnProfile", isOwnProfile);
+        model.addAttribute("totalCnt", totalCnt);
+        model.addAttribute("totalPage", totalPage);
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
 
         return "user/user_profile";
     }

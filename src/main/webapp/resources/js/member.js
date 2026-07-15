@@ -41,12 +41,27 @@
         return /^[가-힣a-zA-Z]+$/.test(String(value || '').trim());
     }
 
+    function validateUserId(value) {
+        return /^[A-Za-z0-9]+$/.test(String(value || '').trim());
+    }
+
+    function validatePhone(value) {
+        return /^010[0-9]{8}$/.test(String(value || '').trim());
+    }
+
     function normalizePhoneValue(value) {
         var numbers = String(value || '').replace(/[^0-9]/g, '').slice(0, 11);
 
-        if (numbers.length <= 3) return numbers;
-        if (numbers.length <= 7) return numbers.slice(0, 3) + '-' + numbers.slice(3);
-        return numbers.slice(0, 3) + '-' + numbers.slice(3, 7) + '-' + numbers.slice(7);
+        return numbers;
+    }
+
+    function bindUserIdFormat() {
+        document.querySelectorAll('[data-format="user-id"]').forEach(function (input) {
+            input.value = String(input.value || '').replace(/[^A-Za-z0-9]/g, '');
+            input.addEventListener('input', function () {
+                input.value = String(input.value || '').replace(/[^A-Za-z0-9]/g, '');
+            });
+        });
     }
 
     function buildConfirmModal() {
@@ -132,6 +147,7 @@
 
     function bindPhoneFormat() {
         document.querySelectorAll('[data-format="phone"]').forEach(function (input) {
+            input.value = normalizePhoneValue(input.value);
             input.addEventListener('input', function () {
                 input.value = normalizePhoneValue(input.value);
             });
@@ -155,6 +171,13 @@
             if (isBlank(userId.value)) {
                 event.preventDefault();
                 setFieldError('userId', '아이디를 입력하세요.');
+                focusField('userId');
+                return;
+            }
+
+            if (!validateUserId(userId.value)) {
+                event.preventDefault();
+                setFieldError('userId', '아이디는 영문 또는 숫자만 입력하세요.');
                 focusField('userId');
                 return;
             }
@@ -197,6 +220,13 @@
             if (isBlank(phoneNum.value)) {
                 event.preventDefault();
                 setFieldError('phoneNum', '전화번호를 입력하세요.');
+                focusField('phoneNum');
+                return;
+            }
+
+            if (!validatePhone(phoneNum.value)) {
+                event.preventDefault();
+                setFieldError('phoneNum', '전화번호는 010으로 시작하는 숫자 11자리로 입력하세요.');
                 focusField('phoneNum');
                 return;
             }
@@ -262,6 +292,13 @@
             if (isBlank(phoneNum.value)) {
                 event.preventDefault();
                 setFieldError('updatePhoneNum', '전화번호를 입력하세요.');
+                focusField('updatePhoneNum');
+                return;
+            }
+
+            if (!validatePhone(phoneNum.value)) {
+                event.preventDefault();
+                setFieldError('updatePhoneNum', '전화번호는 010으로 시작하는 숫자 11자리로 입력하세요.');
                 focusField('updatePhoneNum');
                 return;
             }
@@ -511,6 +548,7 @@
     };
 
     document.addEventListener('DOMContentLoaded', function () {
+        bindUserIdFormat();
         bindPhoneFormat();
         bindJoinForm();
         bindLoginForm();

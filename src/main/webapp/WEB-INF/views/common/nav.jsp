@@ -11,10 +11,11 @@
 -->
 <nav class="category-nav js-category-nav" aria-label="상품 카테고리">
     <div class="category-inner">
-        <button type="button" class="category-all-button js-category-toggle" aria-expanded="false" aria-controls="categoryMegaMenu">
+        <%-- 2026-07-14 [수정] hover 메가 메뉴는 유지하고 클릭 시 전체 상품 목록으로 이동한다. --%>
+        <a href="${CP}/product/list.do" class="category-all-button js-category-toggle" aria-expanded="false" aria-controls="categoryMegaMenu">
             <span class="hamburger-icon" aria-hidden="true"><span></span><span></span><span></span></span>
             <span class="category-all-text">전체</span>
-        </button>
+        </a>
 
         <a class="category-link" data-category="digital" href="${CP}/product/list.do?categoryNo=1">디지털/가전</a>
         <a class="category-link" data-category="fashion" href="${CP}/product/list.do?categoryNo=2">패션/잡화</a>

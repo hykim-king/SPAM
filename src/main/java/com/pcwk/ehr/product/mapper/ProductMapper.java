@@ -3,11 +3,10 @@ package com.pcwk.ehr.product.mapper;
 import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import com.pcwk.ehr.product.domain.ProductSearchDTO;
 import com.pcwk.ehr.product.domain.ProductVO;
-import com.pcwk.ehr.transact.domain.TransacHistSearchDTO;
-import com.pcwk.ehr.transact.domain.TransactHistVO;
 
 @Mapper
 public interface ProductMapper {
@@ -45,6 +44,9 @@ public interface ProductMapper {
      * @return List<ProductVO>
      */
     public List<ProductVO> doRetrieve(ProductSearchDTO search);
+
+    /** 2026-07-14 [추가] 메인 오늘의 추천에 표시할 판매중 상품을 무작위로 조회한다. */
+    List<ProductVO> selectRandomProducts(@Param("limit") int limit);
 
     /** 검색 조건에 맞는 상품 총 건수 */
     public int totalCnt(ProductSearchDTO search);

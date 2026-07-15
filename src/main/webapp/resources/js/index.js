@@ -18,7 +18,54 @@
         bindPrivacyModal();
         bindCommonLogoutConfirm();
         bindSpamNoticeModal();
+        renderProductDates();
     });
+
+    function parseProductDate(value) {
+        var match = String(value || '').trim().match(
+            /^(\d{4})-(\d{2})-(\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2}))?)?$/
+        );
+        if (!match) return null;
+
+        var date = new Date(
+            Number(match[1]),
+            Number(match[2]) - 1,
+            Number(match[3]),
+            Number(match[4] || 0),
+            Number(match[5] || 0),
+            Number(match[6] || 0)
+        );
+        return Number.isNaN(date.getTime()) ? null : date;
+    }
+
+    function formatProductDate(date, now) {
+        var sameYear = date.getFullYear() === now.getFullYear();
+        var baseText = sameYear
+            ? (date.getMonth() + 1) + '월 ' + date.getDate() + '일'
+            : date.getFullYear() + '년 ' + (date.getMonth() + 1) + '월 ' + date.getDate() + '일';
+        var elapsedMinutes = Math.floor((now.getTime() - date.getTime()) / (60 * 1000));
+        var elapsedHours = Math.floor(elapsedMinutes / 60);
+
+        if (elapsedMinutes < 0 || elapsedMinutes > 48 * 60) return baseText;
+        if (elapsedMinutes <= 120) {
+            return elapsedHours === 0
+                ? baseText + ' (' + Math.max(elapsedMinutes, 0) + '분 전)'
+                : baseText + ' (' + elapsedHours + '시간 ' + (elapsedMinutes % 60) + '분 전)';
+        }
+        return baseText + ' (' + elapsedHours + '시간 전)';
+    }
+
+    function renderProductDates() {
+        var now = new Date();
+        document.querySelectorAll('.js-product-date').forEach(function (element) {
+            var rawValue = element.getAttribute('data-product-date');
+            var date = parseProductDate(rawValue);
+            if (!date) return;
+            element.textContent = formatProductDate(date, now);
+            element.setAttribute('datetime', date.toISOString());
+            element.setAttribute('title', rawValue);
+        });
+    }
 
     function bindSearchValidation() {
         var searchForm = document.querySelector('.search-form');
@@ -225,16 +272,7 @@
             scheduleOpen('all', null, toggle);
         });
 
-        toggle.addEventListener('click', function (event) {
-            event.preventDefault();
-
-            if (nav.classList.contains('is-open') && nav.classList.contains('is-all-open')) {
-                closeMenu();
-                return;
-            }
-
-            openMenu('all', null, toggle);
-        });
+        // 2026-07-14 [수정] 전체 메뉴 클릭은 링크 이동에 맡기고 hover/focus만 메가 메뉴를 연다.
 
         links.forEach(function (link) {
             link.addEventListener('mouseenter', function () {

@@ -15,10 +15,11 @@ public class MainController {
     @Autowired
     private ProductService productService;
 
-    @GetMapping({ "/main.do", "/index.do" })
+    /** 2026-07-14 [수정] 메인 URL은 /main.do 하나만 사용한다. */
+    @GetMapping("/main.do")
     public String index(Model model) {
         model.addAttribute("popularProductList", productService.doRetrieve(mainSearch("popular")));
-        model.addAttribute("recommendedProductList", productService.doRetrieve(mainSearch("recommend")));
+        model.addAttribute("recommendedProductList", productService.getRandomProducts(4));
         model.addAttribute("latestProductList", productService.doRetrieve(mainSearch("latest")));
         return "index";
     }

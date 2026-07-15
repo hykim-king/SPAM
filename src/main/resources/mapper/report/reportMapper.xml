@@ -18,23 +18,34 @@
     </resultMap>
     
     <select id="doRetrieveReceivedReports" parameterType="long" resultMap="reportMap">
-    	SELECT * FROM REPORT_INFO 
-    	 WHERE REPORTED_USER_NO = #{currentUserNum}
-	</select>
+        SELECT REPORT_NO,
+                   REPORTER_NO,
+                   REPORTED_USER_NO,
+                   ADMIN_NO,
+                   REPORT_TYPE,
+                   TARGET_ID,
+                   REASON,
+                   REPORT_STATUS,
+                   TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI', 'NLS_DATE_LANGUAGE=KOREAN') AS CREATE_DT,
+                   PROCESS_DT
+              FROM REPORT_INFO
+             WHERE REPORTED_USER_NO = #{currentUserNum}
+             ORDER BY REPORT_NO DESC
+		</select>
     
-   	<select id="doRetrieveMyReports" resultType="ReportVO">
-    	SELECT 
-	        REPORT_NO,
-        	REPORTER_NO,
-        	REPORTED_USER_NO,
-        	REPORT_TYPE,
-        	REASON,
-        	REPORT_STATUS,
-        	TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI') as createDt, 
-        	PROCESS_DT
-    	  FROM REPORT_INFO
-    	 WHERE REPORTER_NO = #{currentUserNum}
-</select>
+    <select id="doRetrieveMyReports" resultType="ReportVO">
+        SELECT REPORT_NO,
+               REPORTER_NO,
+               REPORTED_USER_NO,
+               REPORT_TYPE,
+               REASON,
+               REPORT_STATUS,
+               TO_CHAR(CREATE_DT, 'YYYY-MM-DD (DY) HH24:MI', 'NLS_DATE_LANGUAGE=KOREAN') AS createDt,
+               PROCESS_DT
+          FROM REPORT_INFO
+         WHERE REPORTER_NO = #{currentUserNum}
+         ORDER BY REPORT_NO DESC
+    </select>
 
     <insert id="insertReport" parameterType="ReportVO">
         INSERT INTO REPORT_INFO (

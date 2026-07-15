@@ -20,6 +20,6 @@
     <div class="product-info">
         <strong class="product-title"><c:out value="${param.productTitle}" /></strong>
         <span class="product-price"><fmt:formatNumber value="${param.price}" pattern="#,##0" />원</span>
-        <span class="product-meta"><c:out value="${empty param.location ? '지역 미입력' : param.location}" /> · <c:out value="${param.createDt}" /></span>
+        <span class="product-meta"><c:out value="${empty param.location ? '지역 미입력' : param.location}" /> · <time class="js-product-date" data-product-date="${param.createDt}"><c:out value="${param.createDt}" /></time></span>
     </div>
 </a>

@@ -1,7 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt"%>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
 <c:set var="CP" value="${pageContext.request.contextPath}" scope="request" />
 <!DOCTYPE html>
 <html lang="ko">
@@ -9,10 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>판매자 프로필 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <link rel="stylesheet" href="${CP}/resources/css/product.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/product.css?v=20260715">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
 </head>
 <body>
 <div class="page-shell" id="top">
@@ -38,7 +37,7 @@
                 </h2>
 
                 <div class="user-profile-stats">
-                    <div><span>판매 상품</span><strong>${fn:length(list)}개</strong></div>
+                    <div><span>판매 상품</span><strong>${totalCnt}개</strong></div>
                     <div>
                         <span>가입일</span>
                         <strong>
@@ -60,22 +59,28 @@
             </aside>
 
             <section class="user-profile-products" aria-labelledby="sellerProductTitle">
-                <div class="user-profile-products-header">
-                    <h2 id="sellerProductTitle">판매자의 다른 상품</h2>
-                    <span>${fn:length(list)}개</span>
-                </div>
+                <div class="user-profile-products-toolbar">
+                    <div class="user-profile-products-header">
+                        <h2 id="sellerProductTitle">
+                            <c:choose>
+                                <c:when test="${not empty seller.nickname}">@<c:out value="${seller.nickname}"/>의 다른 상품</c:when>
+                                <c:otherwise>판매자 #<c:out value="${sellerUserNum}"/>의 다른 상품</c:otherwise>
+                            </c:choose>
+                        </h2>
+                        <span>${totalCnt}개</span>
+                    </div>
 
-                <%-- 2026-07-14 [추가] 판매자 상품을 상태별 탭으로 조회한다. --%>
-                <nav class="product-status-tabs user-profile-status-tabs" aria-label="판매자 상품 상태별 보기">
-                    <a class="${search.status eq 'ACTIVE' ? 'is-active' : ''}"
-                       href="${CP}/user/profile.do?userNum=${sellerUserNum}">전체</a>
-                    <a class="${search.status eq '01' ? 'is-active' : ''}"
-                       href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=01">판매중</a>
-                    <a class="${search.status eq '02' ? 'is-active' : ''}"
-                       href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=02">예약중</a>
-                    <a class="${search.status eq '03' ? 'is-active' : ''}"
-                       href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=03">판매완료</a>
-                </nav>
+                    <nav class="product-status-tabs user-profile-status-tabs" aria-label="판매자 상품 상태별 보기">
+                        <a class="${search.status eq 'ACTIVE' ? 'is-active' : ''}"
+                           href="${CP}/user/profile.do?userNum=${sellerUserNum}">전체</a>
+                        <a class="${search.status eq '01' ? 'is-active' : ''}"
+                           href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=01">판매중</a>
+                        <a class="${search.status eq '02' ? 'is-active' : ''}"
+                           href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=02">예약중</a>
+                        <a class="${search.status eq '03' ? 'is-active' : ''}"
+                           href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=03">판매완료</a>
+                    </nav>
+                </div>
 
                 <c:choose>
                     <c:when test="${empty list}">
@@ -102,12 +107,42 @@
                                         <div class="product-list-info">
                                             <strong class="product-list-title"><c:out value="${product.productTitle}"/></strong>
                                             <span class="product-list-price"><fmt:formatNumber value="${product.price}" pattern="#,##0"/>원</span>
-                                            <span class="product-list-meta"><c:out value="${empty product.location ? '지역 미입력' : product.location}"/> · <c:out value="${product.createDt}"/></span>
+                                            <span class="product-list-meta"><c:out value="${empty product.location ? '지역 미입력' : product.location}"/> · <time class="js-product-date" data-product-date="${product.createDt}"><c:out value="${product.createDt}"/></time></span>
                                         </div>
                                     </a>
                                 </article>
                             </c:forEach>
                         </div>
+
+                        <c:if test="${totalPage gt 1}">
+                            <nav class="product-pagination user-profile-pagination" aria-label="판매자 상품 페이지 이동">
+                                <c:choose>
+                                    <c:when test="${search.pageNo gt 1}">
+                                        <a href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=${search.status}&amp;pageNo=${search.pageNo - 1}" aria-label="이전 페이지">‹</a>
+                                    </c:when>
+                                    <c:otherwise><span aria-hidden="true">‹</span></c:otherwise>
+                                </c:choose>
+
+                                <c:forEach var="page" begin="${startPage}" end="${endPage}">
+                                    <c:choose>
+                                        <c:when test="${search.pageNo eq page}">
+                                            <a class="is-current" aria-current="page"
+                                               href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=${search.status}&amp;pageNo=${page}">${page}</a>
+                                        </c:when>
+                                        <c:otherwise>
+                                            <a href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=${search.status}&amp;pageNo=${page}">${page}</a>
+                                        </c:otherwise>
+                                    </c:choose>
+                                </c:forEach>
+
+                                <c:choose>
+                                    <c:when test="${search.pageNo lt totalPage}">
+                                        <a href="${CP}/user/profile.do?userNum=${sellerUserNum}&amp;status=${search.status}&amp;pageNo=${search.pageNo + 1}" aria-label="다음 페이지">›</a>
+                                    </c:when>
+                                    <c:otherwise><span aria-hidden="true">›</span></c:otherwise>
+                                </c:choose>
+                            </nav>
+                        </c:if>
                     </c:otherwise>
                 </c:choose>
             </section>

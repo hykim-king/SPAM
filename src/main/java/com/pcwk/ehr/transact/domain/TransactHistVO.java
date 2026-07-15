@@ -28,6 +28,7 @@ public class TransactHistVO implements Serializable {
     private String userId;      // 판매자/구매자 아이디
     private String productName; // 상품명 (조인용 필드)
     private String partnerName; // 상대방 이름 (조인용 필드)
+    private String thumbnailPath; // 상품 대표 이미지
 
     // 기본 생성자
     public TransactHistVO() {
@@ -74,12 +75,16 @@ public class TransactHistVO implements Serializable {
     public String getUserId() { return userId; }
     public void setUserId(String userId) { this.userId = userId; }
 
+    public String getThumbnailPath() { return thumbnailPath; }
+    public void setThumbnailPath(String thumbnailPath) { this.thumbnailPath = thumbnailPath; }
+
     // 객체의 상태를 문자열로 쉽게 확인하기 위한 toString 메서드
 	@Override
 	public String toString() {
 		return "TransactHistVO [txId=" + txId + ", sellerNo=" + sellerNo + ", productNo=" + productNo + ", receiverNo="
 				+ receiverNo + ", txType=" + txType + ", amount=" + amount + ", txStatus=" + txStatus + ", createDt="
 				+ createDt + ", completeDt=" + completeDt + ", cancelDt=" + cancelDt + ", userId=" + userId
-				+ ", productName=" + productName + ", partnerName=" + partnerName + "]";
+				+ ", productName=" + productName + ", partnerName=" + partnerName
+				+ ", thumbnailPath=" + thumbnailPath + "]";
 	}
 }

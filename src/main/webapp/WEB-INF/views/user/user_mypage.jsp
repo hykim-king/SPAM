@@ -8,10 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>마이페이지 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <link rel="stylesheet" href="${CP}/resources/css/product.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260714">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260714">
+    <link rel="stylesheet" href="${CP}/resources/css/product.css?v=20260714">
+    <script defer src="${CP}/resources/js/index.js?v=20260714"></script>
     <script defer src="${CP}/resources/js/member.js"></script>
 </head>
 <body>
@@ -89,8 +89,11 @@
                         </dl>
                     </aside>
 
-                    <%-- 2026-07-13 [이동] 회원정보 수정 버튼을 내 정보 카드 바로 아래에 배치한다. --%>
-                    <a class="btn outline mypage-edit-button" href="${CP}/user/update.do">회원정보 수정</a>
+                    <%-- 2026-07-14 [수정] 내 정보 카드 아래 왼쪽 신고 조회, 오른쪽 회원정보 수정 배치. --%>
+                    <div class="mypage-profile-actions">
+                        <a class="btn outline" href="${CP}/report/myReportList.do">신고 조회</a>
+                        <a class="btn outline" href="${CP}/user/update.do">회원정보 수정</a>
+                    </div>
                 </div>
 
                 <section class="mypage-products-area" aria-label="내 상품 목록">

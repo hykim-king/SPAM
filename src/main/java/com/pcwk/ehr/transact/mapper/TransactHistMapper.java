@@ -6,8 +6,8 @@ import org.apache.ibatis.annotations.Param;
 
 // 사용하는 도메인(VO/DTO) 클래스들을 가져옵니다.
 import com.pcwk.ehr.transact.domain.TransactHistVO;
-import com.pcwk.ehr.product.domain.ProductVO;
 import com.pcwk.ehr.transact.domain.TransacHistSearchDTO;
+import com.pcwk.ehr.product.domain.ProductVO;
 
 // 이 인터페이스가 MyBatis의 매퍼(SQL 실행기)임을 스프링에게 알려줍니다.
 @Mapper
@@ -37,7 +37,11 @@ public interface TransactHistMapper {
     // 전체 거래 내역 목록을 리스트 형태로 조회합니다.
     List<TransactHistVO> selectAllTransactList();
     
-    // [핵심] 검색 조건(DTO)을 받아 페이징 처리가 완료된 상품 목록을 조회합니다.
-    // DTO의 페이지 번호와 검색 조건을 사용하여 DB에서 필요한 만큼만 데이터를 가져옵니다.
-    List<ProductVO> selectProductListPaged(TransacHistSearchDTO dto);
+    /** 로그인 회원의 구매/판매 거래내역 페이징 조회 */
+    List<TransactHistVO> selectTransactListPaged(TransacHistSearchDTO dto);
+
+    /** 관리자 전체 상품 현황 페이징 조회 */
+    List<ProductVO> selectAdminProductListPaged(TransacHistSearchDTO dto);
+
+    int adminProductTotalCount(TransacHistSearchDTO dto);
 }

@@ -8,10 +8,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><c:out value="${empty product ? '상품 상세' : product.productTitle}"/> | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/product.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
-    <script defer src="${CP}/resources/js/product.js"></script>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/product.css?v=20260715b">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
+    <script defer src="${CP}/resources/js/product.js?v=20260715"></script>
 </head>
 <body>
 <div class="page-shell" id="top">
@@ -93,12 +93,15 @@
                                 <dd>
                                     <c:choose>
                                         <c:when test="${empty product.productCondition}">미입력</c:when>
+                                        <c:when test="${product.productCondition eq '01' or product.productCondition eq '1'}">새상품</c:when>
+                                        <c:when test="${product.productCondition eq '02' or product.productCondition eq '2'}">사용감 적음</c:when>
+                                        <c:when test="${product.productCondition eq '03' or product.productCondition eq '3'}">사용감 있음</c:when>
+                                        <c:when test="${product.productCondition eq '04' or product.productCondition eq '4'}">수리 필요</c:when>
                                         <c:otherwise><c:out value="${product.productCondition}" /></c:otherwise>
                                     </c:choose>
                                 </dd>
                             </div>
-                            <%-- 2026-07-13 [수정] 등록일은 한 줄 전체를 사용하고 조회수와 채팅수를 나란히 배치한다. --%>
-                            <div class="product-detail-meta-wide">
+                            <div>
                                 <dt>등록일</dt>
                                 <dd>
                                     <time class="js-product-date" data-product-date="${product.createDt}">
@@ -106,13 +109,9 @@
                                     </time>
                                 </dd>
                             </div>
-                            <div>
-                                <dt>조회수</dt>
-                                <dd><fmt:formatNumber value="${product.viewCount}" pattern="#,##0"/>회</dd>
-                            </div>
-                            <div>
-                                <dt>채팅수</dt>
-                                <dd><fmt:formatNumber value="${product.chatCnt}" pattern="#,##0"/>건</dd>
+                            <div class="product-detail-meta-counts" aria-label="상품 반응 정보">
+                                <span><small>조회수</small><strong><fmt:formatNumber value="${product.viewCount}" pattern="#,##0"/>회</strong></span>
+                                <span><small>채팅수</small><strong><fmt:formatNumber value="${product.chatCnt}" pattern="#,##0"/>건</strong></span>
                             </div>
                         </dl>
 

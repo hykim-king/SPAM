@@ -7,11 +7,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>회원목록 | SPAM 관리자</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
-    <script defer src="${CP}/resources/js/member.js"></script>
+    <title>회원 관리 | SPAM 관리자</title>
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260715">
+    <link rel="stylesheet" href="${CP}/resources/css/admin.css?v=20260715">
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
+    <script defer src="${CP}/resources/js/member.js?v=20260715"></script>
 </head>
 <body>
     <div class="page-shell" id="top">
@@ -19,13 +20,15 @@
         <jsp:include page="../../common/nav.jsp" />
 
         <main class="member-page-shell">
-        <header class="page-header">
-            <div>
-                <h1 class="page-title">관리자 회원목록</h1>
+        <header class="admin-page-header">
+            <div class="admin-heading">
+                <span class="admin-kicker">ADMIN</span>
+                <h1>회원 관리</h1>
             </div>
-            <nav class="header-actions">
-                <a class="btn outline" href="${CP}/admin/user/list.do">전체 목록</a>
-                <a class="btn" href="${CP}/report/admin_doRetrieve.do">신고 목록</a>
+            <nav class="admin-nav" aria-label="관리자 메뉴">
+                <span class="admin-nav-link is-active" aria-current="page">회원 관리</span>
+                <a class="admin-nav-link" href="${CP}/report/admin_doRetrieve.do">신고 센터</a>
+                <a class="admin-nav-link" href="${CP}/admin/transact/list.do">전체 상품</a>
             </nav>
         </header>
 

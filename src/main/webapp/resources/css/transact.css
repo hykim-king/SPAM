@@ -1,27 +1,362 @@
 @charset "UTF-8";
 
-html, body { height: 100%; margin: 0; padding: 0; }
-.admin-wrap { display: flex; width: 100%; height: 100vh; background: #f4f4f4; }
+/* 2026-07-14 [수정] 구매/판매 거래내역 공통 레이아웃 */
+.transact-page {
+    width: min(var(--content-width, 1250px), calc(100% - 40px));
+    margin: 0 auto;
+    padding: 38px 0 72px;
+}
 
-/* 사이드바 스타일 */
-.sidebar { width: 220px; background-color: #1e293b; color: white; flex-shrink: 0; }
-.sidebar h2 { padding: 30px; font-size: 18px; text-align: center; color: #fff; }
-.sidebar ul { list-style: none; padding: 0; }
-.sidebar li { padding: 20px 30px; color: #94a3b8; cursor: pointer; }
-.sidebar li.active { background-color: #0f172a; color: #fff; border-left: 4px solid #38bdf8; }
+.transact-page-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
 
-/* 콘텐츠 영역 */
-.content { flex: 1; padding: 40px; background: #fff; }
-.content h2 { font-size: 24px; margin-bottom: 25px; color: #1e293b; }
+.transact-page-header h1 {
+    margin: 0;
+    color: #111111;
+    font-size: 30px;
+    line-height: 1.25;
+    letter-spacing: -0.04em;
+}
 
-/* 전체 버튼 스타일 */
-.top-nav { background: #f8fafc; padding: 15px; margin-bottom: 20px; border-radius: 5px; }
-.filter-btn { padding: 8px 20px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer; }
+.transact-page-header p {
+    margin: 9px 0 0;
+    color: #777777;
+    font-size: 14px;
+}
 
-/* 테이블 스타일: 균등 간격 */
-.styled-table { width: 100%; border-collapse: collapse; table-layout: fixed; }
-.styled-table th, .styled-table td { padding: 20px; border: 1px solid #e2e8f0; text-align: center; }
-.styled-table th { background: #f8fafc; color: #475569; }
+.transact-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
 
-/* 데이터 없음 안내 문구 */
-.no-data { padding: 50px; font-size: 14px; color: #64748b; }
+.transact-button {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 17px;
+    border: 1px solid #d9d9d9;
+    border-radius: 9px;
+    background: #ffffff;
+    color: #222222;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.transact-button:hover {
+    border-color: #111111;
+}
+
+.transact-button.is-primary {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+.transact-tabs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 18px;
+    padding: 5px;
+    border: 1px solid #e2e2e2;
+    border-radius: 12px;
+    background: #f5f5f5;
+}
+
+.transact-tabs a {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    color: #666666;
+    font-size: 14px;
+    font-weight: 850;
+}
+
+.transact-tabs a:hover,
+.transact-tabs a.is-active {
+    background: #ffffff;
+    color: #111111;
+    box-shadow: 0 4px 14px rgba(17, 17, 17, 0.07);
+}
+
+.transact-panel {
+    padding: 22px;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    background: #ffffff;
+    box-shadow: 0 8px 24px rgba(17, 17, 17, 0.04);
+}
+
+.transact-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 17px;
+}
+
+.transact-toolbar p {
+    margin: 0;
+    color: #666666;
+    font-size: 13px;
+}
+
+.transact-toolbar strong {
+    color: #111111;
+}
+
+.transact-status-filters {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.transact-status-filters a {
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 13px;
+    border: 1px solid #dedede;
+    border-radius: 999px;
+    color: #666666;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.transact-status-filters a:hover,
+.transact-status-filters a.is-active {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+.transact-table-wrap {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.transact-table {
+    width: 100%;
+    min-width: 820px;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.transact-table th,
+.transact-table td {
+    padding: 15px 13px;
+    border-bottom: 1px solid #ededed;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 13px;
+}
+
+.transact-table th {
+    background: #f7f7f7;
+    color: #555555;
+    font-weight: 800;
+}
+
+.transact-table th:first-child {
+    width: 38%;
+    text-align: left;
+}
+
+.transact-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.transact-table tbody tr:not(.transact-empty-row):hover {
+    background: #fafafa;
+}
+
+.transact-product {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #222222;
+    text-align: left;
+}
+
+.transact-product:hover strong {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+.transact-product-thumb {
+    width: 62px;
+    height: 62px;
+    flex: 0 0 62px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    border-radius: 9px;
+    background: #eeeeee;
+    color: #999999;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.transact-product-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.transact-product-copy {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.transact-product-copy strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 14px;
+}
+
+.transact-product-copy small {
+    color: #888888;
+    font-size: 11px;
+}
+
+.transact-amount {
+    color: #111111;
+    font-weight: 850;
+    text-align: right !important;
+    white-space: nowrap;
+}
+
+.transact-status {
+    min-height: 28px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.transact-status.is-progress {
+    background: #fff3d6;
+    color: #8a5900;
+}
+
+.transact-status.is-complete {
+    background: #e6f7ed;
+    color: #18794e;
+}
+
+.transact-status.is-cancelled {
+    background: #fff0f0;
+    color: #b42318;
+}
+
+.transact-status.is-unknown {
+    background: #eeeeee;
+    color: #666666;
+}
+
+.transact-empty-row td {
+    height: 170px;
+    color: #888888;
+}
+
+.transact-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 7px;
+    margin-top: 24px;
+}
+
+.transact-pagination a {
+    min-width: 38px;
+    height: 38px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #555555;
+    font-size: 13px;
+    font-weight: 750;
+}
+
+.transact-pagination a:hover,
+.transact-pagination a.is-current {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+@media screen and (max-width: 767px) {
+    .transact-page {
+        width: min(100% - 28px, var(--content-width, 1250px));
+        padding: 26px 0 92px;
+    }
+
+    .transact-page-header {
+        align-items: flex-start;
+        flex-direction: column;
+        margin-bottom: 18px;
+    }
+
+    .transact-page-header h1 {
+        font-size: 25px;
+    }
+
+    .transact-header-actions {
+        width: 100%;
+    }
+
+    .transact-header-actions .transact-button {
+        flex: 1 1 0;
+        min-width: 0;
+    }
+
+    .transact-panel {
+        padding: 15px;
+        border-radius: 13px;
+    }
+
+    .transact-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .transact-status-filters {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    .transact-status-filters a {
+        min-width: 0;
+        padding: 0 7px;
+    }
+}
+
+@media screen and (max-width: 420px) {
+    .transact-status-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}

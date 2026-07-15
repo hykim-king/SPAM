@@ -18,6 +18,8 @@ public interface TransactService {
     TransactHistVO selectProductDetail(Long productNo);
     List<TransactHistVO> selectAllTransactList();
     
-    List<ProductVO> selectProductListPaged(TransacHistSearchDTO dto);
+    List<TransactHistVO> selectTransactListPaged(TransacHistSearchDTO dto);
+    List<ProductVO> selectAdminProductListPaged(TransacHistSearchDTO dto);
+    int adminProductTotalCount(TransacHistSearchDTO dto);
     int getTotalCount(TransacHistSearchDTO dto);
 }

@@ -123,9 +123,9 @@ public class ProductVO implements Serializable {
         return hideReason;
     }
     
-    public String getuserId() { 
-    	return userId; 
-    }//추가
+    public String getUserId() {
+        return userId;
+    }
    
     public void setHideReason(String hideReason) {
         this.hideReason = hideReason;
@@ -147,9 +147,9 @@ public class ProductVO implements Serializable {
         this.createDt = createDt;
     }
     
-    public void setuserId(String userId) { 
-    	this.userId = userId; 
-    }//추가
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
     
     public String getModifyDt() {
         return modifyDt;

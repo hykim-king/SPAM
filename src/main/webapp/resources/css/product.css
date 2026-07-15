@@ -106,8 +106,8 @@
 
 .product-filter-form {
     display: grid;
-    grid-template-columns: minmax(230px, 1.6fr) repeat(3, minmax(130px, 0.7fr)) auto;
-    gap: 10px;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr) minmax(210px, 0.95fr) 94px;
+    gap: 12px;
     align-items: end;
 }
 
@@ -118,12 +118,76 @@
     gap: 8px;
 }
 
+.product-toggle-field,
+.product-sort-toggle {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
 .product-filter-field label,
+.product-filter-field legend,
 .product-form-field label,
 .product-form-label {
     font-size: 13px;
     font-weight: 800;
     color: #343434;
+}
+
+.product-filter-field legend {
+    margin-bottom: 8px;
+}
+
+/* 2026-07-14 [추가] 상품 가격대/상태/정렬 공통 토글 */
+.product-toggle-group,
+.product-sort-toggle {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+}
+
+.product-toggle-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.product-toggle-option {
+    min-height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 13px;
+    border: 1px solid #dddddd;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #555555;
+    font-size: 12px;
+    font-weight: 750;
+    line-height: 1.2;
+    cursor: pointer;
+    transition: border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+.product-toggle-option:hover {
+    border-color: #999999;
+    color: #111111;
+}
+
+.product-toggle-input:checked + .product-toggle-option {
+    border-color: #111111;
+    background: #111111;
+    color: #ffffff;
+}
+
+.product-toggle-input:focus-visible + .product-toggle-option {
+    outline: 3px solid rgba(17, 17, 17, 0.16);
+    outline-offset: 2px;
 }
 
 .product-filter-input,
@@ -245,21 +309,85 @@
 .product-sort-form {
     display: flex;
     align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.product-sort-toggle {
+    align-items: center;
+}
+
+.product-sort-toggle .product-toggle-option {
+    min-height: 38px;
+}
+
+.product-visually-hidden {
+    position: absolute !important;
+    width: 1px !important;
+    height: 1px !important;
+    padding: 0 !important;
+    margin: -1px !important;
+    overflow: hidden !important;
+    clip: rect(0, 0, 0, 0) !important;
+    white-space: nowrap !important;
+    border: 0 !important;
+}
+
+.product-sold-toggle {
+    display: inline-flex;
+    align-items: center;
     gap: 8px;
-}
-
-.product-sort-form label {
+    color: #4f4f4f;
     font-size: 13px;
-    color: #777777;
+    font-weight: 750;
+    white-space: nowrap;
+    cursor: pointer;
 }
 
-.product-sort-form select {
-    height: 38px;
-    padding: 0 32px 0 11px;
-    border: 1px solid #dddddd;
-    border-radius: 8px;
+.product-sold-toggle-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+}
+
+.product-sold-toggle-switch {
+    position: relative;
+    width: 36px;
+    height: 20px;
+    flex: 0 0 auto;
+    border-radius: 999px;
+    background: #d9d9d9;
+    transition: background 0.18s ease;
+}
+
+.product-sold-toggle-switch::after {
+    content: "";
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
     background: #ffffff;
-    color: #333333;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.22);
+    transition: transform 0.18s ease;
+}
+
+.product-sold-toggle-input:checked + .product-sold-toggle-switch {
+    background: #111111;
+}
+
+.product-sold-toggle-input:checked + .product-sold-toggle-switch::after {
+    transform: translateX(16px);
+}
+
+.product-sold-toggle-input:focus-visible + .product-sold-toggle-switch {
+    outline: 3px solid rgba(17, 17, 17, 0.16);
+    outline-offset: 2px;
 }
 
 .product-card-grid {
@@ -548,14 +676,15 @@
 
 .product-detail-meta {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 0;
     margin: 24px 0;
     border-top: 1px solid #ededed;
     border-bottom: 1px solid #ededed;
 }
 
-.product-detail-meta div {
+.product-detail-meta > div {
+    grid-column: span 2;
     min-height: 65px;
     display: flex;
     flex-direction: column;
@@ -564,9 +693,36 @@
     padding: 12px 4px;
 }
 
-/* 2026-07-13 [추가] 등록일 행을 전체 너비로 사용해 조회수와 채팅수를 같은 줄에 배치한다. */
-.product-detail-meta .product-detail-meta-wide {
-    grid-column: 1 / -1;
+.product-detail-meta > div:nth-child(odd) {
+    padding-right: 16px;
+}
+
+.product-detail-meta > div:nth-child(even) {
+    padding-left: 16px;
+}
+
+.product-detail-meta-counts {
+    display: grid !important;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    gap: 0 !important;
+}
+
+.product-detail-meta-counts > span {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.product-detail-meta-counts small {
+    color: #929292;
+    font-size: 12px;
+}
+
+.product-detail-meta-counts strong {
+    color: #333333;
+    font-size: 14px;
+    font-weight: 750;
 }
 
 .product-detail-meta dt {
@@ -975,6 +1131,8 @@
 
     .product-filter-submit {
         width: 100%;
+        min-height: 43px;
+        grid-column: 1 / -1;
     }
 
     .product-card-grid {
@@ -1084,8 +1242,16 @@
     }
 
     .product-sort-form,
-    .product-sort-form select {
+    .product-sort-toggle {
         width: 100%;
+    }
+
+    .product-sort-form {
+        justify-content: flex-start;
+    }
+
+    .product-sort-toggle {
+        justify-content: flex-start;
     }
 
     .product-card-grid {
@@ -1124,7 +1290,7 @@
     }
 
     .product-detail-meta {
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
     }
 
     .product-detail-actions {
@@ -1288,10 +1454,14 @@
 
 
 /* 2026-07-13 [추가] 상품 상태/카테고리 커스텀 토글 박스 */
-.product-form-select.is-product-custom-hidden {
+.is-product-custom-hidden {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
+    overflow: hidden !important;
+    clip: rect(0 0 0 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
     opacity: 0 !important;
     pointer-events: none !important;
 }

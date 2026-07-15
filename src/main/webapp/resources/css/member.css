@@ -704,7 +704,8 @@ button {
 }
 
 .label-line {
-    align-items: flex-start !important;
+    align-items: center !important;
+    flex-direction: row !important;
     justify-content: flex-start !important;
     gap: 8px !important;
 }
@@ -730,6 +731,17 @@ button {
 
 .form-actions {
     margin-top: 2px;
+}
+
+.auth-card .form-actions {
+    justify-content: center;
+}
+
+.input-hint {
+    margin-top: 1px;
+    color: #777777;
+    font-size: 11px;
+    line-height: 1.35;
 }
 
 .spam-confirm-modal {
@@ -1069,11 +1081,18 @@ button {
     color: #222222;
 }
 
-.mypage-edit-button {
-    width: max-content;
+.mypage-profile-actions {
     display: flex;
-    min-width: 116px;
-    margin: 10px auto 0;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.mypage-profile-actions .btn {
+    flex: 1 1 0;
+    min-width: 0;
+    white-space: nowrap;
 }
 
 .mypage-products-area {
@@ -1175,6 +1194,10 @@ button {
     align-items: start;
 }
 
+.user-profile-page-header {
+    margin-bottom: 34px;
+}
+
 .user-profile-card {
     padding: 26px 24px 22px;
     background: var(--member-surface);
@@ -1254,8 +1277,7 @@ button {
 .user-profile-products-header {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    margin-bottom: 15px;
+    gap: 9px;
 }
 
 .user-profile-products-header h2 {
@@ -1269,10 +1291,18 @@ button {
     font-size: 13px;
 }
 
+.user-profile-products-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 15px;
+}
+
 /* 2026-07-14 [추가] 판매자 프로필 상품 상태 탭 */
 .product-status-tabs.user-profile-status-tabs {
     justify-content: flex-end;
-    margin: 0 0 15px;
+    margin: 0;
 }
 
 .product-status-tabs.user-profile-status-tabs a {
@@ -1283,8 +1313,12 @@ button {
 }
 
 .product-card-grid.user-profile-product-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 20px 24px;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.user-profile-pagination {
+    margin-top: 28px;
 }
 
 .product-empty-state.user-profile-empty-state {
@@ -1293,7 +1327,7 @@ button {
 
 @media screen and (max-width: 1100px) {
     .product-card-grid.user-profile-product-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 }
 
@@ -1309,6 +1343,15 @@ button {
 
     .product-status-tabs.user-profile-status-tabs {
         justify-content: center;
+    }
+
+    .user-profile-products-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .product-card-grid.user-profile-product-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 

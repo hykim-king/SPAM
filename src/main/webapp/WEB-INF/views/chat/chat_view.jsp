@@ -7,10 +7,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>채팅 | SPAM</title>
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
-    <link rel="stylesheet" href="${CP}/resources/css/member.css">
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260714">
+    <link rel="stylesheet" href="${CP}/resources/css/member.css?v=20260714">
     <link rel="stylesheet" href="${CP}/resources/css/chat.css">
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <script defer src="${CP}/resources/js/index.js?v=20260714"></script>
 </head>
 <body>
     <div class="page-shell" id="top">

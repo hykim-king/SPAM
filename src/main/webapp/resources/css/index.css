@@ -359,7 +359,8 @@ img {
     margin-bottom: 32px;
     padding: 14px;
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
+    /* 2026-07-14 [수정] 오늘의 추천 바로가기를 제외한 6개 메뉴를 균등 배치한다. */
+    grid-template-columns: repeat(6, 1fr);
     gap: 12px;
     background: #FFFFFF;
     border: 1px solid var(--color-line);
@@ -514,14 +515,14 @@ img {
 }
 
 .product-title {
+    display: block;
+    min-width: 0;
     font-size: 13px;
     line-height: 1.35;
     font-weight: 800;
     overflow: hidden;
     text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
+    white-space: nowrap;
 }
 
 .product-price {
@@ -532,6 +533,14 @@ img {
 .product-meta, .product-wish {
     font-size: 11px;
     color: #777777;
+}
+
+.product-meta {
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .guide-section {
@@ -598,6 +607,26 @@ img {
     font-weight: 800;
     color: #555555;
     white-space: nowrap;
+    transition: color 0.18s ease, transform 0.18s ease;
+}
+
+.guide-more::after {
+    content: " →";
+    display: inline-block;
+    transition: transform 0.18s ease;
+}
+
+.guide-more:hover,
+.guide-more:focus-visible {
+    color: #111111;
+    text-decoration: underline;
+    text-underline-offset: 4px;
+    transform: translateY(-1px);
+}
+
+.guide-more:hover::after,
+.guide-more:focus-visible::after {
+    transform: translateX(3px);
 }
 
 .site-footer {
@@ -775,7 +804,7 @@ img {
     }
 
     .quick-menu {
-        grid-template-columns: repeat(7, minmax(90px, 1fr));
+        grid-template-columns: repeat(6, minmax(90px, 1fr));
         overflow-x: auto;
     }
 
@@ -907,7 +936,7 @@ img {
     }
 
     .quick-menu {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
         padding: 10px;
         margin-bottom: 18px;

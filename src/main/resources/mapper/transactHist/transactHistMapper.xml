@@ -7,64 +7,203 @@
         <result property="sellerNo" column="SELLER_NO" />
         <result property="productNo" column="PRODUCT_NO" />
         <result property="receiverNo" column="RECEIVER_NO" />
+        <result property="txType" column="TX_TYPE" />
         <result property="amount" column="AMOUNT" />
         <result property="txStatus" column="TX_STATUS" />
         <result property="createDt" column="CREATE_DT" />
+        <result property="completeDt" column="COMPLETE_DT" />
+        <result property="cancelDt" column="CANCEL_DT" />
+        <result property="userId" column="USER_ID" />
         <result property="productName" column="PRODUCT_NAME" />
+        <result property="partnerName" column="PARTNER_NAME" />
+        <result property="thumbnailPath" column="THUMBNAIL_PATH" />
     </resultMap>
 
+    <sql id="thumbnailJoin">
+        LEFT JOIN (
+            SELECT PRODUCT_NO, FILE_PATH
+              FROM (
+                    SELECT pi.PRODUCT_NO,
+                           pi.FILE_PATH,
+                           ROW_NUMBER() OVER (
+                               PARTITION BY pi.PRODUCT_NO
+                               ORDER BY CASE WHEN pi.THUMBNAIL_YN = 'Y' THEN 0 ELSE 1 END,
+                                        pi.IMAGE_ORDER,
+                                        pi.IMAGE_NO
+                           ) AS IMAGE_RN
+                      FROM PRODUCT_IMAGE pi
+                   )
+             WHERE IMAGE_RN = 1
+        ) IMG ON P.PRODUCT_NO = IMG.PRODUCT_NO
+    </sql>
+
     <select id="selectAllTransactList" resultMap="transactHistMap">
-        SELECT T.*, P.PRODUCT_TITLE as PRODUCT_NAME 
-        FROM TRANSACTIN_HIST T 
-        JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO 
-        ORDER BY T.CREATE_DT DESC
+        SELECT T.TX_ID,
+               T.SELLER_NO,
+               T.PRODUCT_NO,
+               T.RECEIVER_NO,
+               T.TX_TYPE,
+               T.AMOUNT,
+               T.TX_STATUS,
+               T.CREATE_DT,
+               T.COMPLETE_DT,
+               T.CANCEL_DT,
+               P.PRODUCT_TITLE AS PRODUCT_NAME
+          FROM TRANSACTIN_HIST T
+          JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+         ORDER BY T.CREATE_DT DESC, T.TX_ID DESC
     </select>
 
-    <select id="selectProductDetail" parameterType="long" resultType="com.pcwk.ehr.transact.domain.TransactHistVO">
-        SELECT 
-            PRODUCT_TITLE as PRODUCT_NAME,
-            STATUS as TX_STATUS,
-            PRICE as AMOUNT,
-            CREATE_DT as CREATE_DT
-        FROM PRODUCT
-        WHERE PRODUCT_NO = #{productNo}
+    <select id="selectByTxId" parameterType="long" resultMap="transactHistMap">
+        SELECT T.TX_ID,
+               T.SELLER_NO,
+               T.PRODUCT_NO,
+               T.RECEIVER_NO,
+               T.TX_TYPE,
+               T.AMOUNT,
+               T.TX_STATUS,
+               T.CREATE_DT,
+               T.COMPLETE_DT,
+               T.CANCEL_DT,
+               P.PRODUCT_TITLE AS PRODUCT_NAME
+          FROM TRANSACTIN_HIST T
+          JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+         WHERE T.TX_ID = #{txId}
+    </select>
+
+    <select id="selectProductDetail" parameterType="long" resultMap="transactHistMap">
+        SELECT PRODUCT_NO,
+               PRODUCT_TITLE AS PRODUCT_NAME,
+               STATUS AS TX_STATUS,
+               PRICE AS AMOUNT,
+               CREATE_DT
+          FROM PRODUCT
+         WHERE PRODUCT_NO = #{productNo}
     </select>
 
     <update id="updateTxStatus" parameterType="map">
-        UPDATE TRANSACTIN_HIST 
-        SET TX_STATUS = #{status} 
-        WHERE TX_ID = #{txId}
+        UPDATE TRANSACTIN_HIST
+           SET TX_STATUS = #{status}
+         WHERE TX_ID = #{txId}
     </update>
-    
-    <select id="selectProductListPaged" parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO" resultType="com.pcwk.ehr.product.domain.ProductVO">
-    SELECT T1.* FROM (
-        SELECT ROWNUM AS RNUM, T2.* FROM (
-            SELECT P.PRODUCT_NO, P.PRODUCT_TITLE, U.USER_ID, P.PRICE, P.STATUS, P.CREATE_DT 
-            FROM PRODUCT P
-            LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
-            <where>
-                <if test="status != null and status != ''">
-                    AND P.STATUS = #{status}
-                </if>
-            </where>
-            ORDER BY P.CREATE_DT DESC
-        ) T2
-        WHERE ROWNUM &lt;= #{endRow}
-    ) T1
-    WHERE T1.RNUM >= #{startRow}
-</select>
 
-    <select id="totalCount" parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO" resultType="int">
-    SELECT COUNT(*) 
-    FROM PRODUCT P
-    LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
-    <where>
-        <if test="status != null and status != ''">
-            AND P.STATUS = #{status}
-        </if>
-    </where>
-</select>
+    <!-- 2026-07-14 [수정] 상품 목록이 아닌 로그인 회원의 실제 구매/판매 거래내역을 조회한다. -->
+    <select id="selectTransactListPaged"
+            parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO"
+            resultMap="transactHistMap">
+        SELECT *
+          FROM (
+                SELECT TRANSACT_ROWS.*, ROWNUM AS RN
+                  FROM (
+                        SELECT T.TX_ID,
+                               T.SELLER_NO,
+                               T.PRODUCT_NO,
+                               T.RECEIVER_NO,
+                               T.TX_TYPE,
+                               T.AMOUNT,
+                               T.TX_STATUS,
+                               T.CREATE_DT,
+                               T.COMPLETE_DT,
+                               T.CANCEL_DT,
+                               P.PRODUCT_TITLE AS PRODUCT_NAME,
+                               IMG.FILE_PATH AS THUMBNAIL_PATH,
+                               <choose>
+                                   <when test="type == 'sale'">NVL(BUYER.NICKNAME, BUYER.USER_ID)</when>
+                                   <otherwise>NVL(SELLER.NICKNAME, SELLER.USER_ID)</otherwise>
+                               </choose> AS PARTNER_NAME,
+                               <choose>
+                                   <when test="type == 'sale'">BUYER.USER_ID</when>
+                                   <otherwise>SELLER.USER_ID</otherwise>
+                               </choose> AS USER_ID
+                          FROM TRANSACTIN_HIST T
+                          JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+                          LEFT JOIN USER_INFO SELLER ON T.SELLER_NO = SELLER.USER_NUM
+                          LEFT JOIN USER_INFO BUYER ON T.RECEIVER_NO = BUYER.USER_NUM
+                          <include refid="thumbnailJoin" />
+                         <where>
+                             <if test="userNum != null">
+                                 <choose>
+                                     <when test="type == 'sale'">AND T.SELLER_NO = #{userNum}</when>
+                                     <otherwise>AND T.RECEIVER_NO = #{userNum}</otherwise>
+                                 </choose>
+                             </if>
+                             <if test="status != null and status != ''">
+                                 AND T.TX_STATUS = #{status}
+                             </if>
+                             <if test="searchWord != null and searchWord != ''">
+                                 AND P.PRODUCT_TITLE LIKE '%' || #{searchWord} || '%'
+                             </if>
+                         </where>
+                         ORDER BY T.CREATE_DT DESC, T.TX_ID DESC
+                       ) TRANSACT_ROWS
+                 WHERE ROWNUM &lt;= #{endRow}
+               )
+         WHERE RN &gt;= #{startRow}
+    </select>
 
+    <select id="totalCount"
+            parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO"
+            resultType="int">
+        SELECT COUNT(*)
+          FROM TRANSACTIN_HIST T
+          JOIN PRODUCT P ON T.PRODUCT_NO = P.PRODUCT_NO
+         <where>
+             <if test="userNum != null">
+                 <choose>
+                     <when test="type == 'sale'">AND T.SELLER_NO = #{userNum}</when>
+                     <otherwise>AND T.RECEIVER_NO = #{userNum}</otherwise>
+                 </choose>
+             </if>
+             <if test="status != null and status != ''">
+                 AND T.TX_STATUS = #{status}
+             </if>
+             <if test="searchWord != null and searchWord != ''">
+                 AND P.PRODUCT_TITLE LIKE '%' || #{searchWord} || '%'
+             </if>
+         </where>
+    </select>
+
+    <!-- 기존 관리자 전체 상품 현황을 일반 회원 거래내역과 분리된 URL에서 제공한다. -->
+    <select id="selectAdminProductListPaged"
+            parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO"
+            resultType="com.pcwk.ehr.product.domain.ProductVO">
+        SELECT *
+          FROM (
+                SELECT PRODUCT_ROWS.*, ROWNUM AS RN
+                  FROM (
+                        SELECT P.PRODUCT_NO,
+                               P.PRODUCT_TITLE,
+                               U.USER_ID,
+                               P.PRICE,
+                               P.STATUS,
+                               TO_CHAR(P.CREATE_DT, 'YYYY-MM-DD HH24:MI:SS') AS CREATE_DT
+                          FROM PRODUCT P
+                          LEFT JOIN USER_INFO U ON P.USER_NUM = U.USER_NUM
+                         <where>
+                             <if test="status != null and status != ''">
+                                 P.STATUS = #{status}
+                             </if>
+                         </where>
+                         ORDER BY P.CREATE_DT DESC, P.PRODUCT_NO DESC
+                       ) PRODUCT_ROWS
+                 WHERE ROWNUM &lt;= #{endRow}
+               )
+         WHERE RN &gt;= #{startRow}
+    </select>
+
+    <select id="adminProductTotalCount"
+            parameterType="com.pcwk.ehr.transact.domain.TransacHistSearchDTO"
+            resultType="int">
+        SELECT COUNT(*)
+          FROM PRODUCT P
+         <where>
+             <if test="status != null and status != ''">
+                 P.STATUS = #{status}
+             </if>
+         </where>
+    </select>
+
+    <!-- 기존 등록 메서드의 매핑은 팀 거래 생성 로직과의 호환을 위해 유지한다. -->
     <insert id="insertTransact" parameterType="com.pcwk.ehr.transact.domain.TransactHistVO">
     </insert>
 

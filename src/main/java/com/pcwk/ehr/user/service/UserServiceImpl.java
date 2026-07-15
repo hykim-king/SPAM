@@ -204,6 +204,8 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("전화번호는 필수입니다.");
         }
 
+        validatePhoneNumber(user.getPhoneNum());
+
         // 중복 검사
         if (userMapper.countByPhoneNumForUpdate(user) > 0) {
             throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
@@ -390,8 +392,16 @@ public class UserServiceImpl implements UserService {
             throw new IllegalArgumentException("아이디는 필수입니다.");
         }
 
+        if (!user.getUserId().matches("^[A-Za-z0-9]+$")) {
+            throw new IllegalArgumentException("아이디는 영문 또는 숫자만 입력할 수 있습니다.");
+        }
+
         if (isBlank(user.getPassword())) {
             throw new IllegalArgumentException("비밀번호는 필수입니다.");
+        }
+
+        if (user.getPassword().length() < 4) {
+            throw new IllegalArgumentException("비밀번호는 4자 이상 입력하세요.");
         }
 
         validateUserName(user.getUserName());
@@ -399,6 +409,8 @@ public class UserServiceImpl implements UserService {
         if (isBlank(user.getPhoneNum())) {
             throw new IllegalArgumentException("전화번호는 필수입니다.");
         }
+
+        validatePhoneNumber(user.getPhoneNum());
     }
 
 
@@ -410,6 +422,12 @@ public class UserServiceImpl implements UserService {
 
         if (!userName.matches("^[가-힣a-zA-Z]+$")) {
             throw new IllegalArgumentException("이름은 한글 또는 영문만 입력할 수 있습니다.");
+        }
+    }
+
+    private void validatePhoneNumber(String phoneNum) {
+        if (isBlank(phoneNum) || !phoneNum.matches("^010[0-9]{8}$")) {
+            throw new IllegalArgumentException("전화번호는 010으로 시작하는 숫자 11자리로 입력하세요.");
         }
     }
 

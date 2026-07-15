@@ -27,6 +27,9 @@ public interface ProductService {
     /** 상품 목록/검색 조회 */
     List<ProductVO> doRetrieve(ProductSearchDTO search);
 
+    /** 메인 오늘의 추천용 판매중 상품 무작위 조회 */
+    List<ProductVO> getRandomProducts(int limit);
+
     /** 상품 목록 총 건수 */
     int totalCnt(ProductSearchDTO search);
     

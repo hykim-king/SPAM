@@ -13,10 +13,10 @@
     <title>SPAM | 중고거래 플랫폼</title>
 
     <!-- 메인화면 전용 CSS -->
-    <link rel="stylesheet" href="${CP}/resources/css/index.css">
+    <link rel="stylesheet" href="${CP}/resources/css/index.css?v=20260715">
 
     <!-- 메인화면 전용 JS -->
-    <script defer src="${CP}/resources/js/index.js"></script>
+    <script defer src="${CP}/resources/js/index.js?v=20260715"></script>
 </head>
 <body>
     <!--
@@ -101,10 +101,6 @@
                     <img src="${CP}/resources/images/icons/02_popular_products.png" alt="" aria-hidden="true">
                     <span>인기 상품</span>
                 </a>
-                <a href="${CP}/product/recommend.do" class="quick-card">
-                    <img src="${CP}/resources/images/icons/03_todays_recommendation.png" alt="" aria-hidden="true">
-                    <span>오늘의 추천</span>
-                </a>
                 <a href="${CP}/product/latest.do" class="quick-card">
                     <img src="${CP}/resources/images/icons/04_latest_registration.png" alt="" aria-hidden="true">
                     <span>최근 등록</span>
@@ -122,7 +118,7 @@
                     <img src="${CP}/resources/images/icons/06_transaction_history.png" alt="" aria-hidden="true">
                     <span>마이페이지</span>
                 </a>
-                <a href="${CP}/report/doRetrieve.do" class="quick-card"
+                <a href="${CP}/report/myReportList.do" class="quick-card"
                    data-spam-modal="${empty sessionScope.loginUser ? 'login' : ''}"
                    data-login-url="${CP}/user/login.do">
                     <img src="${CP}/resources/images/icons/07_report_center.png" alt="" aria-hidden="true">
@@ -155,7 +151,8 @@
                 <article class="product-section-card" id="recommendProducts">
                     <div class="section-title-row">
                         <h2><span class="title-icon">✨</span> 오늘의 추천</h2>
-                        <a href="${CP}/product/recommend.do">더보기</a>
+                        <%-- 2026-07-14 [수정] 랜덤 추천 섹션의 더보기는 전체 상품으로 이동한다. --%>
+                        <a href="${CP}/product/list.do">더보기</a>
                     </div>
 
                     <div class="product-grid compact-grid">
@@ -197,7 +194,7 @@
             <section class="guide-section" aria-label="안전거래 가이드">
                 <div class="guide-title-area">
                     <h2>안전한 거래를 위한 SPAM 가이드</h2>
-                    <p>처음 이용하는 분들을 위한 필수 안내입니다.</p>
+                    <p>처음 이용하는 분들을 위한 필수 안내</p>
                 </div>
 
                 <div class="guide-list">
@@ -205,7 +202,7 @@
                         <img src="${CP}/resources/images/icons/08_guide_safe_trade.png" alt="" aria-hidden="true">
                         <div>
                             <h3>직거래 약속 확인</h3>
-                            <p>약속 장소와 시간을 서로 다시 확인하세요.</p>
+                            <p>약속 장소와 시간을 <br>서로 다시 확인하세요.</p>
                         </div>
                     </article>
                     <article class="guide-item">

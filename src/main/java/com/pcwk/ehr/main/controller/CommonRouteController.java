@@ -16,7 +16,8 @@ public class CommonRouteController {
 
     @GetMapping("/report/view.do")
     public String reportView() {
-        return "redirect:/report/doRetrieve.do";
+        // 2026-07-14 [수정] 존재하지 않는 임시 목록 URL 대신 실제 내 신고 목록으로 연결한다.
+        return "redirect:/report/myReportList.do";
     }
 
     @GetMapping("/guide/safe.do")

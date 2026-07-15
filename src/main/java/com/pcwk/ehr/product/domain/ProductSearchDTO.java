@@ -12,6 +12,7 @@ public class ProductSearchDTO implements Serializable {
     private String location;
     private String priceRange;
     private String status;
+    private boolean includeSold;
     private String sort = "latest";
     private Long userNum;
     private int pageNo = 1;
@@ -57,12 +58,28 @@ public class ProductSearchDTO implements Serializable {
         this.status = trimToNull(status);
     }
 
+    public boolean isIncludeSold() {
+        return includeSold;
+    }
+
+    public void setIncludeSold(boolean includeSold) {
+        this.includeSold = includeSold;
+    }
+
     public String getSort() {
         return sort;
     }
 
     public void setSort(String sort) {
-        this.sort = trimToNull(sort) == null ? "latest" : sort.trim();
+        String normalized = trimToNull(sort);
+        if ("popular".equals(normalized)
+                || "priceLow".equals(normalized)
+                || "priceHigh".equals(normalized)) {
+            this.sort = normalized;
+            return;
+        }
+        // 2026-07-14 [수정] 화면에서 지원하는 네 가지 정렬값 외에는 최신순으로 보정한다.
+        this.sort = "latest";
     }
 
     public Long getUserNum() {
@@ -109,7 +126,7 @@ public class ProductSearchDTO implements Serializable {
     public String toString() {
         return "ProductSearchDTO [searchWord=" + searchWord + ", categoryNo=" + categoryNo
                 + ", location=" + location + ", priceRange=" + priceRange + ", status=" + status
-                + ", sort=" + sort + ", userNum=" + userNum + ", pageNo=" + pageNo
+                + ", includeSold=" + includeSold + ", sort=" + sort + ", userNum=" + userNum + ", pageNo=" + pageNo
                 + ", pageSize=" + pageSize + "]";
     }
 }

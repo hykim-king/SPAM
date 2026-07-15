@@ -131,6 +131,14 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.doRetrieve(safeSearch);
     }
 
+    /** 2026-07-14 [추가] 공개 정렬 파라미터와 분리된 메인 전용 랜덤 조회. */
+    @Override
+    @Transactional(readOnly = true)
+    public List<ProductVO> getRandomProducts(int limit) {
+        int safeLimit = Math.max(1, Math.min(limit, 20));
+        return productMapper.selectRandomProducts(safeLimit);
+    }
+
     @Override
     @Transactional(readOnly = true)
     public int totalCnt(ProductSearchDTO search) {
